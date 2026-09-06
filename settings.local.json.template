@@ -1,0 +1,21 @@
+// This file is a REFERENCE ONLY — Claude Code never reads a ".template" file.
+// It exists so the commented instructions survive in git history and on disk,
+// since real settings.local.json must be valid JSON (no comments allowed there).
+//
+// How to activate:
+//   1. Create a fine-grained PAT at https://github.com/settings/personal-access-tokens
+//      scoped to ONLY this repo, with "Contents: Read/Write" (+ "Pull requests:
+//      Read/Write" and "Issues: Read/Write" if Claude should open PRs/comment).
+//   2. Copy the JSON block below into the real settings.local.json (same folder).
+//   3. Paste your token in place of the placeholder.
+//   4. Confirm settings.local.json is listed in .gitignore (it should be already)
+//      so this never gets committed.
+//
+// gh and git both check the GH_TOKEN environment variable automatically —
+// that's why setting it here is enough; nothing else needs to reference it.
+
+{
+  "env": {
+    "GH_TOKEN": "github_pat_REPLACE_WITH_YOUR_REPO_SCOPED_TOKEN"
+  }
+}
