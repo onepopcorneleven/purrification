@@ -65,9 +65,12 @@ traceability back to `requirements.md`.
 - [ ] Marketing/landing page introducing the concept for signed-out visitors,
       linking into signup.
 
-## Phase 8 — VPS provisioning (R-INFRA-1, R-INFRA-2)
+## Phase 8 — VPS provisioning (R-INFRA-1, R-INFRA-2, R-INFRA-4)
 - [ ] Execute `docs/vps-runbook.md` end to end on the target VPS (user/SSH
       hardening, firewall, fail2ban, Node/Postgres/Nginx install, TLS).
+- [ ] Confirm step 9's Nginx `limit_req` rate limiting on `/api/login` and
+      `/api/signup` is configured — this must be in place *before* Phase 9
+      deploys the app, not added afterward (R-INFRA-4).
 - [ ] Run through the runbook's verification checklist and confirm every item.
 - [ ] Provision the production Postgres database and store its connection
       string in `.env.production` on the server (never in the repo).
@@ -77,12 +80,15 @@ traceability back to `requirements.md`.
 - [ ] Wire the deploy script (or CI job) from `vps-runbook.md` step 12.
 - [ ] Do a full first deploy: build, migrate, restart, verify the live site
       over HTTPS.
+- [ ] Run the runbook's rate-limiting check against the now-live
+      `/api/login` to confirm it's actually enforced, not just configured.
 - [ ] Smoke-test the golden path end-to-end in production: signup → add cat →
       take quiz → get diagnosis → view history.
 
 ## Phase 10 — Hardening pass / polish
-- [ ] Basic rate-limiting on `/api/login` and `/api/signup` (per
-      architecture.md's security considerations).
+- [ ] Tune the `rate=5r/m` / `burst=5` rate-limit values from `vps-runbook.md`
+      step 9 based on real traffic (the Phase 8 values are a starting point,
+      not a final answer — see `vps-runbook.md` Notes).
 - [ ] Add a nightly `pg_dump` backup job (flagged as a follow-up in
       `vps-runbook.md`).
 - [ ] Review all shipped diagnosis/ritual content once more against

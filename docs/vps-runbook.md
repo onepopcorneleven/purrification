@@ -97,12 +97,41 @@ sudo -u postgres psql -c "CREATE DATABASE purrification OWNER purrification;"
 Store the connection string as an environment variable for the app (see
 step 11) — never commit it to the repo.
 
-## 9. Nginx reverse proxy
-Create `/etc/nginx/sites-available/purrification`:
+## 9. Nginx reverse proxy (with auth-endpoint rate limiting, R-INFRA-4)
+`limit_req_zone` must live in the `http {}` context, not inside a `server`
+block. Add it to `/etc/nginx/conf.d/rate-limit.conf` (auto-included by the
+default `nginx.conf`'s `include /etc/nginx/conf.d/*.conf;`):
+```nginx
+# /etc/nginx/conf.d/rate-limit.conf
+limit_req_zone $binary_remote_addr zone=authlimit:10m rate=5r/m;
+```
+
+Create `/etc/nginx/sites-available/purrification`, applying that zone only
+to the auth endpoints — everything else stays unlimited:
 ```nginx
 server {
     listen 80;
     server_name <your-domain>;
+
+    location /api/login {
+        limit_req zone=authlimit burst=5 nodelay;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location /api/signup {
+        limit_req zone=authlimit burst=5 nodelay;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
 
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -119,6 +148,10 @@ sudo ln -s /etc/nginx/sites-available/purrification /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
+`rate=5r/m` (5 requests/minute per client IP) with `burst=5 nodelay` is a
+starting point for a low-traffic learning project — tune it later based on
+real traffic rather than blocking launch on picking an exact number
+(tracked as a follow-up, see Notes below).
 
 ## 10. TLS via Let's Encrypt
 ```bash
@@ -264,10 +297,18 @@ deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart purrification
       succeeds on a clean checkout.
 - [ ] A subsequent test deploy via the step-12 repeat-deploy script succeeds
       end-to-end, including the static-asset copy.
+- [ ] Rate limiting is active before the site is announced/used publicly:
+      `for i in $(seq 1 10); do curl -s -o /dev/null -w "%{http_code}\n"
+      -X POST https://<your-domain>/api/login; done` shows `503` responses
+      after the first several requests (once `/api/login` exists — this
+      check can only run after the app itself is deployed).
 
 ## Notes / follow-ups
 - This is a single-server setup (app + DB colocated) per `architecture.md`;
   revisit if scale ever requires splitting the database out.
+- The `rate=5r/m` / `burst=5` values in step 9 are a starting point, not a
+  tuned final answer — revisit based on real traffic/false-positive reports
+  once the app has real users.
 - Secrets (`DATABASE_URL`, session secret) live only in `.env.production` on
   the server — rotate them if this file is ever exposed.
 - Consider adding automated backups for PostgreSQL (e.g. nightly `pg_dump` to

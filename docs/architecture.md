@@ -167,8 +167,11 @@ flowchart TB
 - Firewall default-deny, explicit allowlist only.
 - Secrets (DB credentials, session secret) via environment variables/.env on
   the server, never committed to the repo.
-- Rate-limit auth endpoints (login/signup) at the Nginx or app layer to blunt
-  credential-stuffing attempts, since there's no managed WAF.
+- **Rate-limit auth endpoints (R-INFRA-4):** enforced at the Nginx layer
+  (`limit_req`), not the app layer — it needs no app code, so it can be
+  provisioned during VPS setup (`vps-runbook.md` step 9) and is in place
+  *before* the app is ever exposed publicly, rather than added in a
+  post-launch hardening pass. See `vps-runbook.md` for the concrete config.
 
 ## Open questions / carried from requirements.md
 - Final choice between Prisma and Drizzle — either satisfies R-DATA-2; default

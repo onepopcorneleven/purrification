@@ -51,12 +51,18 @@ traceable back to source.
    than a valid state, and annotates the schema; `workplan.md` Phase 5
    reflects both changes.
 
-5. **Auth endpoints go live before rate-limiting is added.**
-   `architecture.md` calls out rate-limiting `/login`/`/signup` as a
-   security consideration, but `workplan.md` schedules it in Phase 10
+5. **~~Auth endpoints go live before rate-limiting is added.~~ —
+   Resolved.** `architecture.md` called out rate-limiting `/login`/`/signup`
+   as a security consideration, but `workplan.md` scheduled it in Phase 10
    ("hardening pass / polish") — *after* Phase 9's "full first deploy...
-   verify the live site over HTTPS." As sequenced, signup/login go live with
-   no brute-force protection for at least one phase. Not yet fixed.
+   verify the live site over HTTPS," leaving signup/login exposed with no
+   brute-force protection for at least one phase. Fixed by adding
+   R-INFRA-4 and deciding the "Nginx or app layer" question definitively in
+   favor of Nginx: `vps-runbook.md` step 9 now configures `limit_req` on
+   `/api/login`/`/api/signup` as part of VPS provisioning (Phase 8), which
+   happens before the app is ever deployed (Phase 9) — no app code or
+   phase reordering needed. Phase 10 now only tunes the starting
+   `rate=5r/m` threshold rather than adding limiting from scratch.
 
 ## Medium impact
 

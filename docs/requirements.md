@@ -77,6 +77,10 @@ try.
   hardened: base OS setup, firewall configuration, SSH access hardening, and
   TLS for the public site.
 - **R-INFRA-3:** A deploy pipeline must exist to ship app changes to the VPS.
+- **R-INFRA-4:** Rate-limiting on the authentication endpoints (login,
+  signup) must be enforced *before* the app is exposed publicly — it is
+  part of initial VPS provisioning (R-INFRA-2), not a follow-up hardening
+  task done after launch.
 
 ### Data persistence
 - **R-DATA-1:** Application data must be stored in PostgreSQL.
