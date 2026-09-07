@@ -67,8 +67,8 @@ try.
 
 ### Data persistence
 - **R-DATA-1:** Application data must be stored in PostgreSQL.
-- **R-DATA-2:** Schema changes must go through a migration tool (e.g. Prisma
-  or Drizzle) rather than manual/ad hoc changes.
+- **R-DATA-2:** Schema changes must go through a migration tool (Prisma)
+  rather than manual/ad hoc changes.
 
 ### Content guardrail
 - **R-TONE-1** and **R-TONE-2** above are standing content requirements that
@@ -92,12 +92,11 @@ Carried forward from the product brief — explicitly not required this round:
 - Admin CMS for editing content (content lives in seed/config data instead)
 
 ## Open questions / assumptions
-- Exact quiz length (number of questions) is not yet specified — brief says
-  "a short set."
-- Size of the diagnosis/ritual content pool is not yet specified.
-- Session mechanism is assumed to be session-based auth (per brief's proposed
-  tech stack) but the exact implementation (cookies, expiry, etc.) is
-  unspecified.
+- Quiz length is set at 8-10 questions.
+- The diagnosis/ritual content pool will contain 8-12 entries at launch.
+- Session mechanism is session-based auth via a stateless, signed HTTP-only
+  cookie (per brief's proposed tech stack); no DB-backed session table for
+  this round.
 - VPS provider/specs and the exact hardening checklist (R-INFRA-2) are not yet
   defined — to be worked out as a separate ops task, not part of this
   requirements doc.

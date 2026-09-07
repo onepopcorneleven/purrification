@@ -9,8 +9,7 @@ traceability back to `requirements.md`.
 ## Phase 0 — Project scaffolding
 - [ ] Init Next.js (TypeScript, App Router) project per `architecture.md`'s
       app-layer plan.
-- [ ] Set up Prisma (or Drizzle — decide per architecture.md's open question)
-      and point it at a local Postgres instance for dev.
+- [ ] Set up Prisma and point it at a local Postgres instance for dev.
 - [ ] Add basic project tooling: linter, formatter, `.env.example`.
 - [ ] Update root `CLAUDE.md`'s "Current state" section once real build/lint/
       test commands exist (per its own instruction).
@@ -83,7 +82,8 @@ traceability back to `requirements.md`.
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
 
-## Open decisions to resolve before/at the relevant phase
-- Prisma vs. Drizzle (Phase 0).
-- Stateless vs. DB-backed sessions (Phase 2) — start stateless.
-- Exact quiz length and content-pool size (Phase 4/5) — no fixed number yet.
+## Resolved decisions
+- ORM/migrations: Prisma (Phase 0).
+- Sessions: stateless signed cookie, not DB-backed (Phase 2).
+- Quiz length: 8-10 questions (Phase 4).
+- Diagnosis/ritual content pool size: 8-12 entries (Phase 5).

@@ -26,7 +26,7 @@ one codebase, matching the brief's "single codebase for learning" goal.
 | **Pages/UI** (`app/`) | Landing page, auth forms, cat dashboard, quiz flow, result cards, history view | R-LAND-1, R-CAT-4, R-QUIZ-1/2, R-DIAG-3, R-HIST-2 |
 | **API routes** (`app/api/*`) | `POST /signup`, `POST /login`, `POST /logout`, `CRUD /cats`, `POST /cats/:id/quiz`, `GET /cats/:id/history` | R-AUTH-1/2/3, R-CAT-1..4, R-QUIZ-3, R-HIST-1 |
 | **Domain services** (`lib/`) | Password hashing/verification, session issuance, diagnosis-engine lookup, content-pool access | R-AUTH-1/2, R-DIAG-1/2 |
-| **Data access** (Prisma/Drizzle client) | Typed queries, migrations | R-DATA-1, R-DATA-2 |
+| **Data access** (Prisma client) | Typed queries, migrations | R-DATA-1, R-DATA-2 |
 | **Content data** (`content/` — seed/config, not DB-editable) | Quiz questions, diagnosis/ritual pool | R-DIAG-2, out-of-scope "no admin CMS" |
 
 ### Diagnosis engine (R-DIAG-1/2)
@@ -79,17 +79,17 @@ model Diagnosis {
 }
 ```
 
-Migrations run via the chosen tool's CLI (`prisma migrate` or `drizzle-kit`)
-as part of the deploy pipeline (R-INFRA-3) — never manual schema edits in
-production.
+Migrations run via `prisma migrate` as part of the deploy pipeline
+(R-INFRA-3) — never manual schema edits in production.
 
 ## Auth (R-AUTH-1/2/3)
 
 - Passwords hashed with a modern KDF (bcrypt or argon2) — never stored plain.
 - Session-based auth: on login, issue an HTTP-only, `Secure`, `SameSite=Lax`
-  session cookie. Session lookup can start as a signed cookie (stateless) and
-  move to a DB-backed session table if revocation is needed later — either
-  satisfies R-AUTH-3 without pulling in a third-party auth provider.
+  session cookie. Sessions are stateless (signed cookie, no DB session table)
+  for this round; revisit a DB-backed session table only if
+  logout-everywhere/revocation becomes a requirement. This satisfies R-AUTH-3
+  without pulling in a third-party auth provider.
 
 ## Deployment architecture (R-INFRA-1/2/3)
 
@@ -130,10 +130,10 @@ flowchart TB
 - Rate-limit auth endpoints (login/signup) at the Nginx or app layer to blunt
   credential-stuffing attempts, since there's no managed WAF.
 
+## Resolved decisions
+- ORM/migrations: Prisma.
+- Sessions: stateless signed cookie (no DB-backed session table this round).
+
 ## Open questions / carried from requirements.md
-- Final choice between Prisma and Drizzle — either satisfies R-DATA-2; default
-  to Prisma unless there's a learning-goal reason to prefer Drizzle.
-- Whether sessions are stateless-signed-cookie or DB-backed — start stateless,
-  revisit if logout-everywhere/revocation becomes a requirement.
 - VPS provider/specs and the detailed hardening checklist (exact `ufw` rules,
   fail2ban, unattended-upgrades config) are an ops task, not covered here.
