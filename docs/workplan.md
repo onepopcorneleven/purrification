@@ -126,8 +126,12 @@ So the route was built complete from the start.
       side.
 
 ## Phase 7 — Landing page (R-LAND-1)
-- [ ] Marketing/landing page introducing the concept for signed-out visitors,
-      linking into signup.
+- [x] Marketing/landing page introducing the concept for signed-out visitors,
+      linking into signup. `src/app/page.tsx` replaces the default
+      create-next-app boilerplate; redirects signed-in visitors to `/cats`
+      instead (nothing in R-LAND-1 requires this, but there's no reason to
+      show the pitch to someone already using the app). Also updated
+      `layout.tsx`'s metadata title/description off the scaffold defaults.
 
 ## Phase 8 — VPS provisioning (R-INFRA-1, R-INFRA-2, R-INFRA-4)
 - [ ] Execute `docs/vps-runbook.md` end to end on the target VPS (user/SSH
