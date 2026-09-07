@@ -21,12 +21,17 @@ traceability back to `requirements.md`.
 ## Phase 1 — Data layer (R-DATA-1, R-DATA-2)
 - [x] Write the Prisma schema from `architecture.md`'s model sketch: `User`,
       `Cat`, `QuizAttempt`, `Diagnosis`.
-- [ ] Generate and run the first migration. Generated offline (`prisma
-      migrate diff`, since no local Postgres was reachable) but never
-      actually applied to a database — run `npm run db:migrate` against a
-      real dev Postgres to apply it for the first time and confirm it's
-      clean.
-- [ ] Add typed data-access helpers (`lib/db/*`) used by later API routes.
+- [x] Generate and run the first migration. Applied via `npm run db:migrate`
+      (now `prisma migrate deploy`) against the VPS's Postgres instance
+      (`purrification-deploy`, provisioned in `vps-runbook.md` step 8) over
+      an SSH tunnel — see `CLAUDE.md`'s "Current state" for why this project
+      uses that instance instead of a separate local dev Postgres. Confirmed
+      clean with `prisma migrate status`.
+- [x] Add typed data-access helpers (`lib/db/*`) used by later API routes.
+      `src/lib/db/client.ts` exports a singleton `PrismaClient` (via the
+      `@prisma/adapter-pg` driver adapter, required by Prisma 7's
+      engine-less client) cached on `globalThis` to survive Next.js dev-mode
+      hot reload. Verified end-to-end against the migrated schema.
 
 ## Phase 2 — Auth (R-AUTH-1, R-AUTH-2, R-AUTH-3, R-AUTH-4)
 - [ ] Password hashing/verification helper (bcrypt or argon2) — keep this
