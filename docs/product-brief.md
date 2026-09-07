@@ -20,6 +20,7 @@ In scope:
 - Interactive quiz flow
 - Diagnosis + ritual generation (rule-based mapping from quiz answers to a curated pool of results — not an LLM call, to keep it simple and deterministic for a first build)
 - Per-cat result history, viewable after login
+- Initial VPS provisioning and securing (OS setup, firewall, SSH hardening, TLS, deploy pipeline) since the server arrives bare metal
 
 Out of scope for this round:
 - Payments/subscriptions
@@ -31,7 +32,7 @@ Out of scope for this round:
 - **Framework:** Next.js (TypeScript, App Router) — single codebase for landing page, quiz UI, and API routes, well-documented for learning the full stack.
 - **Database:** PostgreSQL, accessed via Prisma (or Drizzle) — good for practicing schema design/migrations.
 - **Auth:** simple email/password auth (session-based) — enough to practice auth without pulling in heavy third-party infra.
-- **Hosting:** deploy target TBD when we get there (e.g. Vercel + a managed Postgres) — not a decision needed yet.
+- **Hosting:** self-managed VPS (bare metal, no pre-installed OS-level extras) — we own provisioning and hardening (OS setup, firewall, SSH access, TLS, deploy pipeline) rather than using a managed platform like Vercel.
 
 ## Data model (rough sketch)
 - `User` (id, email, password hash)
