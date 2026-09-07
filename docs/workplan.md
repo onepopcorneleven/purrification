@@ -116,8 +116,14 @@ So the route was built complete from the start.
       — `select`s only those three fields, nothing user-identifying.
 
 ## Phase 6 — History & dashboard (R-HIST-1, R-HIST-2)
-- [ ] `GET /api/cats/:id/history` route.
-- [ ] Per-cat history view listing past diagnoses chronologically.
+- [x] `GET /api/cats/:id/history` route. `src/app/api/cats/[id]/history/route.ts`
+      — guarded + ownership-checked, returns `QuizAttempt`s (each with its
+      `Diagnosis`) newest-first.
+- [x] Per-cat history view listing past diagnoses chronologically.
+      `src/app/cats/[id]/history/page.tsx`, linked from the cat dashboard
+      list. R-HIST-1 (past diagnoses saved) was already satisfied by the
+      `Diagnosis` model + Phase 5's atomic write — this phase is the read
+      side.
 
 ## Phase 7 — Landing page (R-LAND-1)
 - [ ] Marketing/landing page introducing the concept for signed-out visitors,

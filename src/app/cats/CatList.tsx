@@ -54,6 +54,7 @@ export function CatList({ cats }: { cats: Cat[] }) {
           </span>
           <span style={{ display: "flex", gap: "0.5rem" }}>
             <Link href={`/cats/${cat.id}/quiz`}>Take the quiz</Link>
+            <Link href={`/cats/${cat.id}/history`}>History</Link>
             <button
               type="button"
               onClick={() => handleDelete(cat)}
