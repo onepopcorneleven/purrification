@@ -45,6 +45,13 @@ try.
   must not call an LLM.
 - **R-DIAG-3:** The diagnosis result must be presented as a shareable
   card/result page.
+- **R-DIAG-4:** "Shareable" means the result page is reachable via a public,
+  unauthenticated link (an unguessable share URL) so an owner can send it to
+  someone without an account — a plain read-only page, not an integration
+  with any social platform's API (posting, OAuth share flows, share-count
+  tracking remain out of scope; see Out of scope). The public page must show
+  only the diagnosis, ritual, and cat name — no account info (email, other
+  cats, full history) is exposed to an unauthenticated viewer.
 
 ### Result history
 - **R-HIST-1:** Past diagnoses must be saved per cat.
@@ -82,13 +89,19 @@ requirements above:
 - **User**: `id`, `email`, `password hash`
 - **Cat**: `id`, `userId`, `name`, optional traits
 - **QuizAttempt**: `id`, `catId`, `answers`, `createdAt`
-- **Diagnosis**: `id`, `quizAttemptId`, `diagnosisText`, `ritualText`
+- **Diagnosis**: `id`, `quizAttemptId`, `diagnosisText`, `ritualText`,
+  `shareSlug` (unguessable public identifier, distinct from `id`, per
+  R-DIAG-4)
 
 ## Out of scope
 Carried forward from the product brief — explicitly not required this round:
 - Payments/subscriptions
 - Physical products or fulfillment
-- Social sharing integrations
+- Social sharing integrations — meaning platform-specific integrations
+  (one-click post-to-X/Facebook buttons, OAuth share flows, share-count
+  tracking). This is distinct from R-DIAG-4's public share *link*, which is
+  in scope and required: the result page itself is just a plain public URL
+  a user can paste anywhere, with no platform API involved.
 - Admin CMS for editing content (content lives in seed/config data instead)
 
 ## Open questions / assumptions

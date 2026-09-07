@@ -23,14 +23,19 @@ traceable back to source.
    before the first `systemctl start`. Fixed alongside item 1 (a first-deploy
    clone + deploy-key + `.env.production` transfer sequence was added).
 
-3. **"Shareable" result page contradicts "no social sharing" scope.**
-   `product-brief.md` / `requirements.md` (R-DIAG-3) require the diagnosis
-   to be presented as a "shareable card/result page," but social sharing
-   integrations are explicitly out of scope, and every route in
-   `architecture.md` sits behind auth — there's no public/unauthenticated
-   view of a result. No doc resolves what "shareable" means in practice (a
-   public link? an image export? just visually shareable while logged in?).
-   Not yet fixed.
+3. **~~"Shareable" result page contradicts "no social sharing" scope.~~ —
+   Resolved.** `requirements.md` (R-DIAG-3) required the diagnosis to be
+   presented as a "shareable card/result page," but social sharing
+   integrations were explicitly out of scope, and every route in
+   `architecture.md` sat behind auth — there was no public/unauthenticated
+   view of a result. Fixed by adding R-DIAG-4: "shareable" now means a
+   public, unauthenticated link keyed on a separate `shareSlug` (not the
+   row id), rendering only diagnosis/ritual/cat-name with no account data —
+   explicitly distinct from the still-out-of-scope platform share
+   integrations (OAuth flows, one-click post buttons, share-count
+   tracking). `architecture.md` gained a Sharing section, a public-routes
+   layer, and a `shareSlug` field on `Diagnosis`; `workplan.md` Phase 5
+   gained the corresponding build task.
 
 4. **Diagnosis is optional in the schema but required by the requirement.**
    `architecture.md`'s Prisma sketch makes `QuizAttempt.diagnosis` optional

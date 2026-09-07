@@ -23,8 +23,9 @@ one codebase, matching the brief's "single codebase for learning" goal.
 
 | Layer | Responsibility | Satisfies |
 |---|---|---|
-| **Pages/UI** (`app/`) | Landing page, auth forms, cat dashboard, quiz flow, result cards, history view | R-LAND-1, R-CAT-4, R-QUIZ-1/2, R-DIAG-3, R-HIST-2 |
+| **Pages/UI** (`app/`) | Landing page, auth forms, cat dashboard, quiz flow, result cards, public share page, history view | R-LAND-1, R-CAT-4, R-QUIZ-1/2, R-DIAG-3/4, R-HIST-2 |
 | **API routes** (`app/api/*`) | `POST /signup`, `POST /login`, `POST /logout`, `CRUD /cats`, `POST /cats/:id/quiz`, `GET /cats/:id/history` | R-AUTH-1/2/3, R-CAT-1..4, R-QUIZ-3, R-HIST-1 |
+| **Public routes** (`app/share/[shareSlug]`, unauthenticated) | Read-only diagnosis view by `shareSlug`, not `id` | R-DIAG-3/4 |
 | **Domain services** (`lib/`) | Password hashing/verification, session issuance, diagnosis-engine lookup, content-pool access | R-AUTH-1/2, R-DIAG-1/2 |
 | **Data access** (Prisma/Drizzle client) | Typed queries, migrations | R-DATA-1, R-DATA-2 |
 | **Content data** (`content/` — seed/config, not DB-editable) | Quiz questions, diagnosis/ritual pool | R-DIAG-2, out-of-scope "no admin CMS" |
@@ -35,6 +36,17 @@ A pure function, not a service call: `getDiagnosis(answers: QuizAnswer[]) ->
 versioned, in-repo content pool (e.g. `content/diagnoses.ts`), so results are
 deterministic and testable without a database or network call. This keeps
 R-TONE-1/2 enforceable by content review rather than runtime moderation.
+
+### Sharing (R-DIAG-3/4)
+Every `Diagnosis` gets a `shareSlug` — a separate, unguessable public
+identifier (e.g. `cuid()`), never the row's primary key, so a share link
+can't be used to enumerate or guess other diagnoses. `GET
+/share/[shareSlug]` is an unauthenticated Next.js page/route that looks a
+diagnosis up by `shareSlug` and renders only `diagnosisText`, `ritualText`,
+and the cat's `name` — it must not join in or expose `userId`, `email`, the
+cat's other quiz history, or any other account data. This is deliberately
+just a public URL: no OAuth share flow, no platform API call, no
+share-count tracking — those remain out of scope per `requirements.md`.
 
 ## Data model (R-DATA-1/2)
 
@@ -75,6 +87,7 @@ model Diagnosis {
   quizAttempt   QuizAttempt  @relation(fields: [quizAttemptId], references: [id])
   diagnosisText String
   ritualText    String
+  shareSlug     String       @unique @default(cuid())
   createdAt     DateTime     @default(now())
 }
 ```
