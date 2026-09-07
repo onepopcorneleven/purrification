@@ -8,7 +8,26 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-No application code exists yet — there is no package manifest, build tooling, or source directory. The repository currently holds only planning docs and Claude Code settings. Docs were written in dependency order, each derived from the one before it:
+Phase 0 (project scaffolding, `docs/workplan.md`) is done. The app is a Next.js 16 (App Router, TypeScript) project at the repo root with Prisma as the data layer. No feature code exists yet — auth, cat management, quiz, and diagnosis (Phases 1–7) are still pending.
+
+**Commands** (run from the repo root):
+- `npm run dev` — start the dev server (`localhost:3000`).
+- `npm run build` — production build (standalone output, see below); `npm start` runs it.
+- `npm run lint` — ESLint (`eslint-config-next`).
+- `npm run format` / `npm run format:check` — Prettier, scoped to app code only (`.prettierignore` excludes `docs/`, other `*.md`, and `src/generated/`).
+- `npm run db:migrate` — `prisma migrate dev`, applies `prisma/migrations/` against `DATABASE_URL`.
+- `npm run db:generate` — `prisma generate` (also runs automatically via `postinstall`).
+- No test runner is set up yet — add one when Phase 1+ introduces code worth testing.
+
+**Structure:**
+- `src/app/` — Next.js App Router pages and (once added) API routes.
+- `src/generated/prisma/` — generated Prisma Client output, gitignored, never edit by hand.
+- `prisma/schema.prisma` — the data model, mirroring `docs/architecture.md`'s schema sketch exactly (`User`, `Cat`, `QuizAttempt`, `Diagnosis`, with `shareSlug` and cascade deletes).
+- `prisma/migrations/` — committed migration history; the initial migration was generated offline (`prisma migrate diff`) since no local Postgres was reachable in the scaffolding environment — it has never actually been applied to a database yet. Run `npm run db:migrate` against a real dev Postgres to apply it for the first time.
+- `prisma7.config.ts` — Prisma's config file (this is its actual generated filename in the installed Prisma 7 version, not a typo); reads `DATABASE_URL` from `.env`.
+- `next.config.ts` sets `output: "standalone"` — required by `docs/vps-runbook.md` step 11's systemd unit, which runs the standalone `server.js` directly.
+
+Docs were written in dependency order, each derived from the one before it:
 
 1. `docs/product-brief.md` — the product concept, scope, and proposed tech stack.
 2. `docs/requirements.md` — the brief restated as testable requirements (IDs like `R-AUTH-1`, `R-DIAG-2`); functional requirements cover auth, cat management, quiz flow, the diagnosis engine, and result history, plus non-functional requirements for hosting and data persistence.
@@ -16,8 +35,6 @@ No application code exists yet — there is no package manifest, build tooling, 
 4. `docs/vps-runbook.md` — one-time provisioning/hardening checklist for the target bare-metal VPS (non-root deploy user, SSH hardening, ufw, fail2ban, TLS via certbot, systemd service, deploy script).
 5. `docs/workplan.md` — the sequenced build plan (phases 0–10) tying it all together, from project scaffolding through VPS provisioning and launch.
 6. `docs/specs-updates.md` — a cross-doc consistency check that found and resolved contradictions/gaps across the five docs above (e.g. the sharing model, deletion cascades, password reset scope). Treat docs 1–5 as already incorporating these resolutions; check here first if something in them still looks contradictory.
-
-When implementation begins, update this file's "Current state" section with real build/lint/test commands and an architecture overview reflecting actual code — don't invent them before then. `docs/workplan.md` Phase 0 already tracks this as a task.
 
 ## Key decisions to know before touching this repo
 
@@ -30,7 +47,8 @@ When implementation begins, update this file's "Current state" section with real
 - **The systemd service runs a Next.js standalone build** (`output: "standalone"`), which is what actually produces the `server.js` the unit's `ExecStart` expects — don't assume a hand-rolled custom server.
 - **Hosting is a self-managed bare-metal VPS**, not a managed platform like Vercel — the project owns provisioning and hardening (`docs/vps-runbook.md`) as part of the learning goal.
 - **Content is edited by committing to seed/config data**, not through an admin CMS — that's explicitly out of scope for this round.
-- Two decisions are still open per `docs/architecture.md`: Prisma vs. Drizzle (defaults to Prisma absent a learning-goal reason otherwise), and stateless-signed-cookie vs. DB-backed sessions (starts stateless).
+- **Prisma was chosen over Drizzle** (Phase 0) — the default per `docs/architecture.md`, no learning-goal reason came up to prefer Drizzle instead.
+- Whether sessions are stateless-signed-cookie or DB-backed is still open per `docs/architecture.md` — starts stateless.
 
 ## Accessing the deploy target
 

@@ -7,18 +7,25 @@ can generally happen in any order. Requirement IDs are referenced for
 traceability back to `requirements.md`.
 
 ## Phase 0 — Project scaffolding
-- [ ] Init Next.js (TypeScript, App Router) project per `architecture.md`'s
+- [x] Init Next.js (TypeScript, App Router) project per `architecture.md`'s
       app-layer plan.
-- [ ] Set up Prisma (or Drizzle — decide per architecture.md's open question)
-      and point it at a local Postgres instance for dev.
-- [ ] Add basic project tooling: linter, formatter, `.env.example`.
-- [ ] Update root `CLAUDE.md`'s "Current state" section once real build/lint/
+- [x] Set up Prisma (or Drizzle — decide per architecture.md's open question)
+      and point it at a local Postgres instance for dev. Prisma chosen (the
+      default); `DATABASE_URL` in `.env` points at a local dev Postgres, but
+      no such instance was reachable in the scaffolding environment itself —
+      see Phase 1 below.
+- [x] Add basic project tooling: linter, formatter, `.env.example`.
+- [x] Update root `CLAUDE.md`'s "Current state" section once real build/lint/
       test commands exist (per its own instruction).
 
 ## Phase 1 — Data layer (R-DATA-1, R-DATA-2)
-- [ ] Write the Prisma schema from `architecture.md`'s model sketch: `User`,
+- [x] Write the Prisma schema from `architecture.md`'s model sketch: `User`,
       `Cat`, `QuizAttempt`, `Diagnosis`.
-- [ ] Generate and run the first migration.
+- [ ] Generate and run the first migration. Generated offline (`prisma
+      migrate diff`, since no local Postgres was reachable) but never
+      actually applied to a database — run `npm run db:migrate` against a
+      real dev Postgres to apply it for the first time and confirm it's
+      clean.
 - [ ] Add typed data-access helpers (`lib/db/*`) used by later API routes.
 
 ## Phase 2 — Auth (R-AUTH-1, R-AUTH-2, R-AUTH-3, R-AUTH-4)

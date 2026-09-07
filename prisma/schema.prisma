@@ -1,0 +1,62 @@
+// Purrification data model — mirrors docs/architecture.md's "Data model
+// (R-DATA-1/2)" section. See that doc for the reasoning behind the optional
+// QuizAttempt.diagnosis relation and the shareSlug design.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  cats         Cat[]
+  createdAt    DateTime @default(now())
+}
+
+model Cat {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  name         String
+  // Display-only flavor (profile/dashboard) — not read by getDiagnosis.
+  // See architecture.md's "Diagnosis engine" section.
+  traits       Json?
+  quizAttempts QuizAttempt[]
+  createdAt    DateTime      @default(now())
+}
+
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  catId     String
+  // onDelete: Cascade satisfies R-CAT-5 — deleting a Cat deletes its
+  // QuizAttempt history (and, transitively, each attempt's Diagnosis
+  // below), since that history has no meaning without the cat.
+  cat       Cat       @relation(fields: [catId], references: [id], onDelete: Cascade)
+  answers   Json
+  // Optional only because Prisma requires the FK on the Diagnosis side of
+  // a 1:1 relation — the app-level transaction (see architecture.md's
+  // "Diagnosis persistence is atomic" section) guarantees this is never
+  // actually null. Do not read this `?` as "a QuizAttempt without a
+  // Diagnosis is expected."
+  diagnosis Diagnosis?
+  createdAt DateTime  @default(now())
+}
+
+model Diagnosis {
+  id            String      @id @default(cuid())
+  quizAttemptId String      @unique
+  // onDelete: Cascade — deleting the QuizAttempt (e.g. via a cascaded Cat
+  // delete, R-CAT-5) deletes its Diagnosis, including the public share
+  // link it exposed (R-DIAG-4).
+  quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+  diagnosisText String
+  ritualText    String
+  shareSlug     String      @unique @default(cuid())
+  createdAt     DateTime    @default(now())
+}
