@@ -8,22 +8,29 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-Phase 0 (project scaffolding, `docs/workplan.md`) is done. The app is a Next.js 16 (App Router, TypeScript) project at the repo root with Prisma as the data layer. No feature code exists yet — auth, cat management, quiz, and diagnosis (Phases 1–7) are still pending.
+Phase 0 (project scaffolding) is done; Phase 1 (data layer, `docs/workplan.md`) is done. The app is a Next.js 16 (App Router, TypeScript) project at the repo root with Prisma as the data layer, migrated and reachable. No feature code exists yet — auth, cat management, quiz, and diagnosis (Phases 2–7) are still pending.
+
+**Database: there is no separate local dev Postgres — this project uses the VPS's Postgres instance for both dev and prod.** `docs/architecture.md` and `docs/vps-runbook.md` describe a single-server setup with no staging/dev environment planned, and `vps-runbook.md` step 8 had already provisioned a real, empty `purrification` database on the VPS before any app code existed. Rather than standing up a throwaway local Postgres, Phase 1 applied the first migration directly to that instance:
+- Postgres isn't exposed publicly (`ufw` only allows 22/80/443, correctly) — reach it from a dev machine via an SSH tunnel through the `purrification-deploy` alias: `ssh -f -N -L 5432:localhost:5432 purrification-deploy`. `DATABASE_URL` in `.env` points at `localhost:5432` assuming that tunnel is open.
+- The real `DATABASE_URL` (with its generated password) lives root-only on the server at `/root/purrification-secrets/db-credentials.env` — fetch it with `sudo cat` over SSH as the `deploy` user (needs deploy's sudo password, not stored in the repo).
+- `npm run db:migrate` runs `prisma migrate deploy` (not `migrate dev` — no shadow-database privileges on this role, and `migrate dev`'s reset/prompt behavior isn't appropriate against the one real shared DB). Generate new migrations locally with `npx prisma migrate dev --create-only` against a scratch DB (or hand-write them) and commit the SQL, then `db:migrate` applies it here.
+- This means local `npm run dev` also needs that tunnel open to reach the database.
 
 **Commands** (run from the repo root):
-- `npm run dev` — start the dev server (`localhost:3000`).
+- `npm run dev` — start the dev server (`localhost:3000`); needs the SSH tunnel above open first.
 - `npm run build` — production build (standalone output, see below); `npm start` runs it.
 - `npm run lint` — ESLint (`eslint-config-next`).
 - `npm run format` / `npm run format:check` — Prettier, scoped to app code only (`.prettierignore` excludes `docs/`, other `*.md`, and `src/generated/`).
-- `npm run db:migrate` — `prisma migrate dev`, applies `prisma/migrations/` against `DATABASE_URL`.
+- `npm run db:migrate` — `prisma migrate deploy`, applies `prisma/migrations/` against `DATABASE_URL` (see above — points at the VPS DB via tunnel).
 - `npm run db:generate` — `prisma generate` (also runs automatically via `postinstall`).
 - No test runner is set up yet — add one when Phase 1+ introduces code worth testing.
 
 **Structure:**
 - `src/app/` — Next.js App Router pages and (once added) API routes.
 - `src/generated/prisma/` — generated Prisma Client output, gitignored, never edit by hand.
+- `src/lib/db/client.ts` — the typed data-access entry point: a singleton `PrismaClient` (via the `@prisma/adapter-pg` driver adapter — Prisma 7's engine-less client requires an explicit driver adapter, not just a `DATABASE_URL`) cached on `globalThis` so Next.js dev-mode hot reload doesn't leak connections. Import `prisma` from here in API routes rather than instantiating `PrismaClient` directly.
 - `prisma/schema.prisma` — the data model, mirroring `docs/architecture.md`'s schema sketch exactly (`User`, `Cat`, `QuizAttempt`, `Diagnosis`, with `shareSlug` and cascade deletes).
-- `prisma/migrations/` — committed migration history; the initial migration was generated offline (`prisma migrate diff`) since no local Postgres was reachable in the scaffolding environment — it has never actually been applied to a database yet. Run `npm run db:migrate` against a real dev Postgres to apply it for the first time.
+- `prisma/migrations/` — committed migration history; the initial migration is applied to the real (VPS) database — see above.
 - `prisma7.config.ts` — Prisma's config file (this is its actual generated filename in the installed Prisma 7 version, not a typo); reads `DATABASE_URL` from `.env`.
 - `next.config.ts` sets `output: "standalone"` — required by `docs/vps-runbook.md` step 11's systemd unit, which runs the standalone `server.js` directly.
 
