@@ -132,8 +132,32 @@ sudo systemctl status certbot.timer
 ```
 
 ## 11. App environment & systemd service
-Deploy the app code to `/home/deploy/purrification` (see deploy pipeline,
-step 12), then create `/etc/systemd/system/purrification.service`:
+Next.js has two ways to run in production: `next start` (needs the Next CLI
+and full `node_modules` on the server) or a **standalone** build (`next
+build` with `output: "standalone"` set in the app's `next.config.js`), which
+emits a minimal, self-contained `server.js` plus a pruned `node_modules`.
+This runbook uses the standalone build — it's the smallest deploy footprint
+and is what makes `ExecStart=node server.js` below a real, working command.
+
+This requires one line in the app repo's `next.config.js` (an app-code
+prerequisite tracked in `workplan.md` Phase 0, not part of this ops runbook —
+called out here because the systemd unit below silently depends on it):
+```js
+// next.config.js
+module.exports = {
+  output: "standalone",
+};
+```
+Without this, `next build` never produces a `server.js`, and the service
+below will fail to start with "cannot find module".
+
+The standalone build does **not** include static assets — `public/` and
+`.next/static/` must be copied into the standalone output after every build.
+The deploy script in step 12 does this; it's also why the first deploy uses
+`git clone` rather than assuming the code is already checked out.
+
+Once step 12's first deploy has run once (code cloned, first build done,
+static assets copied), create `/etc/systemd/system/purrification.service`:
 ```ini
 [Unit]
 Description=Purrification app
@@ -142,8 +166,10 @@ After=network.target postgresql.service
 [Service]
 Type=simple
 User=deploy
-WorkingDirectory=/home/deploy/purrification
+WorkingDirectory=/home/deploy/purrification/.next/standalone
 EnvironmentFile=/home/deploy/purrification/.env.production
+Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
 ExecStart=/usr/bin/node server.js
 Restart=on-failure
 RestartSec=5
@@ -152,25 +178,67 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 `.env.production` (not committed) holds `DATABASE_URL`, session secret, etc.,
-readable only by `deploy`:
+readable only by `deploy`. It stays at the repo root — `EnvironmentFile`
+takes an absolute path regardless of the service's `WorkingDirectory`:
 ```bash
 chmod 600 /home/deploy/purrification/.env.production
 ```
+
+Before enabling the service, smoke-test the standalone build by hand as
+`deploy`, to catch a broken build before systemd starts retrying it:
+```bash
+cd /home/deploy/purrification
+PORT=3000 node .next/standalone/server.js &
+curl -I http://127.0.0.1:3000
+kill %1
+```
+A `200`/`30x` response confirms the build is runnable. Then wire it into
+systemd:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now purrification
 sudo systemctl status purrification
+curl -I http://127.0.0.1:3000   # confirm the systemd-managed process also responds
 ```
 
 ## 12. Deploy pipeline (first version)
-Minimal script run from CI or manually over SSH — satisfies `R-INFRA-3`
-without an orchestration platform:
+
+**First deploy only** — the server has no code yet, so this clones rather
+than pulls, and creates the initial env file. `<repo-url>` must be reachable
+from the server; add a read-only GitHub deploy key for the `deploy` user
+before running this:
+```bash
+ssh deploy@<server-ip> 'ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""'
+# add the printed public key as a deploy key on the GitHub repo (read-only),
+# then:
+ssh deploy@<server-ip> 'git clone <repo-url> ~/purrification'
+scp .env.production deploy@<server-ip>:~/purrification/.env.production
+ssh deploy@<server-ip> 'chmod 600 ~/purrification/.env.production'
+ssh deploy@<server-ip> '
+  cd ~/purrification &&
+  npm ci &&
+  npm run build &&
+  mkdir -p .next/standalone/public .next/standalone/.next &&
+  cp -r public/. .next/standalone/public/ &&
+  cp -r .next/static .next/standalone/.next/static &&
+  npx prisma migrate deploy
+'
+```
+Then create and start the systemd service per step 11.
+
+**Every deploy after that** — minimal script run from CI or manually over
+SSH, satisfies `R-INFRA-3` without an orchestration platform. It repeats the
+same static-asset copy as the first deploy, since `npm run build` wipes and
+regenerates `.next/standalone` from scratch each time:
 ```bash
 ssh deploy@<server-ip> '
   cd ~/purrification &&
   git pull origin main &&
   npm ci &&
   npm run build &&
+  rm -rf .next/standalone/public .next/standalone/.next/static &&
+  cp -r public/. .next/standalone/public/ &&
+  cp -r .next/static .next/standalone/.next/static &&
   npx prisma migrate deploy &&
   sudo systemctl restart purrification
 '
@@ -189,7 +257,13 @@ deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart purrification
 - [ ] `systemctl status purrification` shows `active (running)`.
 - [ ] Killing the Node process causes systemd to restart it automatically.
 - [ ] `fail2ban-client status sshd` shows the jail is active.
-- [ ] A test deploy via the step-12 script succeeds end-to-end.
+- [ ] `curl -I http://127.0.0.1:3000` on the server returns a successful
+      response (confirms the standalone build actually runs, not just that
+      the systemd unit is "active").
+- [ ] The step-12 first-deploy sequence (fresh `git clone`, not `git pull`)
+      succeeds on a clean checkout.
+- [ ] A subsequent test deploy via the step-12 repeat-deploy script succeeds
+      end-to-end, including the static-asset copy.
 
 ## Notes / follow-ups
 - This is a single-server setup (app + DB colocated) per `architecture.md`;
