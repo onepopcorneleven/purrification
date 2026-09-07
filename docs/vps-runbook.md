@@ -11,6 +11,17 @@ kept here for reference, not a one-time setup step.
 - Provider gives you: server IP, initial root password (or root SSH key).
 - Have your own SSH public key ready locally (`~/.ssh/id_ed25519.pub` or similar).
 - Pick a domain/subdomain to point at the server (needed for TLS later).
+- **Check for a cloud-provider network firewall/security group in addition to
+  `ufw`.** Some providers (e.g. Hetzner Cloud's Firewall product) filter
+  inbound traffic to the VM *before* it ever reaches `ufw` — `ufw allow
+  80,443/tcp` on the box itself is not sufficient if the provider's own
+  firewall is still blocking those ports upstream. Symptom: `ufw status`
+  looks correct, but external connections time out (not "refused") on
+  80/443. Confirm from an external host (`curl -v http://<domain>/`, or
+  `bash -c 'echo > /dev/tcp/<ip>/80'`) before step 10's certbot run, since
+  certbot's HTTP-01 challenge will otherwise fail with a misleading
+  "Timeout during connect (likely firewall problem)" error even though
+  `ufw` is configured correctly.
 
 ## 1. First login & OS updates
 ```bash
@@ -284,25 +295,71 @@ deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart purrification
 ```
 
 ## 13. Verification checklist
-- [ ] `ssh root@<server-ip>` is refused; `ssh deploy@<server-ip>` works with key only.
-- [ ] `ufw status` shows only 22, 80, 443 allowed.
-- [ ] `https://<your-domain>` loads with a valid certificate (no browser warning).
-- [ ] `http://<your-domain>` redirects to `https://`.
-- [ ] `systemctl status purrification` shows `active (running)`.
-- [ ] Killing the Node process causes systemd to restart it automatically.
-- [ ] `fail2ban-client status sshd` shows the jail is active.
+- [x] `ssh root@<server-ip>` is refused; `ssh deploy@<server-ip>` works with key only.
+- [x] `ufw status` shows only 22, 80, 443 allowed.
+- [x] `https://<your-domain>` loads with a valid certificate (no browser warning).
+- [x] `http://<your-domain>` redirects to `https://`.
+- [ ] `systemctl status purrification` shows `active (running)`. — **Blocked**:
+      no application code exists yet (`workplan.md` Phases 0–7), so there's
+      no `server.js` for the unit to run. The unit is installed
+      (`systemctl daemon-reload` done) but deliberately left disabled/
+      unstarted; revisit once step 12's first deploy actually happens.
+- [ ] Killing the Node process causes systemd to restart it automatically. —
+      **Blocked**, same reason as above.
+- [x] `fail2ban-client status sshd` shows the jail is active.
 - [ ] `curl -I http://127.0.0.1:3000` on the server returns a successful
       response (confirms the standalone build actually runs, not just that
-      the systemd unit is "active").
+      the systemd unit is "active"). — **Blocked**, no build exists yet.
 - [ ] The step-12 first-deploy sequence (fresh `git clone`, not `git pull`)
-      succeeds on a clean checkout.
+      succeeds on a clean checkout. — **Blocked**, no app repo to clone yet.
 - [ ] A subsequent test deploy via the step-12 repeat-deploy script succeeds
-      end-to-end, including the static-asset copy.
-- [ ] Rate limiting is active before the site is announced/used publicly:
-      `for i in $(seq 1 10); do curl -s -o /dev/null -w "%{http_code}\n"
-      -X POST https://<your-domain>/api/login; done` shows `503` responses
-      after the first several requests (once `/api/login` exists — this
-      check can only run after the app itself is deployed).
+      end-to-end, including the static-asset copy. — **Blocked**, same reason.
+- [ ] Rate limiting is active before the site is announced/used publicly —
+      **Blocked**: `/api/login` doesn't exist yet. The `limit_req_zone` and
+      per-location `limit_req` directives are deployed and `nginx -t` passes,
+      but the check itself needs the app running to hit a real endpoint.
+
+Everything through step 10 (SSH hardening, firewall, fail2ban, automatic
+updates, runtime deps, database, Nginx + rate limiting, TLS) is done and
+verified on the live server as of 2026-09-07. Steps 11 (systemd) and 12
+(deploy pipeline) are staged/documented but genuinely blocked on application
+code existing — see the Execution log below.
+
+## Execution log — 2026-09-07
+Ran against the real production VPS (`purrification-deploy` alias) on this
+branch. Notes on what actually happened, for anyone re-running this runbook
+or auditing what state the server is in:
+
+- **Steps 1–3 were already done** before this run started (root login
+  disabled, `deploy` user created with key-only SSH) — presumably from
+  initial provider/manual setup. This run picked up at step 4.
+- **A cloud-provider firewall was blocking 80/443 upstream of `ufw`** — see
+  the new prerequisites note above. It was disabled for this server in favor
+  of relying on `ufw` alone, per an explicit decision (not this runbook's
+  default recommendation — most setups should prefer defense-in-depth with
+  both layers; here it was a deliberate scope call for this single-server
+  learning project).
+- **Node.js installed via NodeSource's `setup_lts.x`, resolving to v24.20.0**
+  — this pins "whatever's current LTS at provisioning time," per step 7's
+  "pin an LTS version" note (specs-updates.md item 10). If a specific major
+  version needs pinning going forward, switch to `setup_24.x` explicitly.
+- **PostgreSQL 18** (Ubuntu 26.04's default `postgresql` package version).
+- **DB credentials**: a random password was generated with `openssl rand`
+  and never printed to any terminal/log. The resulting `DATABASE_URL` is
+  stored root-only at `/root/purrification-secrets/db-credentials.env` on
+  the server — move it into `/home/deploy/purrification/.env.production`
+  (per step 11) when the first real deploy happens; don't regenerate it.
+- **Sudo access for this run**: `deploy` already had `sudo` group membership
+  but no `NOPASSWD` rule, so every privileged step needed an interactive
+  password. A temporary broad `NOPASSWD:ALL` rule
+  (`/etc/sudoers.d/90-deploy-temp`) was installed for the duration of this
+  provisioning run and removed at the end, leaving only the narrow
+  `systemctl restart purrification`-only rule from step 12
+  (`/etc/sudoers.d/90-deploy-restart`) in place long-term.
+- **Steps 11–12 could not be completed**, only staged: the systemd unit file
+  is installed but disabled, and `/home/deploy/purrification` exists but is
+  empty — there's no app repo to clone (`workplan.md` Phases 0–7 are still
+  pending). Re-run step 12's first-deploy sequence once the app exists.
 
 ## 14. Manual account recovery (ops-only, R-AUTH-4)
 There's no in-app "forgot password" flow this round (see
