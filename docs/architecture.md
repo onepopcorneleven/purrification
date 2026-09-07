@@ -24,18 +24,41 @@ one codebase, matching the brief's "single codebase for learning" goal.
 | Layer | Responsibility | Satisfies |
 |---|---|---|
 | **Pages/UI** (`app/`) | Landing page, auth forms, cat dashboard, quiz flow, result cards, public share page, history view | R-LAND-1, R-CAT-4, R-QUIZ-1/2, R-DIAG-3/4, R-HIST-2 |
-| **API routes** (`app/api/*`) | `POST /signup`, `POST /login`, `POST /logout`, `CRUD /cats`, `POST /cats/:id/quiz`, `GET /cats/:id/history` | R-AUTH-1/2/3, R-CAT-1..4, R-QUIZ-3, R-HIST-1 |
+| **API routes** (`app/api/*`) | `POST /signup`, `POST /login`, `POST /logout`, `CRUD /cats`, `POST /cats/:id/quiz` (creates `QuizAttempt` + `Diagnosis` atomically), `GET /cats/:id/history` | R-AUTH-1/2/3, R-CAT-1..4, R-QUIZ-3, R-HIST-1, R-DIAG-5 |
 | **Public routes** (`app/share/[shareSlug]`, unauthenticated) | Read-only diagnosis view by `shareSlug`, not `id` | R-DIAG-3/4 |
-| **Domain services** (`lib/`) | Password hashing/verification, session issuance, diagnosis-engine lookup, content-pool access | R-AUTH-1/2, R-DIAG-1/2 |
+| **Domain services** (`lib/`) | Password hashing/verification, session issuance, diagnosis-engine lookup, content-pool access | R-AUTH-1/2, R-DIAG-1/2/5 |
 | **Data access** (Prisma/Drizzle client) | Typed queries, migrations | R-DATA-1, R-DATA-2 |
 | **Content data** (`content/` — seed/config, not DB-editable) | Quiz questions, diagnosis/ritual pool | R-DIAG-2, out-of-scope "no admin CMS" |
 
-### Diagnosis engine (R-DIAG-1/2)
+### Diagnosis engine (R-DIAG-1/2/5)
 A pure function, not a service call: `getDiagnosis(answers: QuizAnswer[]) ->
 { diagnosisText, ritualText }`. It maps answer patterns to entries in a
 versioned, in-repo content pool (e.g. `content/diagnoses.ts`), so results are
 deterministic and testable without a database or network call. This keeps
 R-TONE-1/2 enforceable by content review rather than runtime moderation.
+
+To satisfy R-DIAG-5 (the function must be *total* — it can never fail to
+return a result), the mapping is a deterministic bucket, not a hand-written
+switch/case that could have gaps: `getDiagnosis` reduces the sorted answers
+to a stable hash and indexes into the content pool with `hash % pool.length`.
+As long as the pool has at least one entry (enforced by a startup/test
+assertion, not a runtime check on every call), every possible answer
+combination resolves to some entry — there is no "no match" branch to leave
+unhandled.
+
+### Diagnosis persistence is atomic (R-DIAG-1/5)
+`POST /cats/:id/quiz` creates the `QuizAttempt` and its `Diagnosis` together
+in one DB transaction (`prisma.$transaction(...)`): insert the
+`QuizAttempt`, call `getDiagnosis`, insert the `Diagnosis` — all-or-nothing.
+If any step fails, nothing is committed and the client can retry the
+submission; a `QuizAttempt` is never left in the database without a
+`Diagnosis`. This is also why the Prisma schema below models
+`QuizAttempt.diagnosis` as optional (`Diagnosis?`): Prisma's 1:1 relation
+puts the foreign key on the `Diagnosis` side, so the type system has no way
+to mark the reverse relation "always present." The optional type is a
+modeling artifact of that FK placement, not a signal that a
+diagnosis-less `QuizAttempt` is a valid, expected state — the transaction
+above is what actually guarantees R-DIAG-1.
 
 ### Sharing (R-DIAG-3/4)
 Every `Diagnosis` gets a `shareSlug` — a separate, unguessable public
@@ -77,6 +100,10 @@ model QuizAttempt {
   catId      String
   cat        Cat         @relation(fields: [catId], references: [id])
   answers    Json
+  // Optional only because Prisma requires the FK on the Diagnosis side of
+  // a 1:1 relation — the app-level transaction (see "Diagnosis persistence
+  // is atomic" above) guarantees this is never actually null. Do not read
+  // this `?` as "a QuizAttempt without a Diagnosis is expected."
   diagnosis  Diagnosis?
   createdAt  DateTime    @default(now())
 }

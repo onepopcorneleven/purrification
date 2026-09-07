@@ -52,6 +52,12 @@ try.
   tracking remain out of scope; see Out of scope). The public page must show
   only the diagnosis, ritual, and cat name — no account info (email, other
   cats, full history) is exposed to an unauthenticated viewer.
+- **R-DIAG-5:** QuizAttempt creation and Diagnosis generation/persistence
+  must be atomic — the system must never leave a completed `QuizAttempt`
+  without its `Diagnosis` (per R-DIAG-1). This requires the mapping in
+  R-DIAG-2 to be a *total* function: it must produce a result for every
+  valid combination of quiz answers, never throw or fall through
+  unhandled, so the atomic write can't fail on valid input.
 
 ### Result history
 - **R-HIST-1:** Past diagnoses must be saved per cat.

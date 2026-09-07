@@ -37,12 +37,19 @@ traceable back to source.
    layer, and a `shareSlug` field on `Diagnosis`; `workplan.md` Phase 5
    gained the corresponding build task.
 
-4. **Diagnosis is optional in the schema but required by the requirement.**
-   `architecture.md`'s Prisma sketch makes `QuizAttempt.diagnosis` optional
-   (`Diagnosis?`), but R-DIAG-1 says "each completed quiz attempt **must**
-   produce a diagnosis." No doc says whether an orphaned `QuizAttempt` with
-   no `Diagnosis` is an expected state or a bug to guard against. Not yet
-   fixed.
+4. **~~Diagnosis is optional in the schema but required by the
+   requirement.~~ — Resolved.** `architecture.md`'s Prisma sketch makes
+   `QuizAttempt.diagnosis` optional (`Diagnosis?`), but R-DIAG-1 says "each
+   completed quiz attempt **must** produce a diagnosis," and no doc said
+   whether an orphaned `QuizAttempt` with no `Diagnosis` was expected or a
+   bug. Fixed by adding R-DIAG-5: `QuizAttempt` + `Diagnosis` creation must
+   be atomic (one DB transaction in `POST /cats/:id/quiz`), and
+   `getDiagnosis` must be a *total* function (a hash-bucket into the
+   content pool, not a switch/case with gaps) so the transaction can't fail
+   on valid input. `architecture.md` documents the transaction, explains
+   the `Diagnosis?` optionality as a Prisma FK-placement artifact rather
+   than a valid state, and annotates the schema; `workplan.md` Phase 5
+   reflects both changes.
 
 5. **Auth endpoints go live before rate-limiting is added.**
    `architecture.md` calls out rate-limiting `/login`/`/signup` as a

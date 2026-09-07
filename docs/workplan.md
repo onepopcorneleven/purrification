@@ -39,12 +39,18 @@ traceability back to `requirements.md`.
 - [ ] Quiz UI: multi-step multiple-choice flow for a selected cat.
 - [ ] `POST /api/cats/:id/quiz` to record a `QuizAttempt` (answers + timestamp).
 
-## Phase 5 — Diagnosis engine & content pool (R-DIAG-1..4, R-TONE-1, R-TONE-2)
+## Phase 5 — Diagnosis engine & content pool (R-DIAG-1..5, R-TONE-1, R-TONE-2)
 - [ ] Author the diagnosis/ritual content pool (`content/diagnoses.ts`) —
       apply the tone guardrail during content writing/review, not at runtime.
-- [ ] Implement the deterministic `getDiagnosis(answers)` mapping function.
-- [ ] Wire quiz completion to diagnosis generation and persist the `Diagnosis`
-      record (with a generated `shareSlug`) linked to its `QuizAttempt`.
+      Seed it with at least one entry so the pool is never empty (required
+      for R-DIAG-5's totality guarantee).
+- [ ] Implement `getDiagnosis(answers)` as a total function: hash the sorted
+      answers and index into the content pool (`hash % pool.length`) rather
+      than a switch/case with possible gaps, per `architecture.md`'s
+      Diagnosis engine section.
+- [ ] Wire `POST /api/cats/:id/quiz` to create the `QuizAttempt` and its
+      `Diagnosis` (with a generated `shareSlug`) inside a single DB
+      transaction — never commit one without the other (R-DIAG-5).
 - [ ] Build the logged-in result/card page, including the persistent
       "for fun, see a vet if concerned" disclaimer.
 - [ ] Build the public, unauthenticated share page (`app/share/[shareSlug]`)
