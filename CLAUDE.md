@@ -62,3 +62,13 @@ Docs were written in dependency order, each derived from the one before it:
 The production VPS (`docs/vps-runbook.md`) is reachable over SSH via the alias `purrification-deploy`, configured in the operator's local `~/.ssh/config`. **Always use this alias — never a raw IP address or hardcoded path — in any command, script, or deploy instruction touching the deploy target.** The alias resolves host, user, and key material locally; nothing about that resolution should be duplicated or hardcoded into this repo.
 
 **Provisioning status (`docs/vps-runbook.md` steps 1–10) is done and verified on the live server** — SSH hardening, `ufw`, fail2ban, automatic updates, Node/PostgreSQL/Nginx, TLS via certbot, and Nginx rate-limiting on the auth endpoints are all live at `purrification.com`. Steps 11–12 (systemd service, deploy pipeline) are staged but not started — they're blocked on application code existing (`workplan.md` Phases 0–7). See `docs/vps-runbook.md`'s "Execution log" section for exact details and any deviations from the plan. The `deploy` user's passwordless sudo is scoped to `systemctl restart purrification` only — everything else needs an interactive password, by design.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
