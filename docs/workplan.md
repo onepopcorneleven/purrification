@@ -34,16 +34,25 @@ traceability back to `requirements.md`.
       hot reload. Verified end-to-end against the migrated schema.
 
 ## Phase 2 — Auth (R-AUTH-1, R-AUTH-2, R-AUTH-3, R-AUTH-4)
-- [ ] Password hashing/verification helper (bcrypt or argon2) — keep this
+- [x] Password hashing/verification helper (bcrypt or argon2) — keep this
       importable standalone (not buried in a route handler), since
       `vps-runbook.md`'s manual account-recovery step (R-AUTH-4) calls it
-      directly from the server.
-- [ ] `POST /api/signup`, `POST /api/login`, `POST /api/logout` routes.
-- [ ] Session issuance (start stateless signed cookie per architecture.md).
-- [ ] Signup and login pages/forms.
-- [ ] Auth middleware/guard for protected routes and pages.
-- [ ] No "forgot password" UI this round — confirm the login page doesn't
+      directly from the server. `src/lib/auth/password.ts`, `bcryptjs`
+      (pure-JS bcrypt — avoids needing native build tools on the VPS at
+      deploy time, unlike `bcrypt`/`argon2`'s compiled bindings).
+- [x] `POST /api/signup`, `POST /api/login`, `POST /api/logout` routes.
+      `src/app/api/{signup,login,logout}/route.ts`.
+- [x] Session issuance (start stateless signed cookie per architecture.md).
+      `src/lib/auth/session.ts` — HMAC-SHA256-signed cookie payload
+      (`SESSION_SECRET`), no session table.
+- [x] Signup and login pages/forms. `src/app/{signup,login}/page.tsx`.
+- [x] Auth middleware/guard for protected routes and pages.
+      `src/lib/auth/guard.ts`'s `getCurrentUser()` — usable from both
+      Server Components (redirect on null) and Route Handlers (401 on
+      null); no protected pages exist yet to wire it into (Phase 3+).
+- [x] No "forgot password" UI this round — confirm the login page doesn't
       imply one (e.g. no dead "forgot password?" link) per R-AUTH-4.
+      Verified — no such link exists.
 
 ## Phase 3 — Cat management (R-CAT-1..5)
 - [ ] `POST /api/cats`, `GET /api/cats`, `PATCH /api/cats/:id`,
