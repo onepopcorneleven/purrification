@@ -134,20 +134,46 @@ So the route was built complete from the start.
       `layout.tsx`'s metadata title/description off the scaffold defaults.
 
 ## Phase 8 — VPS provisioning (R-INFRA-1, R-INFRA-2, R-INFRA-4)
-- [ ] Execute `docs/vps-runbook.md` end to end on the target VPS (user/SSH
-      hardening, firewall, fail2ban, Node/Postgres/Nginx install, TLS).
-- [ ] Confirm step 9's Nginx `limit_req` rate limiting on `/api/login` and
-      `/api/signup` is configured — this must be in place *before* Phase 9
-      deploys the app, not added afterward (R-INFRA-4).
-- [ ] Run through the runbook's verification checklist and confirm every item.
+- [x] Execute `docs/vps-runbook.md` steps 1–10 on the target VPS (user/SSH
+      hardening, firewall, fail2ban, automatic updates, Node/Postgres/Nginx
+      install, TLS). Done and verified live on `purrification.com` as of
+      2026-09-07 — see `vps-runbook.md`'s Execution log. Steps 11 (systemd)
+      and 12 (deploy pipeline) are staged, not executed — they were blocked
+      on application code existing; that blocker is now cleared by Phases
+      0–7, so they're tracked in Phase 9 below rather than here.
+- [x] Confirm step 9's Nginx `limit_req` rate limiting on `/api/login` and
+      `/api/signup` is configured — the `limit_req_zone` and per-location
+      directives are deployed and `nginx -t` passes, done before any app
+      code existed (R-INFRA-4). End-to-end verification against a live,
+      running endpoint needs Phase 9's first deploy — tracked there, not
+      as a Phase 8 gap.
+- [ ] Run through the runbook's verification checklist and confirm every
+      item. Items through step 10 are already checked off in
+      `vps-runbook.md` step 13; the remaining items (systemd
+      `active (running)`, restart-on-crash, standalone build responding on
+      `127.0.0.1:3000`, first/repeat deploy succeeding, rate-limiting hit
+      against a live endpoint) are explicitly marked "Blocked" there
+      pending Phase 9.
 - [ ] Provision the production Postgres database and store its connection
-      string in `.env.production` on the server (never in the repo).
+      string in `.env.production` on the server (never in the repo). The
+      database itself is provisioned (step 8: `purrification` DB + role
+      created) and its generated `DATABASE_URL` is stored root-only at
+      `/root/purrification-secrets/db-credentials.env` — moving it into
+      `/home/deploy/purrification/.env.production` still needs Phase 9's
+      first deploy, per the runbook's Execution log.
 
 ## Phase 9 — Deploy pipeline & launch (R-INFRA-3)
-- [ ] Stand up the systemd service on the VPS per the runbook.
+- [ ] Stand up the systemd service on the VPS per the runbook. The unit
+      file is already installed (`systemctl daemon-reload` done) but left
+      disabled/unstarted, since `/home/deploy/purrification` has no app
+      code yet — enabling it is what's left, once the first deploy below
+      populates that directory.
 - [ ] Wire the deploy script (or CI job) from `vps-runbook.md` step 12.
 - [ ] Do a full first deploy: build, migrate, restart, verify the live site
-      over HTTPS.
+      over HTTPS. This is step 12's "first deploy" sequence (`git clone`,
+      move `db-credentials.env`'s `DATABASE_URL` into `.env.production`,
+      `npm ci && npm run build`, copy static assets, `prisma migrate
+      deploy`), followed by enabling the systemd service from step 11.
 - [ ] Run the runbook's rate-limiting check against the now-live
       `/api/login` to confirm it's actually enforced, not just configured.
 - [ ] Smoke-test the golden path end-to-end in production: signup → add cat →
@@ -166,7 +192,11 @@ So the route was built complete from the start.
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
 
-## Open decisions to resolve before/at the relevant phase
-- Prisma vs. Drizzle (Phase 0).
-- Stateless vs. DB-backed sessions (Phase 2) — start stateless.
-- Exact quiz length and content-pool size (Phase 4/5) — no fixed number yet.
+## Resolved decisions
+- Prisma vs. Drizzle: Prisma (Phase 0) — see `CLAUDE.md`'s "Key decisions to
+  know" for why.
+- Stateless vs. DB-backed sessions: stateless signed cookie, no session
+  table (Phase 2) — `src/lib/auth/session.ts`.
+- Exact quiz length and content-pool size: 5 questions
+  (`src/content/quiz.ts`) and 10 diagnosis/ritual entries
+  (`src/content/diagnoses.ts`) (Phase 4/5).
