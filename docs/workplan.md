@@ -72,28 +72,48 @@ traceability back to `requirements.md`.
       `window.confirm` before calling the API.
 
 ## Phase 4 — Quiz content & flow (R-QUIZ-1..3)
-- [ ] Author the quiz question bank as seed/config data (`content/quiz.ts`),
-      per the "no admin CMS" out-of-scope decision.
-- [ ] Quiz UI: multi-step multiple-choice flow for a selected cat.
-- [ ] `POST /api/cats/:id/quiz` to record a `QuizAttempt` (answers + timestamp).
+Built together with Phase 5 in one pass, not sequentially as originally
+listed: `POST /api/cats/:id/quiz` only exists once per R-DIAG-5, and
+shipping a version of it that persists a `QuizAttempt` without its
+`Diagnosis` — even temporarily, between "Phase 4 done" and "Phase 5
+done" — would violate that invariant for real, not just on paper (see
+`CLAUDE.md`'s "Diagnosis/ritual generation is rule-based" key decision).
+So the route was built complete from the start.
+- [x] Author the quiz question bank as seed/config data (`content/quiz.ts`),
+      per the "no admin CMS" out-of-scope decision. `src/content/quiz.ts`
+      — 5 multiple-choice questions on the cat's recent
+      behavior/environment (R-QUIZ-2).
+- [x] Quiz UI: multi-step multiple-choice flow for a selected cat.
+      `src/app/cats/[id]/quiz/page.tsx` (guard + ownership check) +
+      `QuizFlow.tsx` (client, one question per step, Back/Next/Submit).
+- [x] `POST /api/cats/:id/quiz` to record a `QuizAttempt` (answers + timestamp).
+      `src/app/api/cats/[id]/quiz/route.ts` — see Phase 5 for the atomic
+      Diagnosis creation this route also does.
 
 ## Phase 5 — Diagnosis engine & content pool (R-DIAG-1..5, R-TONE-1, R-TONE-2)
-- [ ] Author the diagnosis/ritual content pool (`content/diagnoses.ts`) —
+- [x] Author the diagnosis/ritual content pool (`content/diagnoses.ts`) —
       apply the tone guardrail during content writing/review, not at runtime.
       Seed it with at least one entry so the pool is never empty (required
-      for R-DIAG-5's totality guarantee).
-- [ ] Implement `getDiagnosis(answers)` as a total function: hash the sorted
+      for R-DIAG-5's totality guarantee). `src/content/diagnoses.ts` — 10
+      whimsical entries.
+- [x] Implement `getDiagnosis(answers)` as a total function: hash the sorted
       answers and index into the content pool (`hash % pool.length`) rather
       than a switch/case with possible gaps, per `architecture.md`'s
-      Diagnosis engine section.
-- [ ] Wire `POST /api/cats/:id/quiz` to create the `QuizAttempt` and its
+      Diagnosis engine section. `src/lib/diagnosis/getDiagnosis.ts` — djb2
+      hash of the sorted `questionId:optionId` pairs; a startup assertion
+      throws if the pool is ever empty.
+- [x] Wire `POST /api/cats/:id/quiz` to create the `QuizAttempt` and its
       `Diagnosis` (with a generated `shareSlug`) inside a single DB
       transaction — never commit one without the other (R-DIAG-5).
-- [ ] Build the logged-in result/card page, including the persistent
-      "for fun, see a vet if concerned" disclaimer.
-- [ ] Build the public, unauthenticated share page (`app/share/[shareSlug]`)
+      `prisma.$transaction` in the route above; `shareSlug` uses the
+      schema's `@default(cuid())`, no extra code needed.
+- [x] Build the logged-in result/card page, including the persistent
+      "for fun, see a vet if concerned" disclaimer. `src/app/results/[id]/page.tsx`
+      (guard + ownership check).
+- [x] Build the public, unauthenticated share page (`app/share/[shareSlug]`)
       per `architecture.md`'s Sharing section — diagnosis + ritual + cat name
-      only, no account data (R-DIAG-4).
+      only, no account data (R-DIAG-4). `src/app/share/[shareSlug]/page.tsx`
+      — `select`s only those three fields, nothing user-identifying.
 
 ## Phase 6 — History & dashboard (R-HIST-1, R-HIST-2)
 - [ ] `GET /api/cats/:id/history` route.

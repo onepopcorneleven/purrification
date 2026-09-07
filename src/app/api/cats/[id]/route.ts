@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { getCurrentUser } from "@/lib/auth/guard";
+import { findOwnedCat } from "@/lib/cats/findOwnedCat";
 
 function parseTraits(body: unknown): string[] | undefined {
   const traits = (body as { traits?: unknown })?.traits;
@@ -9,14 +10,6 @@ function parseTraits(body: unknown): string[] | undefined {
     return undefined;
   }
   return traits;
-}
-
-// Both "cat doesn't exist" and "cat belongs to someone else" respond 404 —
-// don't leak which cat ids exist to a user who doesn't own them.
-async function findOwnedCat(catId: string, userId: string) {
-  const cat = await prisma.cat.findUnique({ where: { id: catId } });
-  if (!cat || cat.userId !== userId) return null;
-  return cat;
 }
 
 export async function PATCH(

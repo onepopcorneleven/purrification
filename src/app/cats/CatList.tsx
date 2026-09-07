@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -51,13 +52,16 @@ export function CatList({ cats }: { cats: Cat[] }) {
               <span style={{ color: "#666" }}> — {cat.traits.join(", ")}</span>
             )}
           </span>
-          <button
-            type="button"
-            onClick={() => handleDelete(cat)}
-            disabled={deletingId === cat.id}
-          >
-            {deletingId === cat.id ? "Deleting…" : "Delete"}
-          </button>
+          <span style={{ display: "flex", gap: "0.5rem" }}>
+            <Link href={`/cats/${cat.id}/quiz`}>Take the quiz</Link>
+            <button
+              type="button"
+              onClick={() => handleDelete(cat)}
+              disabled={deletingId === cat.id}
+            >
+              {deletingId === cat.id ? "Deleting…" : "Delete"}
+            </button>
+          </span>
         </li>
       ))}
     </ul>
