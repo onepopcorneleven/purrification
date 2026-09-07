@@ -66,23 +66,39 @@ traceable back to source.
 
 ## Medium impact
 
-6. **Cat deletion is undefined.** `architecture.md`'s API table lists "CRUD
-   /cats," implying delete, but `requirements.md` R-CAT-4 only requires
-   "view/edit" — no delete requirement, and no cascade behavior is defined
-   for a cat's `QuizAttempt`/`Diagnosis` history if it's ever deleted.
+6. **~~Cat deletion is undefined.~~ — Resolved.** `architecture.md`'s API
+   table listed "CRUD /cats," implying delete, but `requirements.md`
+   R-CAT-4 only required "view/edit" — no delete requirement, and no
+   cascade behavior was defined for a cat's `QuizAttempt`/`Diagnosis`
+   history if it was ever deleted. Fixed by adding R-CAT-5: users can
+   delete a cat, deletion cascades to its `QuizAttempt`/`Diagnosis` history
+   (including any share links, per R-DIAG-4), and the UI must confirm
+   before deleting. `architecture.md`'s Prisma sketch now has explicit
+   `onDelete: Cascade` on both relations; `workplan.md` Phase 3 has the
+   `DELETE /api/cats/:id` route and a confirmed delete action in the UI.
 
-7. **No password reset / account recovery** appears anywhere — not
-   required, not explicitly out of scope. Given auth is otherwise treated
-   fairly seriously (hashing, sessions, rate-limiting), this is a
-   conspicuous silent gap.
+7. **~~No password reset / account recovery~~ — Resolved.** Nothing
+   required or scoped out a "forgot password" flow, despite auth otherwise
+   being treated fairly seriously (hashing, sessions, rate-limiting).
+   Rather than silently build one on the fly (which would need a
+   transactional email service not in the tech stack) or silently omit it,
+   added R-AUTH-4: self-service email-based reset is explicitly out of
+   scope this round, with manual/ops-level recovery as the documented
+   fallback. `vps-runbook.md` gained a new step 14 ("Manual account
+   recovery") with the concrete psql procedure; `architecture.md`'s Auth
+   section and `workplan.md` Phase 2 reference it.
 
-8. **Cat "traits" are collected but never used.** The data model carries
-   `Cat.traits` (optional JSON) for "personalization/flavor," but
-   `architecture.md`'s diagnosis engine signature is
-   `getDiagnosis(answers: QuizAnswer[])` — traits never enter the diagnosis
-   logic anywhere. Either the personalization claim in the brief is
-   aspirational-only, or the engine signature/content pool needs to account
-   for traits later.
+8. **~~Cat "traits" are collected but never used.~~ — Resolved.** The data
+   model carried `Cat.traits` (optional JSON) for "personalization/flavor,"
+   but `architecture.md`'s diagnosis engine signature,
+   `getDiagnosis(answers: QuizAnswer[])`, never took traits as input,
+   leaving it unclear whether that was intentional or a missed wire-up.
+   Resolved by decision, not by expanding the engine: R-CAT-3 and R-DIAG-2
+   now explicitly state traits are display-only this round (shown on the
+   cat's profile) and are not diagnosis input, keeping `getDiagnosis` a
+   single-axis, easily-testable function rather than adding a second
+   content dimension to author and review. `architecture.md`'s Diagnosis
+   engine section and Prisma schema comment both spell this out.
 
 ## Minor / polish
 

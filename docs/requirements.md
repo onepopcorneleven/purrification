@@ -22,13 +22,27 @@ try.
 - **R-AUTH-2:** A registered user must be able to log in.
 - **R-AUTH-3:** A logged-in user's session must persist so their cats and
   results are available across visits without re-entering data.
+- **R-AUTH-4:** Self-service password reset (i.e. a "forgot password" email
+  flow) is not required this round — it needs a transactional email service
+  that isn't part of this round's tech stack (see Out of scope). A locked-out
+  user can only be recovered manually, at the ops level, per
+  `vps-runbook.md`'s account-recovery step. This is a deliberate scope
+  decision, not an oversight: don't build a reset-email flow without first
+  revisiting this requirement.
 
 ### Cat management
 - **R-CAT-1:** A logged-in user must be able to add one or more cats.
 - **R-CAT-2:** Each cat must have a name.
 - **R-CAT-3:** A cat may optionally have a few basic traits for
-  personalization/flavor.
+  personalization/flavor. This round, traits are display-only (e.g. shown
+  on the cat's profile/dashboard) — they are not an input to diagnosis
+  generation (see R-DIAG-2).
 - **R-CAT-4:** A user must be able to manage (view/edit) their existing cats.
+- **R-CAT-5:** A user must be able to delete one of their cats. Deleting a
+  cat must cascade-delete its `QuizAttempt` and `Diagnosis` history
+  (including any public share links created from it, per R-DIAG-4) — that
+  history has no meaning without the cat it belongs to. The UI must confirm
+  before deleting, since this is destructive and irreversible.
 
 ### Quiz flow
 - **R-QUIZ-1:** A user must be able to start a quiz for a specific cat.
@@ -41,8 +55,8 @@ try.
 - **R-DIAG-1:** Each completed quiz attempt must produce a diagnosis (a
   "spiritual reading") and a prescribed ritual.
 - **R-DIAG-2:** Diagnosis/ritual generation must be rule-based — a
-  deterministic mapping from quiz answers to a curated pool of results. It
-  must not call an LLM.
+  deterministic mapping from quiz answers (not cat traits — see R-CAT-3) to
+  a curated pool of results. It must not call an LLM.
 - **R-DIAG-3:** The diagnosis result must be presented as a shareable
   card/result page.
 - **R-DIAG-4:** "Shareable" means the result page is reachable via a public,
@@ -97,7 +111,9 @@ The following entities and fields are required to support the functional
 requirements above:
 
 - **User**: `id`, `email`, `password hash`
-- **Cat**: `id`, `userId`, `name`, optional traits
+- **Cat**: `id`, `userId`, `name`, optional traits (display-only, per
+  R-CAT-3) — deleting a `Cat` cascades to its `QuizAttempt`/`Diagnosis`
+  rows (R-CAT-5)
 - **QuizAttempt**: `id`, `catId`, `answers`, `createdAt`
 - **Diagnosis**: `id`, `quizAttemptId`, `diagnosisText`, `ritualText`,
   `shareSlug` (unguessable public identifier, distinct from `id`, per
@@ -113,6 +129,9 @@ Carried forward from the product brief — explicitly not required this round:
   in scope and required: the result page itself is just a plain public URL
   a user can paste anywhere, with no platform API involved.
 - Admin CMS for editing content (content lives in seed/config data instead)
+- Self-service (email-based) password reset — requires a transactional
+  email service not part of this round's tech stack (see R-AUTH-4).
+  Deferred to a future round; manual/ops-level recovery covers this round.
 
 ## Open questions / assumptions
 - Exact quiz length (number of questions) is not yet specified — brief says

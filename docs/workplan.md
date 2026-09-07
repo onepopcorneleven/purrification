@@ -21,17 +21,27 @@ traceability back to `requirements.md`.
 - [ ] Generate and run the first migration.
 - [ ] Add typed data-access helpers (`lib/db/*`) used by later API routes.
 
-## Phase 2 — Auth (R-AUTH-1, R-AUTH-2, R-AUTH-3)
-- [ ] Password hashing/verification helper (bcrypt or argon2).
+## Phase 2 — Auth (R-AUTH-1, R-AUTH-2, R-AUTH-3, R-AUTH-4)
+- [ ] Password hashing/verification helper (bcrypt or argon2) — keep this
+      importable standalone (not buried in a route handler), since
+      `vps-runbook.md`'s manual account-recovery step (R-AUTH-4) calls it
+      directly from the server.
 - [ ] `POST /api/signup`, `POST /api/login`, `POST /api/logout` routes.
 - [ ] Session issuance (start stateless signed cookie per architecture.md).
 - [ ] Signup and login pages/forms.
 - [ ] Auth middleware/guard for protected routes and pages.
+- [ ] No "forgot password" UI this round — confirm the login page doesn't
+      imply one (e.g. no dead "forgot password?" link) per R-AUTH-4.
 
-## Phase 3 — Cat management (R-CAT-1..4)
-- [ ] `POST /api/cats`, `GET /api/cats`, `PATCH /api/cats/:id` routes.
-- [ ] "Add a cat" form (name + optional traits).
-- [ ] Cat list/dashboard view for a logged-in user.
+## Phase 3 — Cat management (R-CAT-1..5)
+- [ ] `POST /api/cats`, `GET /api/cats`, `PATCH /api/cats/:id`,
+      `DELETE /api/cats/:id` routes — delete cascades to that cat's
+      `QuizAttempt`/`Diagnosis` history per the schema's `onDelete: Cascade`
+      (R-CAT-5).
+- [ ] "Add a cat" form (name + optional traits — traits are display-only
+      flavor, not wired into diagnosis generation; see R-CAT-3).
+- [ ] Cat list/dashboard view for a logged-in user, including a delete
+      action with a confirmation step (R-CAT-5).
 
 ## Phase 4 — Quiz content & flow (R-QUIZ-1..3)
 - [ ] Author the quiz question bank as seed/config data (`content/quiz.ts`),

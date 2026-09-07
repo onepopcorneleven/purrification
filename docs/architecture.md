@@ -24,7 +24,7 @@ one codebase, matching the brief's "single codebase for learning" goal.
 | Layer | Responsibility | Satisfies |
 |---|---|---|
 | **Pages/UI** (`app/`) | Landing page, auth forms, cat dashboard, quiz flow, result cards, public share page, history view | R-LAND-1, R-CAT-4, R-QUIZ-1/2, R-DIAG-3/4, R-HIST-2 |
-| **API routes** (`app/api/*`) | `POST /signup`, `POST /login`, `POST /logout`, `CRUD /cats`, `POST /cats/:id/quiz` (creates `QuizAttempt` + `Diagnosis` atomically), `GET /cats/:id/history` | R-AUTH-1/2/3, R-CAT-1..4, R-QUIZ-3, R-HIST-1, R-DIAG-5 |
+| **API routes** (`app/api/*`) | `POST /signup`, `POST /login`, `POST /logout`, `POST /cats`, `GET /cats`, `PATCH /cats/:id`, `DELETE /cats/:id` (cascades to that cat's history — see R-CAT-5), `POST /cats/:id/quiz` (creates `QuizAttempt` + `Diagnosis` atomically), `GET /cats/:id/history` | R-AUTH-1/2/3, R-CAT-1/2/3/4/5, R-QUIZ-3, R-HIST-1, R-DIAG-5 |
 | **Public routes** (`app/share/[shareSlug]`, unauthenticated) | Read-only diagnosis view by `shareSlug`, not `id` | R-DIAG-3/4 |
 | **Domain services** (`lib/`) | Password hashing/verification, session issuance, diagnosis-engine lookup, content-pool access | R-AUTH-1/2, R-DIAG-1/2/5 |
 | **Data access** (Prisma/Drizzle client) | Typed queries, migrations | R-DATA-1, R-DATA-2 |
@@ -36,6 +36,10 @@ A pure function, not a service call: `getDiagnosis(answers: QuizAnswer[]) ->
 versioned, in-repo content pool (e.g. `content/diagnoses.ts`), so results are
 deterministic and testable without a database or network call. This keeps
 R-TONE-1/2 enforceable by content review rather than runtime moderation.
+Deliberately, `Cat.traits` is not a parameter here (per R-CAT-3/R-DIAG-2):
+traits are display-only this round, not diagnosis input — keeping the
+signature to just `answers` is what makes the pool a plain, versioned data
+file instead of a second axis of content to author and test.
 
 To satisfy R-DIAG-5 (the function must be *total* — it can never fail to
 return a result), the mapping is a deterministic bucket, not a hand-written
@@ -90,6 +94,8 @@ model Cat {
   userId        String
   user          User           @relation(fields: [userId], references: [id])
   name          String
+  // Display-only flavor (profile/dashboard) — not read by getDiagnosis.
+  // See "Diagnosis engine" above.
   traits        Json?
   quizAttempts  QuizAttempt[]
   createdAt     DateTime       @default(now())
@@ -98,7 +104,10 @@ model Cat {
 model QuizAttempt {
   id         String      @id @default(cuid())
   catId      String
-  cat        Cat         @relation(fields: [catId], references: [id])
+  // onDelete: Cascade satisfies R-CAT-5 — deleting a Cat deletes its
+  // QuizAttempt history (and, transitively, each attempt's Diagnosis
+  // below), since that history has no meaning without the cat.
+  cat        Cat         @relation(fields: [catId], references: [id], onDelete: Cascade)
   answers    Json
   // Optional only because Prisma requires the FK on the Diagnosis side of
   // a 1:1 relation — the app-level transaction (see "Diagnosis persistence
@@ -111,7 +120,10 @@ model QuizAttempt {
 model Diagnosis {
   id            String       @id @default(cuid())
   quizAttemptId String       @unique
-  quizAttempt   QuizAttempt  @relation(fields: [quizAttemptId], references: [id])
+  // onDelete: Cascade — deleting the QuizAttempt (e.g. via a cascaded Cat
+  // delete, R-CAT-5) deletes its Diagnosis, including the public share
+  // link it exposed (R-DIAG-4).
+  quizAttempt   QuizAttempt  @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
   diagnosisText String
   ritualText    String
   shareSlug     String       @unique @default(cuid())
@@ -123,13 +135,18 @@ Migrations run via the chosen tool's CLI (`prisma migrate` or `drizzle-kit`)
 as part of the deploy pipeline (R-INFRA-3) — never manual schema edits in
 production.
 
-## Auth (R-AUTH-1/2/3)
+## Auth (R-AUTH-1/2/3/4)
 
 - Passwords hashed with a modern KDF (bcrypt or argon2) — never stored plain.
 - Session-based auth: on login, issue an HTTP-only, `Secure`, `SameSite=Lax`
   session cookie. Session lookup can start as a signed cookie (stateless) and
   move to a DB-backed session table if revocation is needed later — either
   satisfies R-AUTH-3 without pulling in a third-party auth provider.
+- No password-reset flow this round (R-AUTH-4) — there's no transactional
+  email service in the tech stack to send a reset link through, and adding
+  one is out of scope for this round (see `requirements.md` Out of scope).
+  A locked-out user is recovered manually by an operator with server access,
+  per `vps-runbook.md`'s account-recovery step, not through the app itself.
 
 ## Deployment architecture (R-INFRA-1/2/3)
 

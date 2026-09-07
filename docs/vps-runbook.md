@@ -4,7 +4,8 @@ One-time setup checklist for the bare-metal VPS that hosts Purrification, per
 `docs/architecture.md`'s deployment topology and requirements `R-INFRA-1/2/3`.
 Assumes a fresh Ubuntu LTS box with only root/password access from the
 provider. Run steps in order; each is idempotent-ish but written as a
-first-run script.
+first-run script. Step 14 is the one exception — a recurring ops procedure
+kept here for reference, not a one-time setup step.
 
 ## 0. Prerequisites
 - Provider gives you: server IP, initial root password (or root SSH key).
@@ -302,6 +303,37 @@ deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart purrification
       -X POST https://<your-domain>/api/login; done` shows `503` responses
       after the first several requests (once `/api/login` exists — this
       check can only run after the app itself is deployed).
+
+## 14. Manual account recovery (ops-only, R-AUTH-4)
+There's no in-app "forgot password" flow this round (see
+`requirements.md` R-AUTH-4) — a locked-out user is recovered manually,
+by an operator with server access, not a repeatable self-service checklist
+item but a recurring procedure to keep here for when it's needed:
+
+1. Generate a new hash using the app's own hashing function — reuse the
+   exact code path login verifies against, don't hand-roll a hash with a
+   different algorithm or cost factor:
+   ```bash
+   cd /home/deploy/purrification
+   node -e "require('./lib/auth/password').hashPassword('<temp-password>').then(console.log)"
+   ```
+   (adjust the require path to wherever the password-hashing helper from
+   `architecture.md`'s Auth section actually lives once it's built.)
+2. Update the row directly in Postgres:
+   ```bash
+   sudo -u postgres psql -d purrification -c \
+     "UPDATE \"User\" SET \"passwordHash\" = '<generated-hash>' WHERE email = '<user-email>';"
+   ```
+3. Send the user the temporary password out-of-band (not plain email), and
+   have them log in and treat it as compromised — capture it in as few
+   places as possible.
+4. Clear the temporary password from shell history once confirmed
+   (`history -d <line>` or start a fresh shell).
+
+This is deliberately manual and meant to be rare. If recovery requests
+become frequent enough that this doesn't scale, that's the signal to
+build R-AUTH-4's deferred email-based reset flow instead of scaling this
+procedure.
 
 ## Notes / follow-ups
 - This is a single-server setup (app + DB colocated) per `architecture.md`;
