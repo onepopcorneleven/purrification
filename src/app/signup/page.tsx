@@ -26,7 +26,7 @@ export default function SignupPage() {
         setError(data.error ?? "Something went wrong. Try again.");
         return;
       }
-      router.push("/");
+      router.push("/cats");
       router.refresh();
     } finally {
       setSubmitting(false);

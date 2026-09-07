@@ -55,14 +55,21 @@ traceability back to `requirements.md`.
       Verified — no such link exists.
 
 ## Phase 3 — Cat management (R-CAT-1..5)
-- [ ] `POST /api/cats`, `GET /api/cats`, `PATCH /api/cats/:id`,
+- [x] `POST /api/cats`, `GET /api/cats`, `PATCH /api/cats/:id`,
       `DELETE /api/cats/:id` routes — delete cascades to that cat's
       `QuizAttempt`/`Diagnosis` history per the schema's `onDelete: Cascade`
-      (R-CAT-5).
-- [ ] "Add a cat" form (name + optional traits — traits are display-only
+      (R-CAT-5). All routes guarded by `getCurrentUser()`; ownership is
+      checked per-cat (404, not 403, on someone else's cat — avoids leaking
+      which ids exist).
+- [x] "Add a cat" form (name + optional traits — traits are display-only
       flavor, not wired into diagnosis generation; see R-CAT-3).
-- [ ] Cat list/dashboard view for a logged-in user, including a delete
-      action with a confirmation step (R-CAT-5).
+      `src/app/cats/AddCatForm.tsx` — traits entered as a comma-separated
+      field, stored as a `string[]`.
+- [x] Cat list/dashboard view for a logged-in user, including a delete
+      action with a confirmation step (R-CAT-5). `src/app/cats/page.tsx`
+      (guards + redirects to `/login` if signed out) with
+      `CatList.tsx`/`AddCatForm.tsx`/`LogoutButton.tsx`. Delete confirms via
+      `window.confirm` before calling the API.
 
 ## Phase 4 — Quiz content & flow (R-QUIZ-1..3)
 - [ ] Author the quiz question bank as seed/config data (`content/quiz.ts`),
