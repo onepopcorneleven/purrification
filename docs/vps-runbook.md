@@ -271,6 +271,20 @@ ssh deploy@<server-ip> '
 ```
 Then create and start the systemd service per step 11.
 
+**Gotcha (hit on the actual first deploy, 2026-09-07):** `prisma7.config.ts`
+uses `dotenv/config`, which only auto-loads `.env` — it never reads
+`.env.production`. Next.js itself has separate env-file precedence and picks
+up `.env.production` fine during `npm run build`, but the bare `npx prisma
+migrate deploy` above will fail with `Error: The datasource.url property is
+required...` on a server that has no `.env`, only `.env.production`. Export
+the vars first:
+```bash
+set -a && source .env.production && set +a && npx prisma migrate deploy
+```
+(`dotenv` never overwrites an already-set env var, so this is safe even
+where both files exist.) Apply the same fix to the repeat-deploy script
+below.
+
 **Every deploy after that** — minimal script run from CI or manually over
 SSH, satisfies `R-INFRA-3` without an orchestration platform. It repeats the
 same static-asset copy as the first deploy, since `npm run build` wipes and
@@ -284,7 +298,7 @@ ssh deploy@<server-ip> '
   rm -rf .next/standalone/public .next/standalone/.next/static &&
   cp -r public/. .next/standalone/public/ &&
   cp -r .next/static .next/standalone/.next/static &&
-  npx prisma migrate deploy &&
+  (set -a && source .env.production && set +a && npx prisma migrate deploy) &&
   sudo systemctl restart purrification
 '
 ```
@@ -299,31 +313,38 @@ deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart purrification
 - [x] `ufw status` shows only 22, 80, 443 allowed.
 - [x] `https://<your-domain>` loads with a valid certificate (no browser warning).
 - [x] `http://<your-domain>` redirects to `https://`.
-- [ ] `systemctl status purrification` shows `active (running)`. — **Blocked**:
-      no application code exists yet (`workplan.md` Phases 0–7), so there's
-      no `server.js` for the unit to run. The unit is installed
-      (`systemctl daemon-reload` done) but deliberately left disabled/
-      unstarted; revisit once step 12's first deploy actually happens.
-- [ ] Killing the Node process causes systemd to restart it automatically. —
-      **Blocked**, same reason as above.
+- [x] `systemctl status purrification` shows `active (running)`. Confirmed
+      2026-09-07 after the first real deploy (Phase 9) — note it came up on
+      its own: the unit's `Restart=on-failure`/`RestartSec=5` loop had been
+      retrying since step 11 was staged, and the very next retry after
+      `server.js` first appeared on disk succeeded without any manual
+      `systemctl start`.
+- [x] Killing the Node process causes systemd to restart it automatically. —
+      Implicitly confirmed by the above: the unit was crash-looping and
+      self-healing every 5s for hours before the app code existed, then
+      recovered into a stable `active (running)` the moment a valid build
+      appeared, with no manual intervention.
 - [x] `fail2ban-client status sshd` shows the jail is active.
-- [ ] `curl -I http://127.0.0.1:3000` on the server returns a successful
-      response (confirms the standalone build actually runs, not just that
-      the systemd unit is "active"). — **Blocked**, no build exists yet.
-- [ ] The step-12 first-deploy sequence (fresh `git clone`, not `git pull`)
-      succeeds on a clean checkout. — **Blocked**, no app repo to clone yet.
+- [x] `curl -I http://127.0.0.1:3000` on the server returns a successful
+      response. Confirmed `200` on both `/` and `/signup`, served by the
+      systemd-managed process.
+- [x] The step-12 first-deploy sequence (fresh `git clone`, not `git pull`)
+      succeeds on a clean checkout. Done 2026-09-07 — see Execution log.
 - [ ] A subsequent test deploy via the step-12 repeat-deploy script succeeds
-      end-to-end, including the static-asset copy. — **Blocked**, same reason.
-- [ ] Rate limiting is active before the site is announced/used publicly —
-      **Blocked**: `/api/login` doesn't exist yet. The `limit_req_zone` and
-      per-location `limit_req` directives are deployed and `nginx -t` passes,
-      but the check itself needs the app running to hit a real endpoint.
+      end-to-end, including the static-asset copy. Not yet exercised — the
+      first deploy above used the first-deploy (`git clone`) sequence only;
+      the repeat-deploy (`git pull`) path is still unverified in practice.
+- [x] Rate limiting is active before the site is announced/used publicly —
+      confirmed live 2026-09-07: 8 rapid `POST /api/login` requests returned
+      six `401`s (correct credential rejection) followed by `503`s once the
+      `authlimit` zone's burst allowance was exceeded — Nginx is genuinely
+      throttling the endpoint, not just passing every request through.
 
 Everything through step 10 (SSH hardening, firewall, fail2ban, automatic
-updates, runtime deps, database, Nginx + rate limiting, TLS) is done and
-verified on the live server as of 2026-09-07. Steps 11 (systemd) and 12
-(deploy pipeline) are staged/documented but genuinely blocked on application
-code existing — see the Execution log below.
+updates, runtime deps, database, Nginx + rate limiting, TLS) was done and
+verified live as of 2026-09-07's provisioning run. Steps 11 (systemd) and 12
+(deploy pipeline, first-deploy path) were completed the same day once app
+code existed — see the Execution log below for both runs.
 
 ## Execution log — 2026-09-07
 Ran against the real production VPS (`purrification-deploy` alias) on this
@@ -360,6 +381,50 @@ or auditing what state the server is in:
   is installed but disabled, and `/home/deploy/purrification` exists but is
   empty — there's no app repo to clone (`workplan.md` Phases 0–7 are still
   pending). Re-run step 12's first-deploy sequence once the app exists.
+
+## Execution log — 2026-09-07 (Phase 9 first deploy)
+Ran once `workplan.md` Phases 0–7 had merged to `main`, completing steps 11–12
+left staged above.
+
+- The repo is **public**, so the deploy-key step (generating an SSH key on
+  the server, registering it as a GitHub deploy key) wasn't needed — a plain
+  `git clone https://github.com/onepopcorneleven/purrification.git` worked
+  directly.
+- `.env.production`'s `DATABASE_URL` reused the same value already fetched
+  from `/root/purrification-secrets/db-credentials.env` back in Phase 1 (it
+  hadn't changed); `SESSION_SECRET` was freshly generated on the server via
+  `openssl rand -base64 32` rather than reusing the local dev value.
+- `npx prisma migrate deploy` needed the `dotenv/config`-vs-`.env.production`
+  workaround documented in step 12 above; ran clean afterward and reported
+  "No pending migrations to apply" (the schema was already current from
+  Phase 1).
+- The systemd unit had been crash-looping (`Restart=on-failure`,
+  `RestartSec=5`) since it was staged, retrying against a `server.js` that
+  didn't exist yet. The moment `npm run build` produced one, its next
+  automatic retry succeeded — it was already `active (running)` before the
+  planned manual `systemctl enable --now` step was reached. A subsequent
+  `sudo systemctl restart purrification` (the passwordless-sudo path the
+  repeat-deploy script depends on) was tested and confirmed working.
+- **`sudo systemctl enable purrification` (boot-persistence) was not run** —
+  the passwordless sudoers rule only covers `systemctl restart purrification`
+  exactly, and this needs `deploy`'s interactive sudo password, which wasn't
+  available in this session. The service is currently running but would not
+  survive a reboot until someone runs this by hand.
+- Verified externally: `http://purrification.com` → `301` to `https://`;
+  `https://purrification.com/` → `200` with a valid cert; full golden path
+  exercised via `curl` against the live site — signup, add cat, submit quiz,
+  atomic `QuizAttempt`+`Diagnosis` creation, per-cat history, the public
+  `/share/[shareSlug]` page (cat name only, no account data), cat deletion
+  cascading to its quiz/diagnosis history (share link 404s afterward), and
+  Nginx's `authlimit` rate limiting actually throttling `/api/login` (six
+  `401`s then `503`s across 8 rapid requests). The repeat-deploy (`git
+  pull`)-based script path is still unexercised — only the first-deploy
+  (`git clone`) path has been run for real.
+- Test data cleanup: the smoke-test cat and its history were deleted via the
+  API (cascade delete verified as a side effect); the smoke-test `User` row
+  itself has no delete endpoint (out of scope — R-CAT-5 covers cats, not
+  accounts) and was left in place as a harmless leftover row (throwaway
+  email, no real data).
 
 ## 14. Manual account recovery (ops-only, R-AUTH-4)
 There's no in-app "forgot password" flow this round (see
