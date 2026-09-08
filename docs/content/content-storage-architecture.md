@@ -286,13 +286,21 @@ running app.
   risk of logic creeping into a content file the way an executable `.ts`
   module invites.
 - **Entry point:** `prisma/seed/index.ts`. Validates each file before
-  writing anything: every tag reference resolves against `Tag`, exactly one
-  active `isCatchAll` `DiagnosisDef` exists, every `personalizationSlots`
-  entry appears literally in its own templates and vice versa,
-  `contraindications`/`stepsTemplate` are non-empty, `severityBands` are
-  non-overlapping and gapless, and sibling `Ritual.selectionConditions`
-  under one `Treatment` are either mutually exclusive or explicitly
-  priority-ordered. Then it **upserts by stable id** in dependency order:
+  writing anything: every tag reference resolves against `Tag` **and every
+  `AnswerOption`'s `tag_effects` is non-empty (≥1 entry)** — this is the
+  specific authoring bug §4 cites as the reason `tag_effects` is a relational
+  join table in the first place: FK validation alone only catches a *typo'd*
+  tag id, not an answer option seeded with *no* tag effects at all, which is
+  a silent dead branch in the diagnosis logic. Any offending `question_id`/
+  `answer_id` pair aborts the run before any upsert, listed in the error, the
+  same fail-loudly stance as every other check here. The validator also
+  confirms exactly one active `isCatchAll` `DiagnosisDef` exists, every
+  `personalizationSlots` entry appears literally in its own templates and
+  vice versa, `contraindications`/`stepsTemplate` are non-empty,
+  `severityBands` are non-overlapping and gapless, and sibling
+  `Ritual.selectionConditions` under one `Treatment` are either mutually
+  exclusive or explicitly priority-ordered. Then it **upserts by stable id**
+  in dependency order:
   tags → topics → questions + answers + tag effects → treatments →
   diagnosis defs + treatment links → rituals. It never deletes a row; a
   stable id present in the DB but absent from the current seed files is
