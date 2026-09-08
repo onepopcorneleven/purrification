@@ -263,7 +263,7 @@ brand doc is now the authoritative source for anything it covers, ahead of
       reusable prompt template, or regenerate it so it does (via the
       `openai-imagegen` skill); use the same template for any new imagery
       this phase adds.
-- [ ] Retrofit every existing page onto the new primitives/tokens, removing
+- [x] Retrofit every existing page onto the new primitives/tokens, removing
       inline styles: landing (`page.tsx`), signup/login, cats dashboard
       (`cats/page.tsx`, `AddCatForm`, `CatList`, `LogoutButton`), quiz flow
       (`QuizFlow.tsx` + a new progress indicator, using the brand doc's
