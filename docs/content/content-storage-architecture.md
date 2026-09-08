@@ -191,6 +191,7 @@ model DiagnosisDef {
   priority            Int                     // evaluation order, most-specific first
   severityBands       Json                    // [{ min, max, label }]
   descriptionTemplate String
+  descriptionSlots    String[]                // every {slot} used in descriptionTemplate; validated like Ritual.personalizationSlots
   symptomCallbackPool String[]
   isCatchAll          Boolean                 @default(false) // exactly one active row — totality guarantee
   imagePath           String?                 // R-CONTENT-5: replaces getDiagnosisImage's text-equality lookup
@@ -286,13 +287,32 @@ running app.
   risk of logic creeping into a content file the way an executable `.ts`
   module invites.
 - **Entry point:** `prisma/seed/index.ts`. Validates each file before
-  writing anything: every tag reference resolves against `Tag`, exactly one
-  active `isCatchAll` `DiagnosisDef` exists, every `personalizationSlots`
-  entry appears literally in its own templates and vice versa,
-  `contraindications`/`stepsTemplate` are non-empty, `severityBands` are
-  non-overlapping and gapless, and sibling `Ritual.selectionConditions`
-  under one `Treatment` are either mutually exclusive or explicitly
-  priority-ordered. Then it **upserts by stable id** in dependency order:
+  writing anything: every tag reference resolves against `Tag` **and every
+  `AnswerOption`'s `tag_effects` is non-empty (≥1 entry)** — this is the
+  specific authoring bug §4 cites as the reason `tag_effects` is a relational
+  join table in the first place: FK validation alone only catches a *typo'd*
+  tag id, not an answer option seeded with *no* tag effects at all, which is
+  a silent dead branch in the diagnosis logic. Any offending `question_id`/
+  `answer_id` pair aborts the run before any upsert, listed in the error, the
+  same fail-loudly stance as every other check here. The validator also
+  confirms exactly one active `isCatchAll` `DiagnosisDef` exists, **that
+  priorities among active `DiagnosisDef` rows are unique, and that the
+  `isCatchAll` row's `priority` is strictly the highest among them** — a
+  priority tie makes match order depend on unspecified DB row order
+  (nondeterministic), and a non-catch-all row seeded with a priority above
+  the catch-all's is permanently unreachable dead content, so either
+  violation aborts the run the same way — every
+  `personalizationSlots` entry appears literally in its own templates and
+  vice versa (the same check applies to `DiagnosisDef.descriptionSlots`
+  against `descriptionTemplate`, for the identical reason), `contraindications`
+  is non-empty, **`stepsTemplate` has ≥3 entries** (not merely non-empty —
+  this is `content-framework.md`'s "every ritual needs at least 3 concrete,
+  sequential steps" rule, the single biggest quality risk the framework
+  calls out, so the validator enforces the actual threshold rather than
+  just presence), `severityBands` are non-overlapping and gapless, and sibling
+  `Ritual.selectionConditions` under one `Treatment` are either mutually
+  exclusive or explicitly priority-ordered. Then it **upserts by stable id**
+  in dependency order:
   tags → topics → questions + answers + tag effects → treatments →
   diagnosis defs + treatment links → rituals. It never deletes a row; a
   stable id present in the DB but absent from the current seed files is
@@ -320,7 +340,9 @@ running app.
 3. **Totality guarantee (`R-CONTENT-4`, extends `R-DIAG-5`):** exactly one
    active `DiagnosisDef` is authored with `isCatchAll: true`, an
    always-true `triggerRule`, and the highest `priority` number (evaluated
-   last). This invariant is checked twice: authoritatively by the seed-time
+   last), and no two active `DiagnosisDef` rows share a `priority` value.
+   This full invariant — existence, uniqueness, and ordering together, not
+   just existence — is checked twice: authoritatively by the seed-time
    validator (§8), and as defense-in-depth by an in-process assertion at
    first use, the same role today's `diagnosisPool.length === 0` startup
    check plays. **This is a deliberate, weaker guarantee than today's
@@ -348,11 +370,26 @@ running app.
    explicitly forbid. Both Phase 13's placeholder content and Phase 14's
    real content must stay within data the app actually collects.
 7. **Template rendering:** fill `{cat_name}` (from `Cat.name`) and any other
-   slot the intake flow can actually supply; validate every entry in
-   `personalizationSlots` has real data before returning — throw rather
-   than leak a literal `{slot}` into rendered text. Phase 13's placeholder
+   slot the intake flow can actually supply — for both `Ritual` templates
+   (validated against `personalizationSlots`) and `DiagnosisDef.descriptionTemplate`
+   (validated against `descriptionSlots`, §7); throw rather than leak a
+   literal `{slot}` into rendered text in either case. Phase 13's placeholder
    content restricts itself to `cat_name` only, since no UI exists yet to
-   collect a room or object name.
+   collect a room or object name. **`symptomCallbackPool` selection is
+   simplified this round**: pick 1–2 entries at random from the matched
+   `DiagnosisDef`'s pool (slot-filling each the same way as
+   `descriptionTemplate`), rather than `content-framework.md`'s suggested
+   "lines whose source question the user actually triggered high-weight
+   tags on." That heuristic requires a callback line to reference the
+   specific `Tag`(s) that justify picking it, which isn't part of this
+   schema — adding it would mean turning `symptomCallbackPool` from a flat
+   `String[]` into a relational structure (e.g. `{text, tagIds}` rows), a
+   real modeling decision Phase 14's content-authoring pass should make
+   once real content shows whether the extra precision is worth the
+   complexity. Random selection is a safe placeholder in the meantime: it
+   still produces valid, on-theme flavor text, just without the
+   answer-citing precision `content-framework.md` describes as aspirational
+   for this field.
 8. **Persistence:** unchanged shape — one `prisma.$transaction` still
    creates `QuizAttempt` then `Diagnosis` (now carrying the new
    `diagnosisDefId`/`treatmentId`/`ritualId` FKs, `tagTotalsSnapshot`, and
