@@ -414,7 +414,11 @@ left staged above.
   the passwordless sudoers rule only covers `systemctl restart purrification`
   exactly, and this needs `deploy`'s interactive sudo password, which wasn't
   available in this session. The service is currently running but would not
-  survive a reboot until someone runs this by hand.
+  survive a reboot until someone runs this by hand. **Resolved by 2026-09-08**
+  — confirmed during the Phase 11 hardening pass (see that Execution log
+  entry) that `systemctl is-enabled purrification` now reports `enabled`. No
+  Claude Code session had `deploy`'s interactive sudo password at any point,
+  so an operator must have run this by hand between the two sessions.
 - Verified externally: `http://purrification.com` → `301` to `https://`;
   `https://purrification.com/` → `200` with a valid cert; full golden path
   exercised via `curl` against the live site — signup, add cat, submit quiz,
@@ -457,6 +461,43 @@ significant new dependencies and build output.
   state"). The deploy is functionally verified, not visually verified by
   Claude Code; worth an actual look in a browser when convenient.
 
+## Execution log — 2026-09-08 (Phase 11 hardening pass)
+- **Rate-limit tuning attempt**: tried to pull real traffic stats from
+  `/var/log/nginx/access.log` to inform step 9's `rate=5r/m`/`burst=5`
+  values. Blocked — `deploy` isn't in the `adm` group that owns read access
+  to Nginx's logs, and every `sudo` path in this session needs an
+  interactive password no Claude Code session has (the passwordless rule is
+  scoped to `systemctl restart purrification` only, by design — see step
+  12). Fell back to `journalctl -u purrification` (readable without `sudo`
+  since it's the invoking user's own unit) as the best available signal:
+  193 total log lines since the service's 2026-09-07 start, the only
+  repeating errors being unrelated Next.js server-action bot/scanner noise
+  (malformed `Server Reference ID` headers, not `/api/login`/`/api/signup`
+  traffic). No evidence of real users hitting the auth endpoints at volume,
+  let alone at a rate that's ever tripped `authlimit`'s burst allowance
+  outside the deliberate Phase 9 test. Conclusion: there isn't yet enough
+  real traffic to tune the starting values against — changing them now
+  would be a guess dressed up as data. Left unchanged; see the Notes
+  section above.
+- **Nightly backups**: implemented and verified live — see step 15.
+  `scripts/backup-db.sh` ran cleanly by hand
+  (`purrification-20260908T122143Z.sql.gz`, `gzip -t` clean, valid
+  `pg_dump` header confirmed), then wired into `deploy`'s crontab for
+  03:30 UTC nightly.
+- **Incidental finding**: `systemctl is-enabled purrification` now reports
+  `enabled`, closing out the Phase 9 boot-persistence follow-up that no
+  session had run — see the note added to that Execution log entry above.
+  Nothing in this project's tooling ran it; an operator must have done it
+  by hand between sessions.
+- **Content tone review (R-TONE-1/R-TONE-2)**: read every entry in
+  `src/content/diagnoses.ts` (10) and `src/content/quiz.ts` (5 questions)
+  against R-TONE-1 — all read as whimsical/tongue-in-cheek, none phrase
+  anything as real medical or behavioral advice, none use scammy/urgency
+  language. Confirmed `PageShell`'s persistent "just for fun... see a vet"
+  disclaimer (R-TONE-2) renders on every route via its shared footer,
+  including `results/[id]` and the public `share/[shareSlug]` page where it
+  matters most. No content changes made — this pass found nothing to fix.
+
 ## 14. Manual account recovery (ops-only, R-AUTH-4)
 There's no in-app "forgot password" flow this round (see
 `requirements.md` R-AUTH-4) — a locked-out user is recovered manually,
@@ -488,13 +529,52 @@ become frequent enough that this doesn't scale, that's the signal to
 build R-AUTH-4's deferred email-based reset flow instead of scaling this
 procedure.
 
+## 15. Automated nightly backups (`workplan.md` Phase 11)
+This runbook's original Notes section flagged automated backups as a
+near-term follow-up; done 2026-09-08. `scripts/backup-db.sh` (committed to
+the repo) dumps the database nightly via `pg_dump "$DATABASE_URL"` using the
+app's own `purrification` DB role — that role already owns the database
+(step 8), so this needs no `postgres`-OS-level access at all, unlike step
+14's manual-recovery procedure above.
+
+Scheduled via the `deploy` user's own crontab, not a system-level systemd
+timer: writing unit files under `/etc/systemd/system` needs root, and
+`deploy`'s passwordless sudo is scoped to `systemctl restart purrification`
+only (step 12) — every other privileged action needs an interactive
+password this project's Claude Code sessions don't have. A user crontab
+needs no elevated privilege at all, so that's what's actually running.
+
+```bash
+scp scripts/backup-db.sh deploy@<server-ip>:~/purrification/scripts/backup-db.sh
+ssh deploy@<server-ip> 'chmod +x ~/purrification/scripts/backup-db.sh'
+ssh deploy@<server-ip> '
+  (crontab -l 2>/dev/null; echo "30 3 * * * /home/deploy/purrification/scripts/backup-db.sh >> /home/deploy/backups/purrification/backup.log 2>&1") | crontab -
+'
+```
+
+Dumps land gzip'd at `/home/deploy/backups/purrification/purrification-<UTC
+timestamp>.sql.gz` (dir mode `700`, `deploy`-only), one per night at 03:30
+UTC; the script prunes anything older than 14 days on each run. Restore with
+`gunzip -c <file>.sql.gz | psql "$DATABASE_URL"` against an empty/target
+database.
+
+**Known gap, deliberately not closed this round:** backups are
+same-server-only — a full disk failure loses the app and every backup
+together. The original Notes bullet said "off-server storage"; actually
+shipping that needs a destination (S3-compatible bucket, a second VPS,
+`rclone`, etc.) this single-server project doesn't have credentials or a
+budget decision for yet. Tracked here as the next step if/when that's worth
+setting up, not silently dropped.
+
 ## Notes / follow-ups
 - This is a single-server setup (app + DB colocated) per `architecture.md`;
   revisit if scale ever requires splitting the database out.
-- The `rate=5r/m` / `burst=5` values in step 9 are a starting point, not a
-  tuned final answer — revisit based on real traffic/false-positive reports
-  once the app has real users.
+- The `rate=5r/m` / `burst=5` values in step 9 are a starting point.
+  Reviewed 2026-09-08 (Phase 11 hardening pass) against real traffic: see
+  that Execution log entry — the app hasn't had enough genuine login/signup
+  volume yet to tune the exact numbers against, so the values are unchanged
+  for now. Revisit again once there's real usage to measure against.
 - Secrets (`DATABASE_URL`, session secret) live only in `.env.production` on
   the server — rotate them if this file is ever exposed.
-- Consider adding automated backups for PostgreSQL (e.g. nightly `pg_dump` to
-  off-server storage) as a near-term follow-up; not covered by this runbook.
+- Automated nightly backups: done, see step 15. Off-server backup storage
+  remains a follow-up — see step 15's "Known gap" note.
