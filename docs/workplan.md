@@ -207,7 +207,7 @@ machine meets tarot deck" identity, Cinzel Decorative/Cinzel/EB Garamond
 typography, and concrete token values. The style-tile step is dropped; the
 brand doc is now the authoritative source for anything it covers, ahead of
 `design-system.md`.
-- [ ] Reconcile `design-system.md`'s placeholder token/typography/dark-mode
+- [x] Reconcile `design-system.md`'s placeholder token/typography/dark-mode
       sections against `purrification-brand-guidelines.md` (dark-only —
       drop the `prefers-color-scheme` light variant it assumed; the actual
       color roles, font roles, radius, and shadow/glow values from
