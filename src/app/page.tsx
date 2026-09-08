@@ -10,9 +10,16 @@ export default async function Home() {
     redirect("/cats");
   }
 
+  const steps = [
+    "Sign up and add your cat.",
+    "Answer a few questions about their recent mood, sleep spots, and general chaos level.",
+    "Get a diagnosis (say, residual energy from the vacuum cleaner) and a prescribed ritual (a catnip blessing, a moonlight nap spot).",
+    "Save it, share it, and look back at your cat's journey.",
+  ];
+
   return (
-    <PageShell user={user}>
-      <div className="hero-fog flex flex-col gap-6 rounded-lg">
+    <PageShell user={user} wide>
+      <div className="hero-fog rounded-lg">
         <Image
           src="/images/header-fortune-cat.png"
           alt="A regal black cat, dressed as a fortune teller, seated at a mystical crystal ball and tarot card reading beneath a striped circus tent"
@@ -21,6 +28,11 @@ export default async function Home() {
           priority
           className="w-full rounded-lg shadow-glow-purple"
         />
+      </div>
+      {/* A comfortable reading measure inside the wider hero well — the
+          image gets the extra breathing room, the prose doesn't have to
+          (see PageShell's `wide` doc comment). */}
+      <div className="mx-auto flex max-w-2xl flex-col gap-6 pt-8">
         <h1 className="font-display text-4xl text-gold-50">Purrification</h1>
         <p className="text-lg text-text-secondary">
           Your cat is acting weird again — hiding, hissing, knocking things off
@@ -30,18 +42,15 @@ export default async function Home() {
         </p>
 
         <ol className="flex flex-col gap-2 pl-5 text-text-secondary marker:text-gold-500">
-          <li className="list-decimal">Sign up and add your cat.</li>
-          <li className="list-decimal">
-            Answer a few questions about their recent mood, sleep spots, and
-            general chaos level.
-          </li>
-          <li className="list-decimal">
-            Get a diagnosis (say, residual energy from the vacuum cleaner) and a
-            prescribed ritual (a catnip blessing, a moonlight nap spot).
-          </li>
-          <li className="list-decimal">
-            Save it, share it, and look back at your cat&apos;s journey.
-          </li>
+          {steps.map((step, i) => (
+            <li
+              key={step}
+              className="animate-fade-in list-decimal"
+              style={{ animationDelay: `${150 + i * 120}ms` }}
+            >
+              {step}
+            </li>
+          ))}
         </ol>
 
         <div className="flex gap-3">

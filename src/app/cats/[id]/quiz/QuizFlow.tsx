@@ -86,12 +86,20 @@ export function QuizFlow({
           );
         })}
       </div>
+      {submitting && (
+        <p
+          role="status"
+          className="animate-fade-in font-ui text-sm text-gold-300"
+        >
+          The cards are turning over your answers…
+        </p>
+      )}
       <div className="flex justify-between">
         <Button
           type="button"
           variant="secondary"
           onClick={() => setStep((s) => s - 1)}
-          disabled={step === 0}
+          disabled={step === 0 || submitting}
         >
           Back
         </Button>
@@ -100,8 +108,9 @@ export function QuizFlow({
             type="button"
             onClick={handleSubmit}
             disabled={!selected || submitting}
+            className={submitting ? "animate-glow-pulse" : ""}
           >
-            {submitting ? "Submitting…" : "Get diagnosis"}
+            {submitting ? "Consulting the cards…" : "Get diagnosis"}
           </Button>
         ) : (
           <Button

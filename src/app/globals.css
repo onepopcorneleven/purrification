@@ -167,6 +167,18 @@
     animation: none;
     box-shadow: var(--shadow-glow-gold-md);
   }
+
+  /* WP4's full reduced-motion audit (docs/design-upgrade-round-2.md):
+     fade-in itself was never gated, even as WP4 puts it to much wider use
+     (staggered list/card entrances) than Phase 10's single-element usage.
+     Content still needs to end up visible — drop straight to the settled
+     end state instead of skipping the animation and leaving it at its 0%
+     (opacity: 0) starting keyframe. */
+  .animate-fade-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /*

@@ -52,10 +52,11 @@ export function CatList({ cats }: { cats: Cat[] }) {
   return (
     <>
       <div className="flex flex-col gap-3">
-        {cats.map((cat) => (
+        {cats.map((cat, i) => (
           <Card
             key={cat.id}
-            className="flex flex-wrap items-center justify-between gap-3"
+            className="animate-fade-in flex flex-wrap items-center justify-between gap-3 transition-transform duration-300 ease-dreamy hover:-translate-y-0.5 hover:shadow-glow-gold-sm"
+            style={{ animationDelay: `${i * 90}ms` }}
           >
             <div>
               <p className="font-heading text-lg text-text-primary">

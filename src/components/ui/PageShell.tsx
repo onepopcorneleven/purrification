@@ -14,12 +14,19 @@ type PageShellProps = {
    * on pages that already guard themselves; omit to have PageShell fetch
    * it itself (e.g. on public pages like the landing or share page). */
   user?: User;
+  /** Widen `main` for the one true hero moment (the landing page's
+   * photographic header) instead of the uniform max-w-3xl every other
+   * route uses — WP4's "break the uniform column" (see
+   * docs/design-upgrade-round-2.md). Header/footer stay at max-w-3xl on
+   * purpose: a hero well that reads slightly wider than the chrome above
+   * it is a deliberate bit of rhythm, not a layout bug. */
+  wide?: boolean;
 };
 
 /** Header (wordmark + auth-aware nav) and footer (persistent disclaimer)
  * around every page — see docs/design-system.md's "Gaps found": no shared
  * shell existed before this. */
-export async function PageShell({ children, user }: PageShellProps) {
+export async function PageShell({ children, user, wide }: PageShellProps) {
   const currentUser = user !== undefined ? user : await getCurrentUser();
 
   return (
@@ -69,7 +76,9 @@ export async function PageShell({ children, user }: PageShellProps) {
         <OrnamentalRule />
       </header>
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
+      <main
+        className={`mx-auto w-full flex-1 px-4 py-10 ${wide ? "max-w-4xl" : "max-w-3xl"}`}
+      >
         {children}
       </main>
 

@@ -372,9 +372,25 @@ tokens — this uses the existing identity more fully, it doesn't change it.
       new option-card markup, `nav-link`/`wordmark-glow`/`Card`'s inset
       border, and the history timeline's connecting `border-l` thread all
       render, with zero errors in the dev server log.
-- [ ] WP4 — Motion & rhythm: break the uniform column for hero moments,
+- [x] WP4 — Motion & rhythm: break the uniform column for hero moments,
       staggered entrances, a themed quiz-submit loading state, hover/press
       micro-interactions, a full `prefers-reduced-motion` audit (see WP4).
+      Scope note: only the landing page got the wider treatment (a new
+      `PageShell` `wide` prop, `max-w-4xl` with an inner `max-w-2xl` text
+      column so prose doesn't over-stretch) — on review, widening
+      `DiagnosisCard` itself would have fought its portrait "tarot card"
+      identity rather than added breathing room, so that one stays at the
+      standard width, and its "hero moment" quality comes from WP2's
+      illustration/seal instead. The "ink-stamp press" bullet was already
+      delivered by WP2's `seal-stamp` keyframe (a real impact animation,
+      not just a fade), so nothing new was added there. Also closed a
+      pre-existing gap while auditing reduced-motion: `.animate-fade-in`
+      itself (used since Phase 10) had never been gated — now is, since
+      WP4 puts it to much wider use (staggered list/card entrances).
+      Verified: `npm run lint`/`build` clean; curl checks confirm the wide
+      layout, staggered list markup, and dashboard hover classes render;
+      a full authenticated run (2 cats, quiz, delete-with-cascade) again
+      showed zero dev-server errors.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,

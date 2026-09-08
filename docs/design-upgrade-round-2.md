@@ -1,10 +1,15 @@
 # Purrification — Design Upgrade Round 2 (Visual Richness Pass)
 
-**Status: proposed, not yet approved.** This is a pitch document, written at
-the user's request to evaluate the current live UI and propose a second
-design round in four work packages. No implementation has started. See
-`docs/workplan.md`'s Phase 12 (added alongside this doc, also unchecked) for
-how this would be sequenced if approved.
+**Status: done and deployed.** Written as a pitch document evaluating the
+current live UI and proposing a second design round in four work packages;
+the user approved all four in one go ("go ahead with all four... implement,
+document, commit, push, deploy... continue with next WP"). All four shipped
+and are live at purrification.com — see `docs/workplan.md`'s Phase 12 for
+the checked-off checklist and per-package implementation notes (what
+actually got built sometimes differed slightly from the plan below — WP4's
+checklist entry in particular records a couple of scope calls made during
+implementation). This doc is kept as the original rationale/plan, not
+rewritten after the fact.
 
 This plays the same role for this round that `docs/design-system.md` played
 for Phase 10: the substantive plan. It does not touch
