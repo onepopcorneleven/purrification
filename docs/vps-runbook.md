@@ -330,10 +330,15 @@ deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart purrification
       systemd-managed process.
 - [x] The step-12 first-deploy sequence (fresh `git clone`, not `git pull`)
       succeeds on a clean checkout. Done 2026-09-07 — see Execution log.
-- [ ] A subsequent test deploy via the step-12 repeat-deploy script succeeds
-      end-to-end, including the static-asset copy. Not yet exercised — the
-      first deploy above used the first-deploy (`git clone`) sequence only;
-      the repeat-deploy (`git pull`) path is still unverified in practice.
+- [x] A subsequent test deploy via the step-12 repeat-deploy script succeeds
+      end-to-end, including the static-asset copy. Exercised for real
+      2026-09-08 (shipping the landing-page header image): `git pull` →
+      `npm ci` → `npm run build` → static-asset copy → `prisma migrate
+      deploy` (reported "No pending migrations to apply") → `sudo systemctl
+      restart purrification`, all in one script, no manual intervention.
+      Confirmed live: service `active (running)` seconds after restart,
+      `https://purrification.com/` and the new
+      `https://purrification.com/images/header-fortune-cat.png` both `200`.
 - [x] Rate limiting is active before the site is announced/used publicly —
       confirmed live 2026-09-07: 8 rapid `POST /api/login` requests returned
       six `401`s (correct credential rejection) followed by `503`s once the

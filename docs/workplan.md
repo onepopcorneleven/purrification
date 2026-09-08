@@ -169,10 +169,11 @@ So the route was built complete from the start.
       `sudo systemctl enable purrification` (boot persistence) still needs
       to be run by hand with `deploy`'s interactive sudo password — the
       passwordless sudoers rule only covers `restart`, not `enable`.
-- [x] Wire the deploy script (or CI job) from `vps-runbook.md` step 12. The
-      first-deploy (`git clone`) path is written and has been run for real;
-      the repeat-deploy (`git pull`) path is written but not yet exercised
-      against a real second deploy.
+- [x] Wire the deploy script (or CI job) from `vps-runbook.md` step 12. Both
+      paths are written and have been run for real: the first-deploy
+      (`git clone`) path on 2026-09-07, and the repeat-deploy (`git pull`)
+      path on 2026-09-08 (shipping the landing-page header image) — see
+      `vps-runbook.md` step 13.
 - [x] Do a full first deploy: build, migrate, restart, verify the live site
       over HTTPS. Done 2026-09-07 (repo is public, so no GitHub deploy key
       was needed — a plain HTTPS clone worked). Hit and documented one
