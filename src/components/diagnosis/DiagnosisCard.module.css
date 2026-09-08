@@ -18,14 +18,15 @@
 
 /* The source illustrations are 4:5 (1122x1402 — the brand doc's "card
    thumbnail" ratio, docs/design-upgrade-round-2.md's WP2) and already
-   carry their own ornate gold frame baked into the artwork. Forcing them
-   into a short, wide 100%-width banner (the original version of this
-   rule) fought that: object-fit: cover on such a wide/short target
-   against a tall source crops out nearly the whole image, including most
-   of that baked-in frame, down to a thin unrecognizable strip. Matching
-   the display box to the source's own aspect ratio instead — sized down
-   as a centered "framed plate" rather than stretched full-bleed — shows
-   the actual illustration (frame included) with no meaningful crop. */
+   carry their own ornate gold frame baked into the artwork. A first fix
+   sized the box to that same 4:5 ratio (fixing the crop), but on a wide
+   card that leaves a small image stranded in a sea of empty padding —
+   still wrong, just a different symptom of the same root cause: a tall
+   portrait asset forced into a container shaped for full-width stacked
+   text. Below sm (640px) that small centered size is fine (see the base
+   rule); at sm and up, .card switches to a two-column grid instead, so the
+   portrait image gets its own column at something closer to its natural
+   size rather than fighting the wide text column for a shared width. */
 .illustration {
   display: block;
   width: 55%;
@@ -35,6 +36,33 @@
   margin: 0 auto 1.5rem;
   border-radius: calc(var(--radius-lg) - 10px);
   box-shadow: var(--shadow-elevation-1);
+}
+
+@media (min-width: 640px) {
+  .card {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    column-gap: 2rem;
+  }
+
+  /* Spans every row so the rest of the card's children (auto-placed by
+     grid, in source order) flow down the second column instead — the
+     standard CSS-grid "full-height sidebar" technique, no per-child
+     column assignment needed. Height stays driven by the 4:5 ratio (not
+     stretched to match the text column) — stretching to fill a height
+     that varies with each reading's text length would just reintroduce
+     the same problem in the other axis: an unpredictable side-crop
+     instead of a predictable, near-zero one. At width: 100% of a 220px
+     column, 4:5 needs 220x275, which is close enough to the source's
+     actual 1122x1402 that object-fit: cover barely crops anything. */
+  .illustration {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    align-self: start;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
 }
 
 .seal {
