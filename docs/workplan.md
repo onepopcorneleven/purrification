@@ -251,7 +251,7 @@ brand doc is now the authoritative source for anything it covers, ahead of
       scope (§9) — its suggested "glowing candle" motif — for signup/login/
       quiz-submission errors and successes, replacing ad hoc inline error
       text.
-- [ ] Build `DiagnosisCard`, the bespoke shareable result component
+- [x] Build `DiagnosisCard`, the bespoke shareable result component
       (`src/components/diagnosis/`), and wire it into both `results/[id]`
       and `share/[shareSlug]` (same component, two contexts —
       R-DIAG-3/R-DIAG-4). Apply the brand doc's motion guidance (§8):
