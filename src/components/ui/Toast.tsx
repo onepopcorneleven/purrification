@@ -21,8 +21,10 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 const AUTO_DISMISS_MS = 5000;
 
 /** App-wide toast host — mounted once in the root layout. Brand doc §9
- * suggests a "glowing candle" motif rather than a generic toast bar; here
- * that's a small gold glow-dot rather than a literal candle illustration. */
+ * suggests a "glowing candle" motif rather than a generic toast bar; a
+ * small flickering flame glyph (see .toast-flame in globals.css) replaced
+ * the plain gold dot this originally shipped with (WP3,
+ * docs/design-upgrade-round-2.md). */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const nextId = useRef(0);
@@ -54,12 +56,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           >
             <span
               aria-hidden
-              className={`h-1.5 w-1.5 rounded-full ${
-                toast.variant === "error"
-                  ? "bg-error"
-                  : "bg-gold-500 shadow-glow-gold-md"
-              }`}
-            />
+              className={`toast-flame ${toast.variant === "error" ? "toast-flame--error" : ""}`}
+            >
+              <svg width="12" height="16" viewBox="0 0 12 16" fill="none">
+                <path
+                  d="M6 0C6 0 1.5 5.5 1.5 9.2C1.5 11.9 3.5 14 6 14C8.5 14 10.5 11.9 10.5 9.2C10.5 5.5 6 0 6 0Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
             {toast.message}
           </div>
         ))}

@@ -43,26 +43,43 @@ export default async function CatHistoryPage({
           action={<Button href={`/cats/${cat.id}/quiz`}>Take the quiz</Button>}
         />
       ) : (
-        <div className="flex flex-col gap-3">
+        // A reading log, not a plain list — each entry sits on a connecting
+        // gold thread with a small sigil marker, per WP3
+        // (docs/design-upgrade-round-2.md): "a record of rituals performed"
+        // rather than a table of rows. The border-left on each row *is*
+        // that row's segment of thread; rows abut with no gap (pb-6 instead
+        // of a flex gap) so consecutive segments read as one continuous
+        // line, and the last row drops its segment so the thread doesn't
+        // dangle past the final entry.
+        <div className="flex flex-col">
           {attempts.map((attempt) => (
-            <Card key={attempt.id}>
-              <p className="text-sm text-text-muted">
-                {attempt.createdAt.toLocaleDateString()}
-              </p>
-              {attempt.diagnosis && (
-                <>
-                  <p className="my-1.5 text-text-primary">
-                    {attempt.diagnosis.diagnosisText}
-                  </p>
-                  <TextLink
-                    href={`/results/${attempt.diagnosis.id}`}
-                    className="font-ui text-sm text-gold-300 hover:underline"
-                  >
-                    View full reading
-                  </TextLink>
-                </>
-              )}
-            </Card>
+            <div
+              key={attempt.id}
+              className="relative border-l border-border-hairline pb-6 pl-6 last:border-transparent last:pb-0"
+            >
+              <span
+                aria-hidden="true"
+                className="absolute top-1 -left-[7px] h-3.5 w-3.5 rounded-full border border-gold-500 bg-bg-base shadow-glow-gold-sm"
+              />
+              <Card>
+                <p className="text-sm text-text-muted">
+                  {attempt.createdAt.toLocaleDateString()}
+                </p>
+                {attempt.diagnosis && (
+                  <>
+                    <p className="my-1.5 text-text-primary">
+                      {attempt.diagnosis.diagnosisText}
+                    </p>
+                    <TextLink
+                      href={`/results/${attempt.diagnosis.id}`}
+                      className="font-ui text-sm text-gold-300 hover:underline"
+                    >
+                      View full reading
+                    </TextLink>
+                  </>
+                )}
+              </Card>
+            </div>
           ))}
         </div>
       )}

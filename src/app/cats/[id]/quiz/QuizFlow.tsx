@@ -56,16 +56,16 @@ export function QuizFlow({
     <div className="flex flex-col gap-6">
       <QuizProgress step={step} total={questions.length} />
       <h2 className="font-heading text-xl">{question.prompt}</h2>
-      <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {question.options.map((option) => {
           const isSelected = selected === option.id;
           return (
             <label
               key={option.id}
-              className={`flex cursor-pointer items-center gap-3 rounded-md border px-4 py-3 font-ui transition-colors duration-150 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-500 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bg-base ${
+              className={`relative flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-4 py-5 text-center font-ui transition-all duration-300 ease-dreamy has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-500 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bg-base ${
                 isSelected
-                  ? "border-gold-500 bg-bg-elevated shadow-glow-gold-sm"
-                  : "border-border-hairline hover:border-border-hairline-strong"
+                  ? "animate-glow-pulse border-gold-500 bg-bg-elevated"
+                  : "border-border-hairline bg-bg-raised hover:-translate-y-0.5 hover:border-border-hairline-strong hover:shadow-glow-gold-sm"
               }`}
             >
               <input
@@ -73,9 +73,15 @@ export function QuizFlow({
                 name={question.id}
                 checked={isSelected}
                 onChange={() => selectOption(option.id)}
-                className="accent-gold-500 focus-visible:outline-none"
+                className="sr-only"
               />
-              {option.label}
+              <span
+                aria-hidden="true"
+                className={`h-2 w-2 rotate-45 border border-gold-500 transition-colors duration-300 ${
+                  isSelected ? "bg-gold-500" : "bg-transparent opacity-50"
+                }`}
+              />
+              <span>{option.label}</span>
             </label>
           );
         })}

@@ -360,10 +360,18 @@ tokens — this uses the existing identity more fully, it doesn't change it.
       run (signup → add cat → quiz → results → share → history → delete)
       confirmed every new image URL and the seal actually render on each
       page, with zero errors in the dev server log.
-- [ ] WP3 — Theatrical component detail: tarot-card-style quiz options, a
+- [x] WP3 — Theatrical component detail: tarot-card-style quiz options, a
       literal glowing-candle `Toast`, `DiagnosisCard`'s double-border
       treatment extended to `Card`, a history "reading log" timeline (see
-      WP3).
+      WP3). Also finally implemented `--animate-glow-pulse` (named in
+      `design-tokens.json` since Phase 10 but never actually built until
+      now) for the selected-quiz-option state and a one-time
+      `wordmark-glow` on `PageShell`'s mark; nav links/logout got a
+      `.nav-link` engraved-underline hover treatment. Verified:
+      `npm run lint`/`build` clean; an authenticated curl run confirmed the
+      new option-card markup, `nav-link`/`wordmark-glow`/`Card`'s inset
+      border, and the history timeline's connecting `border-l` thread all
+      render, with zero errors in the dev server log.
 - [ ] WP4 — Motion & rhythm: break the uniform column for hero moments,
       staggered entrances, a themed quiz-submit loading state, hover/press
       micro-interactions, a full `prefers-reduced-motion` audit (see WP4).

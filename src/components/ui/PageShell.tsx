@@ -30,7 +30,9 @@ export async function PageShell({ children, user }: PageShellProps) {
             href={currentUser ? "/cats" : "/"}
             className="flex items-center gap-2.5 rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
           >
-            <Mark size={28} />
+            <span className="wordmark-glow">
+              <Mark size={28} />
+            </span>
             <span className="font-heading text-lg tracking-wide text-text-primary">
               Purrification
             </span>
@@ -38,17 +40,26 @@ export async function PageShell({ children, user }: PageShellProps) {
           <nav className="flex items-center gap-5 font-ui text-sm text-text-secondary">
             {currentUser ? (
               <>
-                <TextLink href="/cats" className="hover:text-gold-300">
+                <TextLink
+                  href="/cats"
+                  className="nav-link hover:text-gold-300"
+                >
                   My cats
                 </TextLink>
                 <LogoutButton />
               </>
             ) : (
               <>
-                <TextLink href="/login" className="hover:text-gold-300">
+                <TextLink
+                  href="/login"
+                  className="nav-link hover:text-gold-300"
+                >
                   Log in
                 </TextLink>
-                <TextLink href="/signup" className="hover:text-gold-300">
+                <TextLink
+                  href="/signup"
+                  className="nav-link hover:text-gold-300"
+                >
                   Sign up
                 </TextLink>
               </>
