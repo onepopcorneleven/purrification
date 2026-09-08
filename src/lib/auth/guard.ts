@@ -11,11 +11,23 @@ export async function getSessionUserId(): Promise<string | null> {
   return verifySessionToken(token)?.userId ?? null;
 }
 
+// Temporary tester/reviewer convenience: with DISABLE_AUTH=true, anyone
+// with no session cookie is treated as this pinned user (erika@erika.erika)
+// instead of being sent to /login. Logging in as yourself still works
+// normally on top of this. Never set DISABLE_AUTH in .env.production —
+// this must not reach the live site.
+const DISABLE_AUTH_USER_ID = "cmtrjbo760005ddeptg5o7w4i";
+
 /** Loads the logged-in user for the current request, or null if signed out.
  * The guard for protected pages/Server Components (`redirect("/login")` on
  * null) and Route Handlers (respond 401 on null) alike. */
 export async function getCurrentUser() {
   const userId = await getSessionUserId();
-  if (!userId) return null;
+  if (!userId) {
+    if (process.env.DISABLE_AUTH === "true") {
+      return prisma.user.findUnique({ where: { id: DISABLE_AUTH_USER_ID } });
+    }
+    return null;
+  }
   return prisma.user.findUnique({ where: { id: userId } });
 }
