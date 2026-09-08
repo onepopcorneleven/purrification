@@ -244,10 +244,10 @@ brand doc is now the authoritative source for anything it covers, ahead of
       guidance (rounded-full/rounded-lg buttons with gold border or fill
       and glow-on-hover, spacious/airy density, soft gold/purple glow
       instead of hard drop shadows, mobile-first).
-- [ ] Add a `Modal`/`Dialog` primitive per the brand doc's v1 component
+- [x] Add a `Modal`/`Dialog` primitive per the brand doc's v1 component
       scope (§9) and use it for the cat-deletion confirmation (R-CAT-5),
       replacing the current bare `window.confirm`.
-- [ ] Add a toast/notification primitive per the brand doc's v1 component
+- [x] Add a toast/notification primitive per the brand doc's v1 component
       scope (§9) — its suggested "glowing candle" motif — for signup/login/
       quiz-submission errors and successes, replacing ad hoc inline error
       text.
