@@ -16,14 +16,25 @@
   pointer-events: none;
 }
 
+/* The source illustrations are 4:5 (1122x1402 — the brand doc's "card
+   thumbnail" ratio, docs/design-upgrade-round-2.md's WP2) and already
+   carry their own ornate gold frame baked into the artwork. Forcing them
+   into a short, wide 100%-width banner (the original version of this
+   rule) fought that: object-fit: cover on such a wide/short target
+   against a tall source crops out nearly the whole image, including most
+   of that baked-in frame, down to a thin unrecognizable strip. Matching
+   the display box to the source's own aspect ratio instead — sized down
+   as a centered "framed plate" rather than stretched full-bleed — shows
+   the actual illustration (frame included) with no meaningful crop. */
 .illustration {
   display: block;
-  width: 100%;
-  height: 12rem;
+  width: 55%;
+  max-width: 200px;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
-  object-position: center 22%;
-  border-radius: calc(var(--radius-lg) - 8px);
-  margin-bottom: 1.5rem;
+  margin: 0 auto 1.5rem;
+  border-radius: calc(var(--radius-lg) - 10px);
+  box-shadow: var(--shadow-elevation-1);
 }
 
 .seal {
