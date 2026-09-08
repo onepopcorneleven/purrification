@@ -270,12 +270,18 @@ brand doc is now the authoritative source for anything it covers, ahead of
       restrained-clarity guidance for anything table-like), history
       (`cats/[id]/history/page.tsx`). Add the `PageShell` nav/footer these
       pages currently lack (see `design-system.md`'s "Gaps found").
-- [ ] Responsive pass (375px / 768px / 1280px, mobile-first per §7) and an
+- [x] Responsive pass (375px / 768px / 1280px, mobile-first per §7) and an
       accessibility pass: `:focus-visible` states, plus the color-on-color
       contrast check `purrification-brand-guidelines.md` §11.3 explicitly
       flags as unverified (e.g. a burgundy button on an emerald background)
       now that real screens exist, alongside the already-verified
-      parchment-on-near-black text contrast.
+      parchment-on-near-black text contrast. Found and fixed a real
+      failure (`--color-error` text) — see `design-system.md`'s
+      accessibility rules. Verified via computed contrast ratios and a
+      mobile-first, no-fixed-widths code audit, not literal screenshots —
+      this sandbox has no usable headless browser (see Phase 9/earlier
+      notes); a from-scratch responsive/visual check is worth a real pass
+      once someone can view it in an actual browser.
 - [ ] Visual QA via the `run` skill against the dev server (mobile +
       desktop — dark-only, so no light-mode pass needed) for every route
       before considering this phase done.
