@@ -40,8 +40,9 @@ Docs were written in dependency order, each derived from the one before it:
 2. `docs/requirements.md` — the brief restated as testable requirements (IDs like `R-AUTH-1`, `R-DIAG-2`); functional requirements cover auth, cat management, quiz flow, the diagnosis engine, and result history, plus non-functional requirements for hosting and data persistence.
 3. `docs/architecture.md` — how the system will be built to satisfy those requirements: a single Next.js (TypeScript, App Router) app for UI + API routes, PostgreSQL via Prisma/Drizzle, session-based auth, and a deterministic (non-LLM) diagnosis engine. Requirement IDs are cited throughout for traceability.
 4. `docs/vps-runbook.md` — one-time provisioning/hardening checklist for the target bare-metal VPS (non-root deploy user, SSH hardening, ufw, fail2ban, TLS via certbot, systemd service, deploy script).
-5. `docs/workplan.md` — the sequenced build plan (phases 0–10) tying it all together, from project scaffolding through VPS provisioning and launch.
-6. `docs/specs-updates.md` — a cross-doc consistency check that found and resolved contradictions/gaps across the five docs above (e.g. the sharing model, deletion cascades, password reset scope). Treat docs 1–5 as already incorporating these resolutions; check here first if something in them still looks contradictory.
+5. `docs/design-system.md` — how the UI will look and behave: visual language, design tokens, and component conventions for retrofitting a real design onto the functional layer built in Phases 2–7. Plays the same role for the frontend that `architecture.md` plays for the backend.
+6. `docs/workplan.md` — the sequenced build plan (phases 0–11) tying it all together, from project scaffolding through VPS provisioning, launch, and UI design.
+7. `docs/specs-updates.md` — a cross-doc consistency check that found and resolved contradictions/gaps across the docs above (e.g. the sharing model, deletion cascades, password reset scope). Treat the docs above as already incorporating these resolutions; check here first if something in them still looks contradictory.
 
 ## Key decisions to know before touching this repo
 

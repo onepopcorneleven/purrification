@@ -192,7 +192,44 @@ So the route was built complete from the start.
       verified the public `/share/[shareSlug]` page and cat-deletion cascade
       as a side effect. Test data cleaned up afterward via the API.
 
-## Phase 10 — Hardening pass / polish
+## Phase 10 — Design system & UI implementation (R-LAND-1, R-TONE-1, R-TONE-2)
+Retrofits a real, flexible visual design onto the functional layer built in
+Phases 2–7, which shipped with only inline styles and no shared layout —
+see `docs/design-system.md` (written alongside this phase, playing the same
+role `architecture.md` played before Phase 0) for the full token/component
+plan this phase executes. No functional/behavior changes — UI only.
+- [ ] Set up Tailwind CSS v4 (`@tailwindcss/postcss`, this Next.js
+      version's own recommended default) and define the token roles from
+      `design-system.md` as a Tailwind v4 `@theme` block in `globals.css`.
+- [ ] Build a small internal "style tile" page with 2–3 concrete
+      palette/type-pairing options rendered against real UI fragments (a
+      button, a card, the diagnosis card's shape) — the palette decision
+      deliberately deferred in `design-system.md` gets made here, against
+      something real rather than swatches.
+- [ ] Lock the chosen palette/type into `globals.css`'s `@theme` block and
+      record the decision in `design-system.md`.
+- [ ] Build the shared primitives (`src/components/ui/`): `PageShell`,
+      `Button`, `Card`, `Field`, `EmptyState` — per `design-system.md`'s
+      component inventory.
+- [ ] Add a branded favicon and confirm `layout.tsx`'s metadata reflects
+      the final identity (replacing the default Next.js favicon).
+- [ ] Build `DiagnosisCard`, the bespoke shareable result component, and
+      wire it into both `results/[id]` and `share/[shareSlug]` (same
+      component, two contexts — R-DIAG-3/R-DIAG-4).
+- [ ] Retrofit every existing page onto the new primitives/tokens, removing
+      inline styles: landing (`page.tsx`), signup/login, cats dashboard
+      (`cats/page.tsx`, `AddCatForm`, `CatList`, `LogoutButton`), quiz flow
+      (`QuizFlow.tsx` + a new progress indicator), history
+      (`cats/[id]/history/page.tsx`). Add the `PageShell` nav/footer these
+      pages currently lack (see `design-system.md`'s "Gaps found").
+- [ ] Responsive pass (375px / 768px / 1280px) and accessibility pass
+      (contrast, `:focus-visible` states) per `design-system.md`.
+- [ ] Visual QA via the `run` skill against the dev server (light + dark,
+      mobile + desktop) for every route before considering this phase done.
+- [ ] `npm run lint` / `format:check` clean; deploy via the established
+      Phase 9 pipeline once verified.
+
+## Phase 11 — Hardening pass / polish
 - [ ] Tune the `rate=5r/m` / `burst=5` rate-limit values from `vps-runbook.md`
       step 9 based on real traffic (the Phase 8 values are a starting point,
       not a final answer — see `vps-runbook.md` Notes).
