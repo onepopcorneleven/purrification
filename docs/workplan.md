@@ -165,10 +165,14 @@ So the route was built complete from the start.
       own: the unit had been crash-looping (`Restart=on-failure`) waiting
       for `server.js` to exist, and its next automatic retry succeeded the
       moment the first build produced one, before the planned manual
-      `enable --now` step was reached. **One manual follow-up remains**:
-      `sudo systemctl enable purrification` (boot persistence) still needs
-      to be run by hand with `deploy`'s interactive sudo password — the
-      passwordless sudoers rule only covers `restart`, not `enable`.
+      `enable --now` step was reached. **Manual follow-up resolved**:
+      `sudo systemctl enable purrification` (boot persistence) needed to be
+      run by hand with `deploy`'s interactive sudo password — the
+      passwordless sudoers rule only covers `restart`, not `enable`. No
+      Claude Code session ever had that password; confirmed during the
+      Phase 11 hardening pass (2026-09-08) that `systemctl is-enabled
+      purrification` now reports `enabled`, so an operator must have run it
+      by hand between sessions.
 - [x] Wire the deploy script (or CI job) from `vps-runbook.md` step 12. Both
       paths are written and have been run for real: the first-deploy
       (`git clone`) path on 2026-09-07, and the repeat-deploy (`git pull`)
@@ -304,13 +308,38 @@ brand doc is now the authoritative source for anything it covers, ahead of
       behavior still correct in the live standalone build.
 
 ## Phase 11 — Hardening pass / polish
-- [ ] Tune the `rate=5r/m` / `burst=5` rate-limit values from `vps-runbook.md`
+- [x] Tune the `rate=5r/m` / `burst=5` rate-limit values from `vps-runbook.md`
       step 9 based on real traffic (the Phase 8 values are a starting point,
-      not a final answer — see `vps-runbook.md` Notes).
-- [ ] Add a nightly `pg_dump` backup job (flagged as a follow-up in
-      `vps-runbook.md`).
-- [ ] Review all shipped diagnosis/ritual content once more against
-      R-TONE-1/R-TONE-2 before considering this round "done."
+      not a final answer — see `vps-runbook.md` Notes). Investigated
+      2026-09-08 — see `vps-runbook.md`'s Phase 11 Execution log entry for
+      the full account. Couldn't read Nginx's access log directly (`deploy`
+      isn't in the `adm` group, and no session has `deploy`'s interactive
+      sudo password); `journalctl -u purrification` (readable without
+      `sudo`) showed no evidence of real login/signup volume, let alone
+      volume that's ever tripped `authlimit`'s burst allowance outside the
+      deliberate Phase 9 test. **Conclusion: left unchanged** — there isn't
+      yet enough real traffic to tune the starting values against, and
+      changing them without evidence would just be a different guess.
+      Revisit once the app has real users.
+- [x] Add a nightly `pg_dump` backup job (flagged as a follow-up in
+      `vps-runbook.md`). Done 2026-09-08 — `scripts/backup-db.sh` (new,
+      committed) dumps via the app's own DB role (no `postgres`-OS access
+      needed), scheduled through `deploy`'s crontab (03:30 UTC nightly,
+      since a system-level systemd timer would need root `deploy` doesn't
+      have passwordless sudo for) with 14-day local retention. Verified
+      live: ran by hand, produced a valid gzip'd dump, `gzip -t` clean. See
+      `vps-runbook.md` step 15 — includes a documented known gap
+      (same-server-only storage; off-server shipping needs infra/credentials
+      this project doesn't have yet).
+- [x] Review all shipped diagnosis/ritual content once more against
+      R-TONE-1/R-TONE-2 before considering this round "done." Reviewed
+      2026-09-08: all 10 `diagnosisPool` entries and all 5 quiz questions
+      read as whimsical/tongue-in-cheek, none phrase anything as real
+      medical/behavioral advice, none use scammy/urgency language (R-TONE-1);
+      `PageShell`'s persistent disclaimer (R-TONE-2) confirmed rendering on
+      every route, including both places a diagnosis is actually shown
+      (`results/[id]` and the public `share/[shareSlug]` page). No content
+      changes needed.
 
 ## Phase 12 — Visual richness pass (design upgrade round 2) — **proposed, pending approval**
 Not yet approved — do not start any item below without an explicit

@@ -8,16 +8,23 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–10 are all done and live in production at
+`docs/workplan.md` Phases 0–12 are all done and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
-deploy pipeline, and — as of the most recent work — a full brand-driven
-design system (Tailwind v4, dark-only jewel-tone/gold identity, shared
-`PageShell`/`Button`/`Card`/`Field`/`Modal`/`Toast`/`DiagnosisCard`
-components) applied across every page. Only **Phase 11 (hardening pass /
-polish)** remains: tuning the rate-limit values from real traffic, a
-nightly backup job, and a final content review — see `workplan.md` for the
-exact checklist.
+deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
+jewel-tone/gold identity, shared `PageShell`/`Button`/`Card`/`Field`/`Modal`/
+`Toast`/`DiagnosisCard` components), and a visual-richness pass (atmosphere,
+a full illustration set, theatrical component detail, motion/rhythm). Phase
+11's hardening pass is also done: the auth rate-limit values were reviewed
+against real traffic and left unchanged (not enough real usage yet to tune
+against), a nightly `pg_dump` backup job is live (`scripts/backup-db.sh` via
+`deploy`'s crontab), and a content tone review found nothing to fix. Two
+further phases are fully speced but **proposed, pending approval** — do not
+start either without an explicit go-ahead: Phase 13 (moving quiz/diagnosis
+content from the static `src/content/*.ts` files into PostgreSQL) and Phase
+14 (the rich content-authoring pass that storage migration would unblock).
+See `workplan.md` for exact checklists and `docs/content/content-storage-
+architecture.md` for Phase 13's full spec.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
