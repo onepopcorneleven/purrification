@@ -26,20 +26,22 @@ export default async function ResultPage({
 
   return (
     <PageShell user={user}>
-      <DiagnosisCard
-        catName={diagnosis.quizAttempt.cat.name}
-        diagnosisText={diagnosis.diagnosisText}
-        ritualText={diagnosis.ritualText}
-      >
-        <p className="mt-6">
-          <TextLink
-            href={`/share/${diagnosis.shareSlug}`}
-            className="font-ui text-sm text-gold-300 hover:underline"
-          >
-            Share this reading
-          </TextLink>
-        </p>
-      </DiagnosisCard>
+      <div className="hero-fog rounded-lg">
+        <DiagnosisCard
+          catName={diagnosis.quizAttempt.cat.name}
+          diagnosisText={diagnosis.diagnosisText}
+          ritualText={diagnosis.ritualText}
+        >
+          <p className="mt-6">
+            <TextLink
+              href={`/share/${diagnosis.shareSlug}`}
+              className="font-ui text-sm text-gold-300 hover:underline"
+            >
+              Share this reading
+            </TextLink>
+          </p>
+        </DiagnosisCard>
+      </div>
       <p className="mt-6">
         <TextLink
           href="/cats"

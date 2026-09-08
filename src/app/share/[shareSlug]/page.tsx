@@ -26,11 +26,13 @@ export default async function SharePage({
 
   return (
     <PageShell>
-      <DiagnosisCard
-        catName={diagnosis.quizAttempt.cat.name}
-        diagnosisText={diagnosis.diagnosisText}
-        ritualText={diagnosis.ritualText}
-      />
+      <div className="hero-fog rounded-lg">
+        <DiagnosisCard
+          catName={diagnosis.quizAttempt.cat.name}
+          diagnosisText={diagnosis.diagnosisText}
+          ritualText={diagnosis.ritualText}
+        />
+      </div>
     </PageShell>
   );
 }

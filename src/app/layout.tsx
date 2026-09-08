@@ -38,6 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${cinzelDecorative.variable} ${cinzel.variable} ${ebGaramond.variable}`}
     >
       <body>
+        <div className="app-atmosphere" aria-hidden="true" />
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

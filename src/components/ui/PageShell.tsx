@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/guard";
 import { Mark } from "./Mark";
 import { LogoutButton } from "./LogoutButton";
 import { TextLink } from "./TextLink";
+import { OrnamentalRule } from "./OrnamentalRule";
 
 type User = Awaited<ReturnType<typeof getCurrentUser>>;
 
@@ -22,8 +23,8 @@ export async function PageShell({ children, user }: PageShellProps) {
   const currentUser = user !== undefined ? user : await getCurrentUser();
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b border-border-hairline">
+    <div className="relative flex min-h-screen flex-col">
+      <header>
         <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4">
           <Link
             href={currentUser ? "/cats" : "/"}
@@ -54,13 +55,15 @@ export async function PageShell({ children, user }: PageShellProps) {
             )}
           </nav>
         </div>
+        <OrnamentalRule />
       </header>
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
         {children}
       </main>
 
-      <footer className="border-t border-border-hairline">
+      <footer>
+        <OrnamentalRule />
         <p className="mx-auto max-w-3xl px-4 py-6 text-center text-xs text-text-muted">
           Purrification is just for fun — not real medical or behavioral advice.
           If your cat is genuinely unwell, please see a vet.

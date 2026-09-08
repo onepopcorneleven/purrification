@@ -312,6 +312,44 @@ brand doc is now the authoritative source for anything it covers, ahead of
 - [ ] Review all shipped diagnosis/ritual content once more against
       R-TONE-1/R-TONE-2 before considering this round "done."
 
+## Phase 12 — Visual richness pass (design upgrade round 2) — **proposed, pending approval**
+Not yet approved — do not start any item below without an explicit
+go-ahead. `docs/design-upgrade-round-2.md` is the full plan: it evaluates
+the current live UI (only one AI-generated image exists anywhere in the
+product, `DiagnosisCard` shipped purely typographic, the already-designed
+`seal-of-completion.svg` is unused, every route is an identical flat
+column, the background has no atmosphere beyond a flat fill) and proposes
+four work packages to close that gap. No change to brand palette/type/
+tokens — this uses the existing identity more fully, it doesn't change it.
+- [x] WP1 — Atmosphere: background vignette/texture/fog treatment and an
+      engraved-frame language for `PageShell` and shared surfaces (see
+      `design-upgrade-round-2.md`'s WP1). Shipped as a single fixed
+      `.app-atmosphere` layer (globals.css) rendered once in `layout.tsx` —
+      a soft jewel-tone corner glow plus a static SVG feTurbulence grain
+      texture, no binary asset — behind every page; a `.hero-fog` utility
+      (slow-drifting blurred gradient, `prefers-reduced-motion`-gated) on
+      the landing hero and both `DiagnosisCard` contexts; and a new
+      `OrnamentalRule` primitive (hairline + centered gold diamond)
+      replacing `PageShell`'s plain header/footer borders. No token changes.
+      Verified: `npm run lint`/`build` clean, dev-server curl checks confirm
+      the new classes render on `/`, `/login`, `/signup`; contrast reasoning
+      documented inline in `globals.css` (glow opacity low enough, and
+      concentrated away from the centered text column, that the ~14:1
+      text-on-`bg-base` contrast Phase 10 verified isn't meaningfully
+      affected). No visual/screenshot check possible — see `CLAUDE.md`'s
+      "Current state" on this sandbox's lack of a headless browser.
+- [ ] WP2 — Imagery: a full image set through the brand doc's reusable
+      prompt template — one illustration per diagnosis archetype, the
+      unused seal wired into a completion moment, and imagery for signup/
+      login/dashboard/empty states (see WP2).
+- [ ] WP3 — Theatrical component detail: tarot-card-style quiz options, a
+      literal glowing-candle `Toast`, `DiagnosisCard`'s double-border
+      treatment extended to `Card`, a history "reading log" timeline (see
+      WP3).
+- [ ] WP4 — Motion & rhythm: break the uniform column for hero moments,
+      staggered entrances, a themed quiz-submit loading state, hover/press
+      micro-interactions, a full `prefers-reduced-motion` audit (see WP4).
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.

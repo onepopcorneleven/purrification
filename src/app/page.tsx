@@ -12,7 +12,7 @@ export default async function Home() {
 
   return (
     <PageShell user={user}>
-      <div className="flex flex-col gap-6">
+      <div className="hero-fog flex flex-col gap-6 rounded-lg">
         <Image
           src="/images/header-fortune-cat.png"
           alt="A regal black cat, dressed as a fortune teller, seated at a mystical crystal ball and tarot card reading beneath a striped circus tent"
