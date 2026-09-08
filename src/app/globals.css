@@ -117,6 +117,21 @@
      (duration-150/300/450) directly; only the non-default easing curve
      needs a token. */
   --ease-dreamy: cubic-bezier(0.19, 1, 0.22, 1);
+
+  /* fadeIn pattern from design-tokens.json: opacity 0->1, translateY(8px)->0,
+     duration.slow + easing.dreamy. Used by Toast, Modal, DiagnosisCard. */
+  --animate-fade-in: fade-in 450ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 html {
