@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "project": "Purrification",
+    "theme": "dark-only",
+    "description": "Candlelit mysticism — antique fortune-teller machine meets tarot-card art, for a cat spirituality app."
+  },
+  "color": {
+    "background": {
+      "base": "#0D0A12",
+      "raised": "#1A1424",
+      "elevated": "#241B33",
+      "overlay": "rgba(13, 10, 18, 0.85)"
+    },
+    "brand": {
+      "burgundy": { "50": "#F5E4EC", "300": "#C46E92", "500": "#7A2048", "700": "#5A1836", "900": "#3A0F23" },
+      "emerald": { "50": "#E1F3EA", "300": "#5FAF8B", "500": "#1F6B4E", "700": "#164E39", "900": "#0E3225" },
+      "midnight": { "50": "#E3E8F5", "300": "#6577A8", "500": "#2B3A67", "700": "#1F2B4C", "900": "#141C31" },
+      "gold": { "50": "#FBF3DD", "300": "#E8C766", "500": "#D4AF37", "700": "#B8933F", "900": "#7A611F" }
+    },
+    "text": {
+      "primary": "#F3E9D8",
+      "secondary": "#C9BBA8",
+      "muted": "#8A7F72",
+      "onGold": "#241B33",
+      "inverse": "#0D0A12"
+    },
+    "semantic": {
+      "success": "#2E8F6B",
+      "error": "#C1443A",
+      "warning": "#D9A441",
+      "info": "#5C7AA0"
+    },
+    "border": {
+      "hairline": "rgba(212, 175, 55, 0.25)",
+      "hairlineStrong": "rgba(212, 175, 55, 0.5)",
+      "subtle": "rgba(243, 233, 216, 0.1)"
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "display": "'Cinzel Decorative', 'Cinzel', serif",
+      "heading": "'Cinzel', 'Playfair Display', serif",
+      "body": "'EB Garamond', 'Cormorant Garamond', Georgia, serif",
+      "ui": "'EB Garamond', Georgia, serif"
+    },
+    "fontWeight": {
+      "regular": 400,
+      "medium": 500,
+      "bold": 700
+    },
+    "scale": {
+      "xs":   { "size": "12px", "lineHeight": "16px", "letterSpacing": "0.01em" },
+      "sm":   { "size": "14px", "lineHeight": "20px", "letterSpacing": "0.01em" },
+      "base": { "size": "16px", "lineHeight": "26px", "letterSpacing": "0em" },
+      "lg":   { "size": "18px", "lineHeight": "28px", "letterSpacing": "0em" },
+      "xl":   { "size": "20px", "lineHeight": "30px", "letterSpacing": "0em" },
+      "2xl":  { "size": "24px", "lineHeight": "32px", "letterSpacing": "0.01em" },
+      "3xl":  { "size": "30px", "lineHeight": "38px", "letterSpacing": "0.02em" },
+      "4xl":  { "size": "38px", "lineHeight": "46px", "letterSpacing": "0.02em" },
+      "5xl":  { "size": "48px", "lineHeight": "56px", "letterSpacing": "0.03em" }
+    }
+  },
+  "spacing": {
+    "0": "0px", "1": "4px", "2": "8px", "3": "12px", "4": "16px",
+    "6": "24px", "8": "32px", "12": "48px", "16": "64px", "24": "96px"
+  },
+  "radius": {
+    "sm": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "glowGoldSm": "0 0 12px rgba(212, 175, 55, 0.18)",
+    "glowGoldMd": "0 0 24px rgba(212, 175, 55, 0.28)",
+    "glowGoldLg": "0 0 40px rgba(212, 175, 55, 0.35)",
+    "glowPurple": "0 0 30px rgba(122, 32, 72, 0.4)",
+    "elevation1": "0 2px 8px rgba(0, 0, 0, 0.4)",
+    "elevation2": "0 8px 24px rgba(0, 0, 0, 0.5)"
+  },
+  "motion": {
+    "duration": {
+      "fast": "150ms",
+      "base": "300ms",
+      "slow": "450ms"
+    },
+    "easing": {
+      "standard": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "dreamy": "cubic-bezier(0.19, 1, 0.22, 1)"
+    },
+    "patterns": {
+      "fadeIn": "opacity 0 -> 1, translateY(8px) -> 0, duration.slow, easing.dreamy",
+      "glowPulse": "box-shadow oscillates between shadow.glowGoldSm and shadow.glowGoldMd, 2400ms loop, used sparingly on active/focal mystical elements only"
+    }
+  }
+}
