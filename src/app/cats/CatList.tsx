@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
 
 interface Cat {
@@ -38,46 +40,56 @@ export function CatList({ cats }: { cats: Cat[] }) {
   }
 
   if (cats.length === 0) {
-    return <p>No cats yet — add your first one below.</p>;
+    return (
+      <EmptyState
+        title="No cats yet"
+        description="Add your first one below to take their spiritual reading."
+      />
+    );
   }
 
   return (
     <>
-      <ul style={{ listStyle: "none", padding: 0 }}>
+      <div className="flex flex-col gap-3">
         {cats.map((cat) => (
-          <li
+          <Card
             key={cat.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "0.5rem 0",
-              borderBottom: "1px solid #eee",
-            }}
+            className="flex flex-wrap items-center justify-between gap-3"
           >
-            <span>
-              <strong>{cat.name}</strong>
+            <div>
+              <p className="font-heading text-lg text-text-primary">
+                {cat.name}
+              </p>
               {cat.traits.length > 0 && (
-                <span style={{ color: "#666" }}>
-                  {" "}
-                  — {cat.traits.join(", ")}
-                </span>
+                <p className="text-sm text-text-muted">
+                  {cat.traits.join(", ")}
+                </p>
               )}
-            </span>
-            <span style={{ display: "flex", gap: "0.5rem" }}>
-              <Link href={`/cats/${cat.id}/quiz`}>Take the quiz</Link>
-              <Link href={`/cats/${cat.id}/history`}>History</Link>
-              <button
-                type="button"
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/cats/${cat.id}/quiz`}
+                className="font-ui text-sm text-gold-300 hover:underline"
+              >
+                Take the quiz
+              </Link>
+              <Link
+                href={`/cats/${cat.id}/history`}
+                className="font-ui text-sm text-gold-300 hover:underline"
+              >
+                History
+              </Link>
+              <Button
+                variant="danger"
                 onClick={() => setCatPendingDelete(cat)}
                 disabled={deletingId === cat.id}
               >
                 {deletingId === cat.id ? "Deleting…" : "Delete"}
-              </button>
-            </span>
-          </li>
+              </Button>
+            </div>
+          </Card>
         ))}
-      </ul>
+      </div>
 
       <Modal
         open={catPendingDelete !== null}

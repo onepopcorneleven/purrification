@@ -2,17 +2,19 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Field } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
 
 export function AddCatForm() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [name, setName] = useState("");
   const [traits, setTraits] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
     setSubmitting(true);
     try {
       const res = await fetch("/api/cats", {
@@ -28,11 +30,12 @@ export function AddCatForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong. Try again.");
+        showToast(data.error ?? "Something went wrong. Try again.", "error");
         return;
       }
       setName("");
       setTraits("");
+      showToast(`${name} was added.`, "success");
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -40,36 +43,24 @@ export function AddCatForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
-    >
-      <label>
-        Name
-        <input
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ display: "block", width: "100%" }}
-        />
-      </label>
-      <label>
-        Traits (comma-separated, optional)
-        <input
-          value={traits}
-          onChange={(e) => setTraits(e.target.value)}
-          placeholder="playful, cuddly, chaos gremlin"
-          style={{ display: "block", width: "100%" }}
-        />
-      </label>
-      {error && (
-        <p role="alert" style={{ color: "crimson" }}>
-          {error}
-        </p>
-      )}
-      <button type="submit" disabled={submitting}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Field
+        label="Name"
+        name="name"
+        required
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <Field
+        label="Traits (comma-separated, optional)"
+        name="traits"
+        value={traits}
+        onChange={(e) => setTraits(e.target.value)}
+        placeholder="playful, cuddly, chaos gremlin"
+      />
+      <Button type="submit" disabled={submitting} className="self-start">
         {submitting ? "Adding…" : "Add cat"}
-      </button>
+      </Button>
     </form>
   );
 }

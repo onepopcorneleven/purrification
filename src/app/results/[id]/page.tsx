@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db/client";
 import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard";
+import { PageShell } from "@/components/ui/PageShell";
 
 export default async function ResultPage({
   params,
@@ -24,23 +25,29 @@ export default async function ResultPage({
   }
 
   return (
-    <main style={{ maxWidth: 480, margin: "4rem auto", padding: "0 1rem" }}>
+    <PageShell user={user}>
       <DiagnosisCard
         catName={diagnosis.quizAttempt.cat.name}
         diagnosisText={diagnosis.diagnosisText}
         ritualText={diagnosis.ritualText}
       >
-        <p style={{ marginTop: "1.5rem" }}>
-          <Link href={`/share/${diagnosis.shareSlug}`}>Share this reading</Link>
+        <p className="mt-6">
+          <Link
+            href={`/share/${diagnosis.shareSlug}`}
+            className="font-ui text-sm text-gold-300 hover:underline"
+          >
+            Share this reading
+          </Link>
         </p>
       </DiagnosisCard>
-      <p style={{ color: "#666", fontSize: "0.875rem", marginTop: "1rem" }}>
-        For fun only — not real medical or behavioral advice. If your cat is
-        genuinely unwell, please see a vet.
+      <p className="mt-6">
+        <Link
+          href="/cats"
+          className="font-ui text-sm text-gold-300 hover:underline"
+        >
+          Back to your cats
+        </Link>
       </p>
-      <p>
-        <Link href="/cats">Back to your cats</Link>
-      </p>
-    </main>
+    </PageShell>
   );
 }

@@ -3,6 +3,10 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { findOwnedCat } from "@/lib/cats/findOwnedCat";
 import { prisma } from "@/lib/db/client";
+import { PageShell } from "@/components/ui/PageShell";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 
 export default async function CatHistoryPage({
   params,
@@ -27,41 +31,48 @@ export default async function CatHistoryPage({
   });
 
   return (
-    <main style={{ maxWidth: 480, margin: "4rem auto", padding: "0 1rem" }}>
-      <h1>{cat.name}&apos;s spiritual journey</h1>
+    <PageShell user={user}>
+      <h1 className="mb-6 font-heading text-2xl">
+        {cat.name}&apos;s spiritual journey
+      </h1>
       {attempts.length === 0 ? (
-        <p>
-          No readings yet.{" "}
-          <Link href={`/cats/${cat.id}/quiz`}>Take the quiz</Link> to get the
-          first one.
-        </p>
+        <EmptyState
+          title="No readings yet"
+          description="Take the quiz to get the first one."
+          action={<Button href={`/cats/${cat.id}/quiz`}>Take the quiz</Button>}
+        />
       ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <div className="flex flex-col gap-3">
           {attempts.map((attempt) => (
-            <li
-              key={attempt.id}
-              style={{ padding: "0.75rem 0", borderBottom: "1px solid #eee" }}
-            >
-              <p style={{ color: "#666", fontSize: "0.875rem", margin: 0 }}>
+            <Card key={attempt.id}>
+              <p className="text-sm text-text-muted">
                 {attempt.createdAt.toLocaleDateString()}
               </p>
               {attempt.diagnosis && (
                 <>
-                  <p style={{ margin: "0.25rem 0" }}>
+                  <p className="my-1.5 text-text-primary">
                     {attempt.diagnosis.diagnosisText}
                   </p>
-                  <Link href={`/results/${attempt.diagnosis.id}`}>
+                  <Link
+                    href={`/results/${attempt.diagnosis.id}`}
+                    className="font-ui text-sm text-gold-300 hover:underline"
+                  >
                     View full reading
                   </Link>
                 </>
               )}
-            </li>
+            </Card>
           ))}
-        </ul>
+        </div>
       )}
-      <p>
-        <Link href="/cats">Back to your cats</Link>
+      <p className="mt-6">
+        <Link
+          href="/cats"
+          className="font-ui text-sm text-gold-300 hover:underline"
+        >
+          Back to your cats
+        </Link>
       </p>
-    </main>
+    </PageShell>
   );
 }
