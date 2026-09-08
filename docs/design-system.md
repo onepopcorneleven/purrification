@@ -177,9 +177,23 @@ just missing polish:
 
 ## Open items
 
-- Whether the diagnosis card gets illustration/iconography beyond the
-  existing landing-page header image, or stays purely typographic — if it
-  does, the image must follow the brand doc's reusable prompt template
-  (§6), not be generated ad hoc.
-- The logo/mark itself (brand doc §3) — direction is set, the actual
-  design pass is a `workplan.md` Phase 10 step.
+Phase 10 is complete and deployed (see `workplan.md`) — the logo/mark and
+the palette/type decisions that were open when this doc was first written
+are resolved. What's still genuinely open, for whoever picks this up next:
+
+- `DiagnosisCard` shipped purely typographic (no illustration/icon beyond
+  the mark in its eyebrow label) — a deliberate choice during
+  implementation, not an oversight, but revisitable. If it ever gains
+  illustration, that image must follow the brand doc's reusable prompt
+  template (§6), not be generated ad hoc.
+- The brand doc's `Table` component (§9, v1 scope) was never built —
+  nothing in the current app needs tabular data. Build it if/when a future
+  feature (e.g. the "behavior-analysis data" the brand doc anticipates)
+  actually needs one, rather than pre-building it speculatively.
+- Everything in this doc was verified functionally (curl content checks,
+  computed WCAG contrast ratios, a live production smoke test), never
+  visually — no sandbox this project has run in so far has had a usable
+  headless browser (see `CLAUDE.md`'s "Current state"). A real look at
+  `purrification.com` in an actual browser is worth doing when convenient;
+  treat anything reported here as "should look right," not "confirmed to
+  look right."
