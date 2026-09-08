@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db/client";
 import { AddCatForm } from "./AddCatForm";
 import { CatList } from "./CatList";
-import { LogoutButton } from "./LogoutButton";
+import { LogoutButton } from "@/components/ui/LogoutButton";
 
 export default async function CatsPage() {
   const user = await getCurrentUser();
