@@ -198,14 +198,17 @@ Phases 2–7, which shipped with only inline styles and no shared layout —
 see `docs/design-system.md` (written alongside this phase, playing the same
 role `architecture.md` played before Phase 0) for the full token/component
 plan this phase executes. No functional/behavior changes — UI only.
-- [ ] Set up Tailwind CSS v4 (`@tailwindcss/postcss`, this Next.js
+- [x] Set up Tailwind CSS v4 (`@tailwindcss/postcss`, this Next.js
       version's own recommended default) and define the token roles from
       `design-system.md` as a Tailwind v4 `@theme` block in `globals.css`.
-- [ ] Build a small internal "style tile" page with 2–3 concrete
+- [x] Build a small internal "style tile" page with 2–3 concrete
       palette/type-pairing options rendered against real UI fragments (a
       button, a card, the diagnosis card's shape) — the palette decision
       deliberately deferred in `design-system.md` gets made here, against
-      something real rather than swatches.
+      something real rather than swatches. `src/app/design-preview/page.tsx`
+      (scratch page, not linked from nav, deleted once the pick below is
+      made) — three directions: Mystic Twilight, Sunlit Cottage, Moonlit
+      Pastel. **Awaiting the actual pick before continuing this phase.**
 - [ ] Lock the chosen palette/type into `globals.css`'s `@theme` block and
       record the decision in `design-system.md`.
 - [ ] Build the shared primitives (`src/components/ui/`): `PageShell`,
