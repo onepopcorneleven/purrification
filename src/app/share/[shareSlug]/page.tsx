@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/client";
 import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard";
+import { getDiagnosisImage } from "@/lib/diagnosis/getDiagnosisImage";
 import { PageShell } from "@/components/ui/PageShell";
 
 // Public, unauthenticated route (R-DIAG-3/4) — keyed on shareSlug, not the
@@ -31,6 +32,7 @@ export default async function SharePage({
           catName={diagnosis.quizAttempt.cat.name}
           diagnosisText={diagnosis.diagnosisText}
           ritualText={diagnosis.ritualText}
+          image={getDiagnosisImage(diagnosis.diagnosisText)}
         />
       </div>
     </PageShell>

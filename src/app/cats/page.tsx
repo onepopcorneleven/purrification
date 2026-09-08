@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db/client";
@@ -19,6 +20,13 @@ export default async function CatsPage() {
   return (
     <PageShell user={user}>
       <div className="flex flex-col gap-10">
+        <Image
+          src="/images/pages/dashboard-shelf.png"
+          alt="A dim study shelf lined with candles, crystals, and watchful cats"
+          width={1600}
+          height={900}
+          className="w-full rounded-lg shadow-glow-purple"
+        />
         <div>
           <h1 className="mb-4 font-heading text-2xl">Your cats</h1>
           <CatList

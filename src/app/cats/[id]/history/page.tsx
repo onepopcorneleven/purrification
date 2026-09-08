@@ -37,6 +37,7 @@ export default async function CatHistoryPage({
       </h1>
       {attempts.length === 0 ? (
         <EmptyState
+          illustrated
           title="No readings yet"
           description="Take the quiz to get the first one."
           action={<Button href={`/cats/${cat.id}/quiz`}>Take the quiz</Button>}

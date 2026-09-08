@@ -42,6 +42,7 @@ export function CatList({ cats }: { cats: Cat[] }) {
   if (cats.length === 0) {
     return (
       <EmptyState
+        illustrated
         title="No cats yet"
         description="Add your first one below to take their spiritual reading."
       />

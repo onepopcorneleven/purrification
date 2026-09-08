@@ -338,10 +338,28 @@ tokens — this uses the existing identity more fully, it doesn't change it.
       text-on-`bg-base` contrast Phase 10 verified isn't meaningfully
       affected). No visual/screenshot check possible — see `CLAUDE.md`'s
       "Current state" on this sandbox's lack of a headless browser.
-- [ ] WP2 — Imagery: a full image set through the brand doc's reusable
+- [x] WP2 — Imagery: a full image set through the brand doc's reusable
       prompt template — one illustration per diagnosis archetype, the
       unused seal wired into a completion moment, and imagery for signup/
-      login/dashboard/empty states (see WP2).
+      login/dashboard/empty states (see WP2). Shipped 14 images, all via
+      `codex exec` per this project's memory on image generation (the
+      documented save-to-path step failed with a sandbox error every time;
+      worked around by locating each PNG under
+      `~/.codex/generated_images/` and copying it into the repo directly —
+      worth updating that memory) — one per `diagnosisPool` entry
+      (`public/images/diagnoses/`, 4:5, "card thumbnail" per the brand
+      doc's aspect-ratio table) wired into `DiagnosisCard` via a new
+      `getDiagnosisImage()` helper that matches a stored `diagnosisText`
+      back to its content-pool entry (no schema change — the pool is
+      static and `diagnosisText` is always written verbatim); the
+      already-designed `seal-of-completion.svg` wired in as an animated
+      stamp on the same card; and four `public/images/pages/` illustrations
+      (16:9 hero/banner) for signup, login, the cats dashboard, and a
+      shared 1:1 `EmptyState` illustration (zero-cats, zero-history).
+      Verified: `npm run lint`/`build` clean; a full authenticated curl
+      run (signup → add cat → quiz → results → share → history → delete)
+      confirmed every new image URL and the seal actually render on each
+      page, with zero errors in the dev server log.
 - [ ] WP3 — Theatrical component detail: tarot-card-style quiz options, a
       literal glowing-candle `Toast`, `DiagnosisCard`'s double-border
       treatment extended to `Card`, a history "reading log" timeline (see
