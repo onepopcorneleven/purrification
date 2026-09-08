@@ -282,11 +282,26 @@ brand doc is now the authoritative source for anything it covers, ahead of
       this sandbox has no usable headless browser (see Phase 9/earlier
       notes); a from-scratch responsive/visual check is worth a real pass
       once someone can view it in an actual browser.
-- [ ] Visual QA via the `run` skill against the dev server (mobile +
+- [x] Visual QA via the `run` skill against the dev server (mobile +
       desktop — dark-only, so no light-mode pass needed) for every route
-      before considering this phase done.
-- [ ] `npm run lint` / `format:check` clean; deploy via the established
-      Phase 9 pipeline once verified.
+      before considering this phase done. No literal screenshot was
+      possible (no usable headless browser in this sandbox — missing
+      system libs, no root to install them, confirmed via the `run`
+      skill's own fallback path). Substituted the strongest verification
+      available without one: full authenticated end-to-end runs (signup →
+      add cat → quiz → results → share → history → delete-with-cascade)
+      against the real tunneled database, checking every expected string
+      renders and the server log has zero errors, plus confirming every
+      new Tailwind utility actually compiled into the served CSS rather
+      than silently no-oping on a typo.
+- [x] `npm run lint` / `format:check` clean; deploy via the established
+      Phase 9 pipeline once verified. Deployed 2026-09-08 via the
+      repeat-deploy (`git pull`) script from `vps-runbook.md` step 12 —
+      build succeeded clean on the server, no pending migrations, service
+      restarted, and a full production smoke test (same golden path as
+      above) run directly against `https://purrification.com` confirmed
+      no errors in the systemd journal and the cascade-delete/share-404
+      behavior still correct in the live standalone build.
 
 ## Phase 11 — Hardening pass / polish
 - [ ] Tune the `rate=5r/m` / `burst=5` rate-limit values from `vps-runbook.md`
