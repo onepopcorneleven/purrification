@@ -257,7 +257,7 @@ brand doc is now the authoritative source for anything it covers, ahead of
       R-DIAG-3/R-DIAG-4). Apply the brand doc's motion guidance (§8):
       slow/dreamy fade-and-drift entrance, glow-pulse reserved for this
       kind of single focal moment, not ambient decoration.
-- [ ] Per §6's AI-imagery rules, either confirm the existing landing-page
+- [x] Per §6's AI-imagery rules, either confirm the existing landing-page
       header image (`public/images/header-fortune-cat.png`, duplicated for
       reference at `docs/design/header-fortune-cat.png`) matches the
       reusable prompt template, or regenerate it so it does (via the
