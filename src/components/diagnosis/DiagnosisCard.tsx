@@ -50,16 +50,18 @@ export function DiagnosisCard({
         aria-hidden="true"
         className={styles.seal}
       />
-      <p className={styles.eyebrow}>
-        <Mark size={20} />
-        Spiritual Reading
-      </p>
-      <h1 className={styles.catName}>{catName}&apos;s spiritual reading</h1>
-      <p className={styles.diagnosisText}>{diagnosisText}</p>
-      <div className={styles.divider} />
-      <h2 className={styles.ritualLabel}>Prescribed ritual</h2>
-      <p className={styles.ritualText}>{ritualText}</p>
-      {children}
+      <div className={styles.content}>
+        <p className={styles.eyebrow}>
+          <Mark size={20} />
+          Spiritual Reading
+        </p>
+        <h1 className={styles.catName}>{catName}&apos;s spiritual reading</h1>
+        <p className={styles.diagnosisText}>{diagnosisText}</p>
+        <div className={styles.divider} />
+        <h2 className={styles.ritualLabel}>Prescribed ritual</h2>
+        <p className={styles.ritualText}>{ritualText}</p>
+        {children}
+      </div>
     </div>
   );
 }

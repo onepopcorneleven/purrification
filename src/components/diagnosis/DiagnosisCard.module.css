@@ -39,26 +39,33 @@
 }
 
 @media (min-width: 640px) {
+  /* Two grid *items* — the image, and one wrapper (.content) around
+     everything else — not one item per text element. An earlier version
+     of this tried grid-row: 1 / -1 on the image so the individual text
+     elements would auto-flow into column 2 around it; that's a known
+     CSS-grid footgun with implicit (un-sized) rows — "-1" needs the total
+     row count to resolve, which isn't known until every item is placed,
+     so the browser can't reliably decide it up front. In production this
+     scattered elements across both columns in the wrong order (confirmed
+     via screenshot: the cat name and ritual text ended up under the
+     image instead of in the text column). Wrapping the text in one .content
+     div sidesteps the whole problem: with exactly one item per column,
+     there's no auto-placement ambiguity to get wrong. */
   .card {
     display: grid;
     grid-template-columns: 220px 1fr;
     column-gap: 2rem;
+    align-items: start;
   }
 
-  /* Spans every row so the rest of the card's children (auto-placed by
-     grid, in source order) flow down the second column instead — the
-     standard CSS-grid "full-height sidebar" technique, no per-child
-     column assignment needed. Height stays driven by the 4:5 ratio (not
-     stretched to match the text column) — stretching to fill a height
-     that varies with each reading's text length would just reintroduce
-     the same problem in the other axis: an unpredictable side-crop
-     instead of a predictable, near-zero one. At width: 100% of a 220px
-     column, 4:5 needs 220x275, which is close enough to the source's
-     actual 1122x1402 that object-fit: cover barely crops anything. */
+  /* Height stays driven by the 4:5 ratio (not stretched to match
+     .content's height) — stretching to fill a height that varies with
+     each reading's text length would just reintroduce the original
+     problem in the other axis: an unpredictable side-crop instead of a
+     predictable, near-zero one. At width: 100% of a 220px column, 4:5
+     needs 220x275, close enough to the source's actual 1122x1402 that
+     object-fit: cover barely crops anything. */
   .illustration {
-    grid-column: 1;
-    grid-row: 1 / -1;
-    align-self: start;
     width: 100%;
     max-width: none;
     margin: 0;
