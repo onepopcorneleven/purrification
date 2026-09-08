@@ -35,7 +35,13 @@ behavior changes.
 - Reusable primitives live in `src/components/ui/` (`PageShell.tsx`,
   `Button.tsx`, `Card.tsx`, `Field.tsx`, `EmptyState.tsx`) — plain React
   components wrapping Tailwind classes, not a separate styling abstraction
-  or component library dependency.
+  or component library dependency. The one bespoke component,
+  `DiagnosisCard`, lives in its own `src/components/diagnosis/` folder
+  instead, since it's CSS Modules rather than a Tailwind-utility primitive.
+- Branded favicon/icon assets go in `public/icons/`, separate from
+  `public/images/`'s existing photographic/illustration assets. Working
+  design-process artifacts (style-tile exports, palette decision notes)
+  go in `docs/design/`, separate from this narrative doc.
 
 ## Design tokens
 
