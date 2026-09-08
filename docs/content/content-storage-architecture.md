@@ -294,7 +294,13 @@ running app.
   a silent dead branch in the diagnosis logic. Any offending `question_id`/
   `answer_id` pair aborts the run before any upsert, listed in the error, the
   same fail-loudly stance as every other check here. The validator also
-  confirms exactly one active `isCatchAll` `DiagnosisDef` exists, every
+  confirms exactly one active `isCatchAll` `DiagnosisDef` exists, **that
+  priorities among active `DiagnosisDef` rows are unique, and that the
+  `isCatchAll` row's `priority` is strictly the highest among them** — a
+  priority tie makes match order depend on unspecified DB row order
+  (nondeterministic), and a non-catch-all row seeded with a priority above
+  the catch-all's is permanently unreachable dead content, so either
+  violation aborts the run the same way — every
   `personalizationSlots` entry appears literally in its own templates and
   vice versa, `contraindications`/`stepsTemplate` are non-empty,
   `severityBands` are non-overlapping and gapless, and sibling
@@ -328,7 +334,9 @@ running app.
 3. **Totality guarantee (`R-CONTENT-4`, extends `R-DIAG-5`):** exactly one
    active `DiagnosisDef` is authored with `isCatchAll: true`, an
    always-true `triggerRule`, and the highest `priority` number (evaluated
-   last). This invariant is checked twice: authoritatively by the seed-time
+   last), and no two active `DiagnosisDef` rows share a `priority` value.
+   This full invariant — existence, uniqueness, and ordering together, not
+   just existence — is checked twice: authoritatively by the seed-time
    validator (§8), and as defense-in-depth by an in-process assertion at
    first use, the same role today's `diagnosisPool.length === 0` startup
    check plays. **This is a deliberate, weaker guarantee than today's
