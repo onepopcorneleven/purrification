@@ -1,5 +1,5 @@
 import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
+import { TextLink } from "@/components/ui/TextLink";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db/client";
 import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard";
@@ -32,21 +32,21 @@ export default async function ResultPage({
         ritualText={diagnosis.ritualText}
       >
         <p className="mt-6">
-          <Link
+          <TextLink
             href={`/share/${diagnosis.shareSlug}`}
             className="font-ui text-sm text-gold-300 hover:underline"
           >
             Share this reading
-          </Link>
+          </TextLink>
         </p>
       </DiagnosisCard>
       <p className="mt-6">
-        <Link
+        <TextLink
           href="/cats"
           className="font-ui text-sm text-gold-300 hover:underline"
         >
           Back to your cats
-        </Link>
+        </TextLink>
       </p>
     </PageShell>
   );

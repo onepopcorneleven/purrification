@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { TextLink } from "@/components/ui/TextLink";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
@@ -67,18 +67,18 @@ export function CatList({ cats }: { cats: Cat[] }) {
               )}
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Link
+              <TextLink
                 href={`/cats/${cat.id}/quiz`}
                 className="font-ui text-sm text-gold-300 hover:underline"
               >
                 Take the quiz
-              </Link>
-              <Link
+              </TextLink>
+              <TextLink
                 href={`/cats/${cat.id}/history`}
                 className="font-ui text-sm text-gold-300 hover:underline"
               >
                 History
-              </Link>
+              </TextLink>
               <Button
                 variant="danger"
                 onClick={() => setCatPendingDelete(cat)}

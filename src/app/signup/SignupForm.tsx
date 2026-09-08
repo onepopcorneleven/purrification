@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { TextLink } from "@/components/ui/TextLink";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
@@ -64,9 +64,9 @@ export function SignupForm() {
       </form>
       <p className="text-sm text-text-secondary">
         Already have an account?{" "}
-        <Link href="/login" className="text-gold-300 hover:underline">
+        <TextLink href="/login" className="text-gold-300 hover:underline">
           Log in
-        </Link>
+        </TextLink>
       </p>
     </div>
   );

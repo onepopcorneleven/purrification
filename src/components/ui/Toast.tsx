@@ -48,7 +48,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             role="status"
             className={`animate-fade-in pointer-events-auto flex items-center gap-2 rounded-full border bg-bg-elevated px-4 py-2.5 font-ui text-sm shadow-glow-gold-sm ${
               toast.variant === "error"
-                ? "border-error text-error"
+                ? "border-error text-error-text"
                 : "border-gold-500 text-text-primary"
             }`}
           >

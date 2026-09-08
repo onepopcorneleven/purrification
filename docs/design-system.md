@@ -164,6 +164,16 @@ just missing polish:
 - A visible `:focus-visible` treatment (a ring using the gold accent) on
   every interactive element — buttons, links, form inputs, quiz-option
   buttons.
+- That contrast check found a real failure: `color.semantic.error`
+  (`#C1443A`) is only 3.89:1 on `--color-bg-base` and 3.25:1 on
+  `--color-bg-elevated` — enough for the 3:1 non-text threshold (borders,
+  small decorative dots) but short of the 4.5:1 small-text threshold.
+  `globals.css` adds two tokens `design-tokens.json` doesn't have —
+  `--color-error-text` (`#D97066`, 6.04:1 / 5.05:1) for actual error text,
+  and `--color-error-hover` (`#A83B32`) for the danger button's hover
+  background, since `--color-text-primary` on the base `--color-error`
+  only reaches 4.2:1 there. `--color-error` itself is unchanged and still
+  used for borders/backgrounds/decorative dots.
 
 ## Open items
 

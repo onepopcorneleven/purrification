@@ -1,5 +1,5 @@
 import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
+import { TextLink } from "@/components/ui/TextLink";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { findOwnedCat } from "@/lib/cats/findOwnedCat";
 import { prisma } from "@/lib/db/client";
@@ -53,12 +53,12 @@ export default async function CatHistoryPage({
                   <p className="my-1.5 text-text-primary">
                     {attempt.diagnosis.diagnosisText}
                   </p>
-                  <Link
+                  <TextLink
                     href={`/results/${attempt.diagnosis.id}`}
                     className="font-ui text-sm text-gold-300 hover:underline"
                   >
                     View full reading
-                  </Link>
+                  </TextLink>
                 </>
               )}
             </Card>
@@ -66,12 +66,12 @@ export default async function CatHistoryPage({
         </div>
       )}
       <p className="mt-6">
-        <Link
+        <TextLink
           href="/cats"
           className="font-ui text-sm text-gold-300 hover:underline"
         >
           Back to your cats
-        </Link>
+        </TextLink>
       </p>
     </PageShell>
   );

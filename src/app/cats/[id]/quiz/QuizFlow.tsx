@@ -62,7 +62,7 @@ export function QuizFlow({
           return (
             <label
               key={option.id}
-              className={`flex cursor-pointer items-center gap-3 rounded-md border px-4 py-3 font-ui transition-colors duration-150 ${
+              className={`flex cursor-pointer items-center gap-3 rounded-md border px-4 py-3 font-ui transition-colors duration-150 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-500 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bg-base ${
                 isSelected
                   ? "border-gold-500 bg-bg-elevated shadow-glow-gold-sm"
                   : "border-border-hairline hover:border-border-hairline-strong"
@@ -73,7 +73,7 @@ export function QuizFlow({
                 name={question.id}
                 checked={isSelected}
                 onChange={() => selectOption(option.id)}
-                className="accent-gold-500"
+                className="accent-gold-500 focus-visible:outline-none"
               />
               {option.label}
             </label>

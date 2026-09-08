@@ -15,7 +15,7 @@ const variants: Record<Variant, string> = {
     "bg-gold-500 text-text-on-gold shadow-glow-gold-sm hover:shadow-glow-gold-md",
   secondary: "border border-gold-500 text-gold-300 hover:shadow-glow-gold-sm",
   danger:
-    "border border-error text-error hover:bg-error hover:text-text-primary",
+    "border border-error text-error-text hover:bg-error-hover hover:text-text-primary",
 };
 
 type ButtonProps = {

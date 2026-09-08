@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { Mark } from "./Mark";
 import { LogoutButton } from "./LogoutButton";
+import { TextLink } from "./TextLink";
 
 type User = Awaited<ReturnType<typeof getCurrentUser>>;
 
@@ -23,10 +24,10 @@ export async function PageShell({ children, user }: PageShellProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-border-hairline">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4">
           <Link
             href={currentUser ? "/cats" : "/"}
-            className="flex items-center gap-2.5"
+            className="flex items-center gap-2.5 rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
           >
             <Mark size={28} />
             <span className="font-heading text-lg tracking-wide text-text-primary">
@@ -36,19 +37,19 @@ export async function PageShell({ children, user }: PageShellProps) {
           <nav className="flex items-center gap-5 font-ui text-sm text-text-secondary">
             {currentUser ? (
               <>
-                <Link href="/cats" className="hover:text-gold-300">
+                <TextLink href="/cats" className="hover:text-gold-300">
                   My cats
-                </Link>
+                </TextLink>
                 <LogoutButton />
               </>
             ) : (
               <>
-                <Link href="/login" className="hover:text-gold-300">
+                <TextLink href="/login" className="hover:text-gold-300">
                   Log in
-                </Link>
-                <Link href="/signup" className="hover:text-gold-300">
+                </TextLink>
+                <TextLink href="/signup" className="hover:text-gold-300">
                   Sign up
-                </Link>
+                </TextLink>
               </>
             )}
           </nav>

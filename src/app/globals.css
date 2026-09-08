@@ -58,6 +58,16 @@
   --color-error: #c1443a;
   --color-warning: #d9a441;
   --color-info: #5c7aa0;
+  /* Lighter than --color-error: the base swatch is only 3.89:1 on bg-base
+     and 3.25:1 on bg-elevated, which fails WCAG AA (4.5:1) for small text
+     even though it's fine for the 3:1 non-text threshold (borders, dots).
+     Use this for actual error *text*; keep --color-error for
+     borders/backgrounds/decorative dots. Verified: 6.04:1 / 5.05:1. */
+  --color-error-text: #d97066;
+  /* Darker than --color-error, for the danger button's hover *background* -
+     keeps --color-text-primary readable on it (5.23:1) where the base
+     --color-error swatch would only give 4.2:1. */
+  --color-error-hover: #a83b32;
 
   /* Borders */
   --color-border-hairline: rgba(212, 175, 55, 0.25);
