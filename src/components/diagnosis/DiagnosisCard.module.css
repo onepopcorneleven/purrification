@@ -1,0 +1,65 @@
+.card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-gold-500);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-glow-purple);
+  padding: 2rem;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 0.5px solid var(--color-gold-700);
+  border-radius: calc(var(--radius-lg) - 6px);
+  pointer-events: none;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold-300);
+  margin-bottom: 0.75rem;
+}
+
+.catName {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+}
+
+.diagnosisText {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: 1.3;
+  color: var(--color-gold-50);
+  margin-bottom: 1.5rem;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border-hairline);
+  margin-bottom: 1.5rem;
+}
+
+.ritualLabel {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.ritualText {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+}

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/client";
+import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard";
 
 // Public, unauthenticated route (R-DIAG-3/4) — keyed on shareSlug, not the
 // row id, so links can't be guessed from sequential ids. Only ever select
@@ -24,11 +25,12 @@ export default async function SharePage({
 
   return (
     <main style={{ maxWidth: 480, margin: "4rem auto", padding: "0 1rem" }}>
-      <h1>{diagnosis.quizAttempt.cat.name}&apos;s spiritual reading</h1>
-      <p>{diagnosis.diagnosisText}</p>
-      <h2>Prescribed ritual</h2>
-      <p>{diagnosis.ritualText}</p>
-      <p style={{ color: "#666", fontSize: "0.875rem" }}>
+      <DiagnosisCard
+        catName={diagnosis.quizAttempt.cat.name}
+        diagnosisText={diagnosis.diagnosisText}
+        ritualText={diagnosis.ritualText}
+      />
+      <p style={{ color: "#666", fontSize: "0.875rem", marginTop: "1rem" }}>
         For fun only — not real medical or behavioral advice. If your cat is
         genuinely unwell, please see a vet.
       </p>

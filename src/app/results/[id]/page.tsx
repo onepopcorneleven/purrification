@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db/client";
+import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard";
 
 export default async function ResultPage({
   params,
@@ -24,16 +25,18 @@ export default async function ResultPage({
 
   return (
     <main style={{ maxWidth: 480, margin: "4rem auto", padding: "0 1rem" }}>
-      <h1>{diagnosis.quizAttempt.cat.name}&apos;s spiritual reading</h1>
-      <p>{diagnosis.diagnosisText}</p>
-      <h2>Prescribed ritual</h2>
-      <p>{diagnosis.ritualText}</p>
-      <p style={{ color: "#666", fontSize: "0.875rem" }}>
+      <DiagnosisCard
+        catName={diagnosis.quizAttempt.cat.name}
+        diagnosisText={diagnosis.diagnosisText}
+        ritualText={diagnosis.ritualText}
+      >
+        <p style={{ marginTop: "1.5rem" }}>
+          <Link href={`/share/${diagnosis.shareSlug}`}>Share this reading</Link>
+        </p>
+      </DiagnosisCard>
+      <p style={{ color: "#666", fontSize: "0.875rem", marginTop: "1rem" }}>
         For fun only — not real medical or behavioral advice. If your cat is
         genuinely unwell, please see a vet.
-      </p>
-      <p>
-        <Link href={`/share/${diagnosis.shareSlug}`}>Share this reading</Link>
       </p>
       <p>
         <Link href="/cats">Back to your cats</Link>
