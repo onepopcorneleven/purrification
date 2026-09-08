@@ -223,7 +223,7 @@ brand doc is now the authoritative source for anything it covers, ahead of
 - [x] Load the three brand fonts (Cinzel Decorative, Cinzel, EB Garamond)
       via `next/font/google` per the three-tier system in
       `purrification-brand-guidelines.md` §5 (display/heading/body).
-- [ ] Logo design pass — none exists yet (`purrification-brand-guidelines.md`
+- [x] Logo design pass — none exists yet (`purrification-brand-guidelines.md`
       §3/§11): a cat-silhouette-plus-otherworldly-sight mark (third eye /
       crescent moon / constellation), engraved-seal quality, gold-on-dark.
       Needed variants: full lockup, a simplified icon-only mark that stays
@@ -232,6 +232,12 @@ brand doc is now the authoritative source for anything it covers, ahead of
       Store source/exports in `docs/design/`; ship the icon-only mark as
       the site favicon in `public/icons/` (replacing the default Next.js
       favicon) and confirm `layout.tsx`'s metadata reflects the identity.
+      Hand-authored SVG, not AI-generated — this sandbox's `codex` CLI
+      doesn't expose the image-generation subcommand the `openai-imagegen`
+      skill documents (bug filed); a vector mark suits the 16px-legibility
+      requirement better than a rasterized illustration anyway. Full lockup
+      deferred to the `PageShell` primitive as a live component rather than
+      a flattened export, so it stays crisp/responsive in the header.
 - [ ] Build the shared primitives (`src/components/ui/`) per
       `design-system.md`'s route-mapped inventory (`PageShell`, `Button`,
       `Card`, `Field`, `EmptyState`), styled per the brand doc's §7/§9
