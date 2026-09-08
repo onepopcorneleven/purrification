@@ -28,7 +28,7 @@ one codebase, matching the brief's "single codebase for learning" goal.
 | **Public routes** (`app/share/[shareSlug]`, unauthenticated) | Read-only diagnosis view by `shareSlug`, not `id` | R-DIAG-3/4 |
 | **Domain services** (`lib/`) | Password hashing/verification, session issuance, diagnosis-engine lookup, content-pool access | R-AUTH-1/2, R-DIAG-1/2/5 |
 | **Data access** (Prisma/Drizzle client) | Typed queries, migrations | R-DATA-1, R-DATA-2 |
-| **Content data** (`content/` — seed/config, not DB-editable) | Quiz questions, diagnosis/ritual pool | R-DIAG-2, out-of-scope "no admin CMS" |
+| **Content data** (PostgreSQL, seeded via `npm run db:seed-content` from versioned `prisma/seed/content/` files — see below) | Quiz questions/topics/tags, diagnosis/treatment/ritual definitions | R-CONTENT-1..6, out-of-scope "no admin CMS" |
 
 ### Diagnosis engine (R-DIAG-1/2/5)
 A pure function, not a service call: `getDiagnosis(answers: QuizAnswer[]) ->
@@ -78,7 +78,10 @@ share-count tracking — those remain out of scope per `requirements.md`.
 ## Data model (R-DATA-1/2)
 
 Concrete schema sketch (Prisma-style), one-to-one with `requirements.md`'s
-entity list:
+entity list. This sketch stays scoped to the four models below; the
+Question/Tag/DiagnosisDef/Treatment/Ritual content model (R-CONTENT-1..6)
+that the amended `Diagnosis` model's FKs point into is specified in full in
+`docs/content/content-storage-architecture.md` §7, not duplicated here.
 
 ```prisma
 model User {
@@ -124,6 +127,19 @@ model Diagnosis {
   // delete, R-CAT-5) deletes its Diagnosis, including the public share
   // link it exposed (R-DIAG-4).
   quizAttempt   QuizAttempt  @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+  // Below: added by the R-CONTENT-* content-storage work (Phase 13, not yet
+  // built — see docs/content/content-storage-architecture.md §7). FKs
+  // reference the DB-backed content definitions by stable id (R-CONTENT-5)
+  // instead of the current diagnosisText/ritualText-only shape;
+  // diagnosisText/ritualText stay as the frozen rendered output (R-CONTENT-6).
+  // diagnosisDefId String
+  // diagnosisDef   DiagnosisDef @relation(fields: [diagnosisDefId], references: [id], onDelete: Restrict)
+  // treatmentId    String
+  // treatment      Treatment    @relation(fields: [treatmentId], references: [id], onDelete: Restrict)
+  // ritualId       String
+  // ritual         Ritual       @relation(fields: [ritualId], references: [id], onDelete: Restrict)
+  // tagTotalsSnapshot Json
+  // severityLabel     String
   diagnosisText String
   ritualText    String
   shareSlug     String       @unique @default(cuid())
@@ -189,6 +205,18 @@ flowchart TB
   provisioned during VPS setup (`vps-runbook.md` step 9) and is in place
   *before* the app is ever exposed publicly, rather than added in a
   post-launch hardening pass. See `vps-runbook.md` for the concrete config.
+
+## Content storage (R-CONTENT-1..6)
+The `getDiagnosis` hash-bucket design above and the `content/`-as-seed-config
+row in the Application layers table describe the *current* implementation.
+`docs/content/content-storage-architecture.md` specifies a DB-backed
+replacement — a full Question/Tag/DiagnosisDef/Treatment/Ritual content
+model per `docs/content/content-framework.md`'s pipeline, still seeded from
+versioned repo files (not an admin CMS) and still rule-based/deterministic
+(R-DIAG-2) — planned as `docs/workplan.md` Phase 13 (storage/engine
+plumbing) and the separately-gated Phase 14 (real content authoring). Not
+yet built; this section stays accurate to what's live today until Phase 13
+ships.
 
 ## Open questions / carried from requirements.md
 - Final choice between Prisma and Drizzle — either satisfies R-DATA-2; default

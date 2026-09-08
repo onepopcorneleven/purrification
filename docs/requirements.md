@@ -82,6 +82,38 @@ try.
 - **R-LAND-1:** An unauthenticated visitor must be able to view a
   landing/marketing page that introduces the concept before signing up.
 
+### Content management
+- **R-CONTENT-1:** All quiz/diagnosis/treatment/ritual content (topics,
+  questions, answer options with tag effects, diagnoses, treatments,
+  rituals) must be stored in PostgreSQL, not compiled into the application
+  bundle as static TypeScript — this lets content be edited without a code
+  deploy and lets runtime results reference content by stable id (see
+  R-CONTENT-5).
+- **R-CONTENT-2:** Content must still be authored by committing versioned
+  files to the repo and applying them via an idempotent seed script
+  (`npm run db:seed-content`), never through an admin CMS or ad hoc
+  production data edits — the storage engine changes (R-CONTENT-1), the
+  authoring workflow does not (carries forward the "no admin CMS" decision
+  below).
+- **R-CONTENT-3:** Diagnosis derivation must remain a rule-based,
+  deterministic mapping from accumulated tag totals to a matched trigger
+  rule — never an LLM call. Extends R-DIAG-2 to the tag-accumulation-and-
+  trigger-rule model described in `docs/content/content-framework.md`.
+- **R-CONTENT-4:** Trigger rules must be evaluated in a fixed, explicit
+  priority order with first-full-match-wins, and the authored content must
+  guarantee a match for every possible tag-total outcome (a mandatory
+  catch-all rule, validated at seed time and checked at app startup).
+  Extends R-DIAG-5's totality guarantee to the rule-based engine, which
+  replaces the previous hash-bucket mechanism.
+- **R-CONTENT-5:** A persisted `Diagnosis` result must reference the
+  content it was derived from by stable id (diagnosis definition,
+  treatment, and ritual variant) — never by matching on rendered text.
+- **R-CONTENT-6:** A persisted `Diagnosis` result's rendered
+  `diagnosisText`/`ritualText` must remain frozen at generation time —
+  later edits to the source content (via a re-run of the seed script) must
+  never change the wording of a previously generated or previously shared
+  result.
+
 ## Non-functional requirements
 
 ### Hosting & infrastructure
@@ -115,9 +147,17 @@ requirements above:
   R-CAT-3) — deleting a `Cat` cascades to its `QuizAttempt`/`Diagnosis`
   rows (R-CAT-5)
 - **QuizAttempt**: `id`, `catId`, `answers`, `createdAt`
-- **Diagnosis**: `id`, `quizAttemptId`, `diagnosisText`, `ritualText`,
-  `shareSlug` (unguessable public identifier, distinct from `id`, per
-  R-DIAG-4)
+- **Diagnosis**: `id`, `quizAttemptId`, `diagnosisDefId`, `treatmentId`,
+  `ritualId` (stable references into the content tables below, per
+  R-CONTENT-5), `tagTotalsSnapshot`, `severityLabel`, `diagnosisText`,
+  `ritualText` (frozen rendered output, per R-CONTENT-6), `shareSlug`
+  (unguessable public identifier, distinct from `id`, per R-DIAG-4)
+- **Tag**, **QuestionTopic**, **Question**, **AnswerOption** (+
+  `AnswerOptionTagEffect`), **Treatment**, **DiagnosisDef** (+
+  `DiagnosisDefTreatment`), **Ritual**: the DB-backed content model —
+  fields and relations specified in
+  `docs/content/content-storage-architecture.md` §7 — satisfying
+  R-CONTENT-1 through R-CONTENT-6
 
 ## Out of scope
 Carried forward from the product brief — explicitly not required this round:
@@ -136,7 +176,10 @@ Carried forward from the product brief — explicitly not required this round:
 ## Open questions / assumptions
 - Exact quiz length (number of questions) is not yet specified — brief says
   "a short set."
-- Size of the diagnosis/ritual content pool is not yet specified.
+- Size of the diagnosis/ritual content pool is not yet specified for this
+  round's static pool; a target of 10 is proposed for the future DB-backed
+  content-authoring pass (R-CONTENT-*) per
+  `docs/content/content-storage-architecture.md` §10.
 - Session mechanism is assumed to be session-based auth (per brief's proposed
   tech stack) but the exact implementation (cookies, expiry, etc.) is
   unspecified.

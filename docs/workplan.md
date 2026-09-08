@@ -392,6 +392,94 @@ tokens — this uses the existing identity more fully, it doesn't change it.
       a full authenticated run (2 cats, quiz, delete-with-cascade) again
       showed zero dev-server errors.
 
+## Phase 13 — Content storage foundation (R-CONTENT-1..6, R-DATA-1, R-DATA-2) — **proposed, pending approval**
+Not yet approved — do not start any item below without an explicit
+go-ahead. Full spec: `docs/content/content-storage-architecture.md`. Pure
+storage/engine plumbing, no editorial judgment: moves quiz/diagnosis
+content from the static `src/content/{quiz,diagnoses}.ts` files into
+PostgreSQL, structured to fully support `docs/content/content-framework.md`'s
+Question→Tag→Diagnosis→Treatment→Ritual pipeline. Migrates *today's*
+existing 5 questions and 10 diagnosis/ritual entries into the new shape as
+placeholder content (minimal tag scaffolding, one catch-all `DiagnosisDef`,
+one `Treatment`/`Ritual` per existing diagnosis, `cat_name` as the only
+personalization slot) so live app behavior is unchanged. Authoring a real,
+rich content bank (real tag vocabulary, real trigger rules, 10 real
+diagnoses/treatments/rituals) is separate, later, gated work — see Phase 14.
+- [ ] Add the new content-model tables to `prisma/schema.prisma` per
+      `content-storage-architecture.md` §7: `Tag`, `QuestionTopic`,
+      `Question`, `AnswerOption`, `AnswerOptionTagEffect`, `Treatment`,
+      `DiagnosisDef`, `DiagnosisDefTreatment`, `Ritual` — stable authored
+      string ids, `Json` for `triggerRule`/`severityBands`/
+      `selectionConditions`, native Postgres arrays for list fields,
+      `isActive` flags (content is retired, never hard-deleted).
+- [ ] Amend the existing `Diagnosis` model: add `diagnosisDefId`/
+      `treatmentId`/`ritualId` FKs (`onDelete: Restrict`),
+      `tagTotalsSnapshot`, `severityLabel`; keep `diagnosisText`/
+      `ritualText` as frozen rendered output (R-CONTENT-6).
+- [ ] Generate and run the migration against the VPS Postgres instance per
+      the existing `db:migrate` workflow; confirm `prisma migrate status`
+      clean.
+- [ ] Build the seed pipeline (`prisma/seed/content/*.json`,
+      `prisma/seed/index.ts`) per §8: idempotent upsert-by-stable-id, with
+      the authoring-rule validations the spec describes (tag references
+      resolve, exactly one active catch-all `DiagnosisDef`, personalization
+      slots match templates, non-empty `contraindications`/`stepsTemplate`,
+      non-overlapping severity bands, mutually-exclusive or
+      priority-ordered sibling ritual variants). Add `npm run
+      db:seed-content`.
+- [ ] Migrate today's 5 questions and 10 diagnosis/ritual entries into the
+      new seed JSON as placeholder content (see intro above).
+- [ ] Rewrite `getDiagnosis` to the DB-backed engine per §9: cached active-
+      content load, tag accumulation, priority-ordered trigger-rule
+      evaluation with first-match-wins, severity banding, default-treatment
+      + severity-matched-ritual selection, fail-loud slot-validated
+      template rendering — called from within the existing
+      `POST /api/cats/:id/quiz` transaction (R-DIAG-5 unchanged).
+- [ ] Replace `getDiagnosisImage`'s text-equality lookup with a direct
+      `diagnosis.diagnosisDef.imagePath` FK read (R-CONTENT-5).
+- [ ] Update `POST /api/cats/:id/quiz`'s answer validation and the quiz UI
+      to read active `Question`/`AnswerOption` rows from the DB instead of
+      the static `content/quiz.ts` import.
+- [ ] Add the boot-time totality guard (an active catch-all `DiagnosisDef`
+      exists) as defense-in-depth alongside seed-time validation
+      (R-CONTENT-4).
+- [ ] Delete `src/content/quiz.ts` and `src/content/diagnoses.ts` once the
+      DB-backed path is fully wired and verified.
+- [ ] Update `CLAUDE.md` and `docs/architecture.md`'s Data model/Content
+      storage sections to describe the shipped (not just planned) schema
+      and engine. Add `npm run db:seed-content` as a deploy step in
+      `vps-runbook.md` step 12.
+- [ ] Full golden-path smoke test (signup → add cat → quiz → diagnosis →
+      share → history → delete-cascade), confirming identical observable
+      behavior to the pre-migration app.
+
+## Phase 14 — Rich content authoring pass — **proposed, pending approval**
+Not yet approved — do not start any item below without an explicit
+go-ahead, and depends on Phase 13 being live first. The actual content-
+design work `docs/content/content-framework.md` was written to drive —
+distinct in kind from Phase 13's plumbing (editorial/tone judgment, not
+schema/engine work).
+- [ ] Define the canonical tag vocabulary up front, before any question or
+      diagnosis authoring begins (per `content-storage-architecture.md`
+      §10.1).
+- [ ] Author a full question bank organized into topics, each answer
+      option carrying real tag effects.
+- [ ] Author 10 `DiagnosisDef` entries (per §10.2) with real trigger rules,
+      including a `none_of` exclusion wherever two diagnoses could
+      plausibly both fire from overlapping tags.
+- [ ] Author the corresponding `Treatment` entries with real, populated
+      `contraindications` the app can actually evaluate (severity-based
+      this round, not cat-trait-based — see §9 point 6).
+- [ ] Author `Ritual` variants selected by severity band, each with at
+      least 3 concrete sequential steps and a per-ritual incantation
+      decision (structural support already in place per §10.4).
+- [ ] Full tone/content review of every new entry against R-TONE-1/R-TONE-2.
+- [ ] Re-run `npm run db:seed-content` against the real content and
+      re-verify all seed-time invariants at real scale.
+- [ ] Golden-path + multi-path smoke test confirming distinct tag-total
+      combinations route to distinct, correct diagnosis/treatment/ritual
+      results.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
