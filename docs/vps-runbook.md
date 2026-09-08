@@ -431,6 +431,32 @@ left staged above.
   accounts) and was left in place as a harmless leftover row (throwaway
   email, no real data).
 
+## Execution log — 2026-09-08 (Phase 10 design-system deploy)
+The repeat-deploy (`git pull`) script path from step 12 — exercised once
+already for a small header-image-only change — got its first real workout
+here: a full design-system overhaul (Tailwind v4, every page restyled) with
+significant new dependencies and build output.
+
+- `npm ci && npm run build` succeeded clean on the server on the first try —
+  no server-specific build failures despite the much larger change surface.
+- No pending Prisma migrations (no schema changes this phase).
+- `sudo systemctl restart purrification` needed to be its own SSH command,
+  not chained with other commands (`cmd1 && sudo cmd2` prompted for a TTY
+  even though the passwordless sudoers rule matches `cmd2` exactly) — restart
+  it alone, then run a separate `systemctl status`/`journalctl` call without
+  `sudo` (readable without it) to check the result.
+- Verified same as the Phase 9 golden path, run again directly against
+  `https://purrification.com` post-restart: signup → add cat → quiz →
+  results → share → history → delete-with-cascade (share link 404s
+  afterward), zero errors in `journalctl -u purrification` across the whole
+  run. Test cat/quiz/diagnosis data deleted via the API afterward; the
+  throwaway test `User` row was left in place, same as every prior smoke
+  test (no delete-account endpoint exists).
+- No literal visual/screenshot check was possible — the sandbox this deploy
+  ran from has no usable headless browser (see `CLAUDE.md`'s "Current
+  state"). The deploy is functionally verified, not visually verified by
+  Claude Code; worth an actual look in a browser when convenient.
+
 ## 14. Manual account recovery (ops-only, R-AUTH-4)
 There's no in-app "forgot password" flow this round (see
 `requirements.md` R-AUTH-4) — a locked-out user is recovered manually,

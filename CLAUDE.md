@@ -8,7 +8,26 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-Phase 0 (project scaffolding) is done; Phase 1 (data layer, `docs/workplan.md`) is done. The app is a Next.js 16 (App Router, TypeScript) project at the repo root with Prisma as the data layer, migrated and reachable. No feature code exists yet — auth, cat management, quiz, and diagnosis (Phases 2–7) are still pending.
+`docs/workplan.md` Phases 0–10 are all done and live in production at
+`purrification.com`: data layer, auth, cat management, quiz flow, the
+diagnosis engine, result history, the landing page, VPS provisioning, the
+deploy pipeline, and — as of the most recent work — a full brand-driven
+design system (Tailwind v4, dark-only jewel-tone/gold identity, shared
+`PageShell`/`Button`/`Card`/`Field`/`Modal`/`Toast`/`DiagnosisCard`
+components) applied across every page. Only **Phase 11 (hardening pass /
+polish)** remains: tuning the rate-limit values from real traffic, a
+nightly backup job, and a final content review — see `workplan.md` for the
+exact checklist.
+
+**No usable headless browser exists in a fresh sandbox environment for
+this project** — `playwright install chromium` downloads fine, but the
+binary needs system shared libraries (`libnspr4`, `libnss3`, etc.) that
+require root to install via `apt-get`, and sandboxes for this project
+don't have that. If a task needs real visual/screenshot verification,
+either ask the user to look at it themselves (`npm run dev` + the SSH
+tunnel below) or say plainly that only functional verification (curl
+content checks, computed contrast ratios, server logs) was possible —
+don't claim a visual check that didn't happen.
 
 **Database: there is no separate local dev Postgres — this project uses the VPS's Postgres instance for both dev and prod.** `docs/architecture.md` and `docs/vps-runbook.md` describe a single-server setup with no staging/dev environment planned, and `vps-runbook.md` step 8 had already provisioned a real, empty `purrification` database on the VPS before any app code existed. Rather than standing up a throwaway local Postgres, Phase 1 applied the first migration directly to that instance:
 - Postgres isn't exposed publicly (`ufw` only allows 22/80/443, correctly) — reach it from a dev machine via an SSH tunnel through the `purrification-deploy` alias: `ssh -f -N -L 5432:localhost:5432 purrification-deploy`. `DATABASE_URL` in `.env` points at `localhost:5432` assuming that tunnel is open.
@@ -26,13 +45,18 @@ Phase 0 (project scaffolding) is done; Phase 1 (data layer, `docs/workplan.md`) 
 - No test runner is set up yet — add one when Phase 1+ introduces code worth testing.
 
 **Structure:**
-- `src/app/` — Next.js App Router pages and (once added) API routes.
+- `src/app/` — Next.js App Router pages and API routes.
+- `src/components/ui/` — shared design primitives (`PageShell`, `Button`, `Card`, `Field`, `Modal`, `Toast`, `EmptyState`, `QuizProgress`, `TextLink`, `LogoutButton`, `Mark`) — see `docs/design-system.md`. Plain React components wrapping Tailwind utility classes, not a component-library dependency.
+- `src/components/diagnosis/` — `DiagnosisCard`, the one bespoke component (CSS Modules, not Tailwind utilities), shared by the results and share pages.
 - `src/generated/prisma/` — generated Prisma Client output, gitignored, never edit by hand.
 - `src/lib/db/client.ts` — the typed data-access entry point: a singleton `PrismaClient` (via the `@prisma/adapter-pg` driver adapter — Prisma 7's engine-less client requires an explicit driver adapter, not just a `DATABASE_URL`) cached on `globalThis` so Next.js dev-mode hot reload doesn't leak connections. Import `prisma` from here in API routes rather than instantiating `PrismaClient` directly.
 - `prisma/schema.prisma` — the data model, mirroring `docs/architecture.md`'s schema sketch exactly (`User`, `Cat`, `QuizAttempt`, `Diagnosis`, with `shareSlug` and cascade deletes).
 - `prisma/migrations/` — committed migration history; the initial migration is applied to the real (VPS) database — see above.
 - `prisma7.config.ts` — Prisma's config file (this is its actual generated filename in the installed Prisma 7 version, not a typo); reads `DATABASE_URL` from `.env`.
 - `next.config.ts` sets `output: "standalone"` — required by `docs/vps-runbook.md` step 11's systemd unit, which runs the standalone `server.js` directly.
+- `src/app/globals.css` — Tailwind v4 entry point; its `@theme` block is where the brand's design tokens actually live (ported from `docs/design/design-tokens.json`). Dark-only — no light-mode variant exists or is planned.
+- `public/icons/` — branded favicon/icon assets (SVG). `public/images/` — photographic/illustration assets (the landing page's header image).
+- `docs/design/` — the brand's source material (guidelines doc, token JSON, logo source) — see its own `README.md`.
 
 Docs were written in dependency order, each derived from the one before it:
 
@@ -51,18 +75,23 @@ Docs were written in dependency order, each derived from the one before it:
 - **Cat deletion is in scope (R-CAT-5)**: cascades to that cat's `QuizAttempt`/`Diagnosis` history (including share links), and the UI must confirm before deleting.
 - **Cat `traits` are display-only this round (R-CAT-3/R-DIAG-2)** — shown on the cat's profile, not fed into `getDiagnosis`. Don't wire them into diagnosis logic without a deliberate scope change.
 - **No self-service password reset this round (R-AUTH-4)** — out of scope by decision, not an oversight. Account recovery is a manual ops procedure (`vps-runbook.md` step 14, direct `psql`), not an email flow.
-- **Auth rate-limiting is provisioned at the Nginx layer during VPS setup (`R-INFRA-4`, `vps-runbook.md` step 9, Phase 8)**, before the app is ever deployed (Phase 9) — not bolted on later in the Phase 10 hardening pass.
+- **Auth rate-limiting is provisioned at the Nginx layer during VPS setup (`R-INFRA-4`, `vps-runbook.md` step 9, Phase 8)**, before the app is ever deployed (Phase 9) — not bolted on later in the Phase 11 hardening pass.
 - **The systemd service runs a Next.js standalone build** (`output: "standalone"`), which is what actually produces the `server.js` the unit's `ExecStart` expects — don't assume a hand-rolled custom server.
 - **Hosting is a self-managed bare-metal VPS**, not a managed platform like Vercel — the project owns provisioning and hardening (`docs/vps-runbook.md`) as part of the learning goal.
 - **Content is edited by committing to seed/config data**, not through an admin CMS — that's explicitly out of scope for this round.
 - **Prisma was chosen over Drizzle** (Phase 0) — the default per `docs/architecture.md`, no learning-goal reason came up to prefer Drizzle instead.
 - Whether sessions are stateless-signed-cookie or DB-backed is still open per `docs/architecture.md` — starts stateless.
+- **The visual identity is fixed, not a Claude Code judgment call**: `docs/design/purrification-brand-guidelines.md` (dark-only, jewel-tone-and-gold "antique fortune-teller machine meets tarot deck") and its `design-tokens.json` are authoritative for palette/type/imagery/motion, ahead of `docs/design-system.md`. Don't introduce new colors/fonts without updating that chain — the one sanctioned exception is `--color-error-text`/`--color-error-hover` in `globals.css`, added because the brand's own `error` swatch fails WCAG AA for small text (documented in `design-system.md`'s accessibility rules).
+- **Styling is Tailwind CSS v4**, config-in-CSS via the `@theme` block in `src/app/globals.css` (not a `tailwind.config.ts` — v4 doesn't use one here). CSS Modules only for the one genuinely bespoke component (`DiagnosisCard`); everything else is Tailwind utility classes on shared primitives in `src/components/ui/`.
+- **`PageShell` (`src/components/ui/PageShell.tsx`) is an async Server Component** (it calls `getCurrentUser()`) — it cannot be imported into a `"use client"` file. Pages needing local state stay Server Components that render a separate client child component as `children`, the same pattern `cats/page.tsx` → `AddCatForm`/`CatList` and `login/page.tsx` → `LoginForm` already use. This bit a real build in-session; don't repeat it.
 
 ## Accessing the deploy target
 
 The production VPS (`docs/vps-runbook.md`) is reachable over SSH via the alias `purrification-deploy`, configured in the operator's local `~/.ssh/config`. **Always use this alias — never a raw IP address or hardcoded path — in any command, script, or deploy instruction touching the deploy target.** The alias resolves host, user, and key material locally; nothing about that resolution should be duplicated or hardcoded into this repo.
 
-**Provisioning status (`docs/vps-runbook.md` steps 1–10) is done and verified on the live server** — SSH hardening, `ufw`, fail2ban, automatic updates, Node/PostgreSQL/Nginx, TLS via certbot, and Nginx rate-limiting on the auth endpoints are all live at `purrification.com`. Steps 11–12 (systemd service, deploy pipeline) are staged but not started — they're blocked on application code existing (`workplan.md` Phases 0–7). See `docs/vps-runbook.md`'s "Execution log" section for exact details and any deviations from the plan. The `deploy` user's passwordless sudo is scoped to `systemctl restart purrification` only — everything else needs an interactive password, by design.
+**All of `docs/vps-runbook.md` (steps 1–13) is done, live, and exercised repeatedly** — SSH hardening, `ufw`, fail2ban, automatic updates, Node/PostgreSQL/Nginx, TLS via certbot, Nginx rate-limiting on the auth endpoints, the systemd service, and the deploy pipeline are all live at `purrification.com`. See `docs/vps-runbook.md`'s "Execution log" section for exact details and any deviations from the plan. The `deploy` user's passwordless sudo is scoped to `systemctl restart purrification` only — everything else needs an interactive password, by design.
+
+**To deploy a change**, run step 12's repeat-deploy script over SSH via the `purrification-deploy` alias: `git pull origin main && npm ci && npm run build`, re-copy `public/` and `.next/static` into `.next/standalone/`, run `prisma migrate deploy` (with the `.env.production` sourcing workaround documented in step 12 — `prisma7.config.ts`'s `dotenv/config` only auto-loads `.env`), then `sudo systemctl restart purrification`. Verify with `curl -s -o /dev/null -w "%{http_code}" https://purrification.com/` and check `journalctl -u purrification` (needs `sudo`, which requires an interactive password — the passwordless rule only covers the restart itself) for errors after real traffic. This is a **production deploy to a live, public site** — treat it with the same care as any other production push, even though this project's standing instruction is not to pause for approval on routine git commits/pushes.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
