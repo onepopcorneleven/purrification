@@ -238,7 +238,7 @@ brand doc is now the authoritative source for anything it covers, ahead of
       requirement better than a rasterized illustration anyway. Full lockup
       deferred to the `PageShell` primitive as a live component rather than
       a flattened export, so it stays crisp/responsive in the header.
-- [ ] Build the shared primitives (`src/components/ui/`) per
+- [x] Build the shared primitives (`src/components/ui/`) per
       `design-system.md`'s route-mapped inventory (`PageShell`, `Button`,
       `Card`, `Field`, `EmptyState`), styled per the brand doc's §7/§9
       guidance (rounded-full/rounded-lg buttons with gold border or fill
