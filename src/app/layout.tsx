@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   title: "Purrification",
   description:
     "A whimsical spiritual diagnosis and cleansing ritual for your cat's weird behavior.",
+  icons: {
+    icon: "/icons/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

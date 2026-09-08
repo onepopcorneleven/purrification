@@ -1,0 +1,46 @@
+<!--
+  Purrification "seal of completion" variant, per
+  docs/design/purrification-brand-guidelines.md §3 ("worth designing that
+  as a variant now rather than later"). Same mark as mark.svg / favicon.svg,
+  set inside a wax-stamp-style double ring with radiating tick marks.
+  Not wired into the product yet — no "ritual complete" moment exists in
+  the current functional layer; stored as a ready asset for when one does.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-3 -3 70 70">
+  <circle cx="32" cy="32" r="33.5" fill="#0D0A12" />
+    <line x1="62.20" y1="32.00" x2="64.40" y2="32.00" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="61.17" y1="39.82" x2="63.30" y2="40.39" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="58.15" y1="47.10" x2="60.06" y2="48.20" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="53.35" y1="53.35" x2="54.91" y2="54.91" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="47.10" y1="58.15" x2="48.20" y2="60.06" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="39.82" y1="61.17" x2="40.39" y2="63.30" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="32.00" y1="62.20" x2="32.00" y2="64.40" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="24.18" y1="61.17" x2="23.61" y2="63.30" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="16.90" y1="58.15" x2="15.80" y2="60.06" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="10.65" y1="53.35" x2="9.09" y2="54.91" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="5.85" y1="47.10" x2="3.94" y2="48.20" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="2.83" y1="39.82" x2="0.70" y2="40.39" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="1.80" y1="32.00" x2="-0.40" y2="32.00" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="2.83" y1="24.18" x2="0.70" y2="23.61" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="5.85" y1="16.90" x2="3.94" y2="15.80" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="10.65" y1="10.65" x2="9.09" y2="9.09" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="16.90" y1="5.85" x2="15.80" y2="3.94" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="24.18" y1="2.83" x2="23.61" y2="0.70" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="32.00" y1="1.80" x2="32.00" y2="-0.40" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="39.82" y1="2.83" x2="40.39" y2="0.70" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="47.10" y1="5.85" x2="48.20" y2="3.94" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="53.35" y1="10.65" x2="54.91" y2="9.09" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="58.15" y1="16.90" x2="60.06" y2="15.80" stroke="#D4AF37" stroke-width="0.7" />
+    <line x1="61.17" y1="24.18" x2="63.30" y2="23.61" stroke="#D4AF37" stroke-width="0.7" />
+  <circle cx="32" cy="32" r="29.5" fill="none" stroke="#D4AF37" stroke-width="1.4" />
+  <circle cx="32" cy="32" r="26.5" fill="none" stroke="#B8933F" stroke-width="0.5" />
+  <path
+    fill="#D4AF37"
+    d="M16,24 L22,9 L27,22 Z
+       M48,24 L42,9 L37,22 Z
+       M18,26 C13,35 13,43 20,47 C25,50 39,50 44,47
+       C51,43 51,35 46,26 C43,22 38,20 32,20 C26,20 21,22 18,26 Z"
+  />
+  <circle cx="30" cy="27" r="5" fill="#0D0A12" />
+  <circle cx="32.5" cy="26.3" r="4.3" fill="#D4AF37" />
+</svg>

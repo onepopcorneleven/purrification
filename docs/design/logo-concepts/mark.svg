@@ -1,0 +1,32 @@
+<!--
+  Purrification icon-only mark — chosen concept, per
+  docs/design/purrification-brand-guidelines.md §3.
+
+  Hand-authored SVG rather than AI-generated: this sandbox's codex CLI
+  doesn't expose the `codex image generate` subcommand the openai-imagegen
+  skill documents (see feedback filed), and a vector mark suits a
+  favicon-legible-at-16px requirement better than a rasterized illustration
+  would anyway.
+
+  Concept: a cat-head silhouette (pointed ears, rounded head) with a
+  crescent-moon cutout on its forehead — "otherworldly sight" traced
+  through the cat's form, per the brand doc's direction — inside an
+  engraved circular seal ring. Gold linework (--color-gold-500 / 700) on
+  the near-black background (--color-bg-base). Shipped as
+  public/icons/favicon.svg; also the base for the "seal of completion"
+  variant at public/icons/seal-of-completion.svg.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <circle cx="32" cy="32" r="31" fill="#0D0A12" />
+  <circle cx="32" cy="32" r="29.5" fill="none" stroke="#D4AF37" stroke-width="1.4" />
+  <circle cx="32" cy="32" r="26.5" fill="none" stroke="#B8933F" stroke-width="0.5" />
+  <path
+    fill="#D4AF37"
+    d="M16,24 L22,9 L27,22 Z
+       M48,24 L42,9 L37,22 Z
+       M18,26 C13,35 13,43 20,47 C25,50 39,50 44,47
+       C51,43 51,35 46,26 C43,22 38,20 32,20 C26,20 21,22 18,26 Z"
+  />
+  <circle cx="30" cy="27" r="5" fill="#0D0A12" />
+  <circle cx="32.5" cy="26.3" r="4.3" fill="#D4AF37" />
+</svg>
