@@ -214,13 +214,13 @@ brand doc is now the authoritative source for anything it covers, ahead of
       `design-tokens.json`; its "Open items" section no longer applies).
       Keep `design-system.md`'s parts that the brand doc doesn't cover
       (component-to-route inventory, the UI gaps survey, responsive rules).
-- [ ] Set up Tailwind CSS v4 (`@tailwindcss/postcss`, this Next.js
+- [x] Set up Tailwind CSS v4 (`@tailwindcss/postcss`, this Next.js
       version's own recommended default) and port `design-tokens.json`'s
       values into a Tailwind v4 `@theme` block in `globals.css`.
       `tailwind.config.snippet.ts` is written for classic JS-config
       Tailwind (`theme.extend` in `tailwind.config.ts`) — that shape needs
       translating to v4's CSS-native `@theme` syntax, not dropped in as-is.
-- [ ] Load the three brand fonts (Cinzel Decorative, Cinzel, EB Garamond)
+- [x] Load the three brand fonts (Cinzel Decorative, Cinzel, EB Garamond)
       via `next/font/google` per the three-tier system in
       `purrification-brand-guidelines.md` §5 (display/heading/body).
 - [ ] Logo design pass — none exists yet (`purrification-brand-guidelines.md`
