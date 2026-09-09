@@ -1,0 +1,192 @@
+[
+  {
+    "id": "mood",
+    "topic_id": "topic_mood",
+    "prompt_mystical": "How's your cat's mood been lately?",
+    "prompt_plain": "How's your cat's mood been lately?",
+    "input_type": "single_select",
+    "sort_order": 0,
+    "answers": [
+      {
+        "id": "chill",
+        "label_mystical": "Suspiciously chill",
+        "label_plain": "Suspiciously chill",
+        "sort_order": 0,
+        "tag_effects": { "mood_chill": 3 }
+      },
+      {
+        "id": "hyper",
+        "label_mystical": "Zooming around at 3am",
+        "label_plain": "Zooming around at 3am",
+        "sort_order": 1,
+        "tag_effects": { "mood_hyper": 3 }
+      },
+      {
+        "id": "aloof",
+        "label_mystical": "Ignoring you on principle",
+        "label_plain": "Ignoring you on principle",
+        "sort_order": 2,
+        "tag_effects": { "mood_aloof": 3 }
+      },
+      {
+        "id": "dramatic",
+        "label_mystical": "Emotionally unavailable",
+        "label_plain": "Emotionally unavailable",
+        "sort_order": 3,
+        "tag_effects": { "mood_dramatic": 3 }
+      }
+    ]
+  },
+  {
+    "id": "napSpot",
+    "topic_id": "topic_sleep",
+    "prompt_mystical": "Where has your cat been napping most?",
+    "prompt_plain": "Where has your cat been napping most?",
+    "input_type": "single_select",
+    "sort_order": 1,
+    "answers": [
+      {
+        "id": "sunbeam",
+        "label_mystical": "In a sunbeam, like royalty",
+        "label_plain": "In a sunbeam, like royalty",
+        "sort_order": 0,
+        "tag_effects": { "napSpot_sunbeam": 3 }
+      },
+      {
+        "id": "box",
+        "label_mystical": "A cardboard box that's too small",
+        "label_plain": "A cardboard box that's too small",
+        "sort_order": 1,
+        "tag_effects": { "napSpot_box": 3 }
+      },
+      {
+        "id": "laptop",
+        "label_mystical": "Directly on your keyboard",
+        "label_plain": "Directly on your keyboard",
+        "sort_order": 2,
+        "tag_effects": { "napSpot_laptop": 3 }
+      },
+      {
+        "id": "weird",
+        "label_mystical": "Somewhere structurally inexplicable",
+        "label_plain": "Somewhere structurally inexplicable",
+        "sort_order": 3,
+        "tag_effects": { "napSpot_weird": 3 }
+      }
+    ]
+  },
+  {
+    "id": "homeChanges",
+    "topic_id": "topic_environment",
+    "prompt_mystical": "Any new objects or changes in the home recently?",
+    "prompt_plain": "Any new objects or changes in the home recently?",
+    "input_type": "single_select",
+    "sort_order": 2,
+    "answers": [
+      {
+        "id": "furniture",
+        "label_mystical": "New furniture",
+        "label_plain": "New furniture",
+        "sort_order": 0,
+        "tag_effects": { "homeChanges_furniture": 3 }
+      },
+      {
+        "id": "vacuum",
+        "label_mystical": "The vacuum cleaner came out",
+        "label_plain": "The vacuum cleaner came out",
+        "sort_order": 1,
+        "tag_effects": { "homeChanges_vacuum": 3 }
+      },
+      {
+        "id": "guest",
+        "label_mystical": "A guest visited",
+        "label_plain": "A guest visited",
+        "sort_order": 2,
+        "tag_effects": { "homeChanges_guest": 3 }
+      },
+      {
+        "id": "nothing",
+        "label_mystical": "Nothing's changed",
+        "label_plain": "Nothing's changed",
+        "sort_order": 3,
+        "tag_effects": { "homeChanges_nothing": 3 }
+      }
+    ]
+  },
+  {
+    "id": "mealtime",
+    "topic_id": "topic_mealtime",
+    "prompt_mystical": "How's mealtime going?",
+    "prompt_plain": "How's mealtime going?",
+    "input_type": "single_select",
+    "sort_order": 3,
+    "answers": [
+      {
+        "id": "normal",
+        "label_mystical": "Business as usual",
+        "label_plain": "Business as usual",
+        "sort_order": 0,
+        "tag_effects": { "mealtime_normal": 3 }
+      },
+      {
+        "id": "picky",
+        "label_mystical": "Suddenly picky",
+        "label_plain": "Suddenly picky",
+        "sort_order": 1,
+        "tag_effects": { "mealtime_picky": 3 }
+      },
+      {
+        "id": "begging",
+        "label_mystical": "Begging like it's never been fed",
+        "label_plain": "Begging like it's never been fed",
+        "sort_order": 2,
+        "tag_effects": { "mealtime_begging": 3 }
+      },
+      {
+        "id": "ignoring",
+        "label_mystical": "Ignoring the bowl entirely",
+        "label_plain": "Ignoring the bowl entirely",
+        "sort_order": 3,
+        "tag_effects": { "mealtime_ignoring": 3 }
+      }
+    ]
+  },
+  {
+    "id": "vocalizing",
+    "topic_id": "topic_vocal",
+    "prompt_mystical": "Any unusual vocalizing?",
+    "prompt_plain": "Any unusual vocalizing?",
+    "input_type": "single_select",
+    "sort_order": 4,
+    "answers": [
+      {
+        "id": "silent",
+        "label_mystical": "Total silence",
+        "label_plain": "Total silence",
+        "sort_order": 0,
+        "tag_effects": { "vocalizing_silent": 3 }
+      },
+      {
+        "id": "chatty",
+        "label_mystical": "Extra chatty",
+        "label_plain": "Extra chatty",
+        "sort_order": 1,
+        "tag_effects": { "vocalizing_chatty": 3 }
+      },
+      {
+        "id": "yowling",
+        "label_mystical": "Yowling at 3am for no reason",
+        "label_plain": "Yowling at 3am for no reason",
+        "sort_order": 2,
+        "tag_effects": { "vocalizing_yowling": 3 }
+      },
+      {
+        "id": "hissing",
+        "label_mystical": "Hissing at an empty corner",
+        "label_plain": "Hissing at an empty corner",
+        "sort_order": 3,
+        "tag_effects": { "vocalizing_hissing": 3 }
+      }
+    ]
+  }
+]

@@ -3,7 +3,6 @@ import { TextLink } from "@/components/ui/TextLink";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db/client";
 import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard";
-import { getDiagnosisImage } from "@/lib/diagnosis/getDiagnosisImage";
 import { PageShell } from "@/components/ui/PageShell";
 
 export default async function ResultPage({
@@ -19,7 +18,7 @@ export default async function ResultPage({
   const { id } = await params;
   const diagnosis = await prisma.diagnosis.findUnique({
     where: { id },
-    include: { quizAttempt: { include: { cat: true } } },
+    include: { quizAttempt: { include: { cat: true } }, diagnosisDef: true },
   });
   if (!diagnosis || diagnosis.quizAttempt.cat.userId !== user.id) {
     notFound();
@@ -32,7 +31,7 @@ export default async function ResultPage({
           catName={diagnosis.quizAttempt.cat.name}
           diagnosisText={diagnosis.diagnosisText}
           ritualText={diagnosis.ritualText}
-          image={getDiagnosisImage(diagnosis.diagnosisText)}
+          image={diagnosis.diagnosisDef.imagePath ?? undefined}
         >
           <p className="mt-6">
             <TextLink

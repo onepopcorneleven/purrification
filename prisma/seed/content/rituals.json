@@ -1,0 +1,162 @@
+[
+  {
+    "id": "ritual_mercury_retrograde_std",
+    "parent_treatment_id": "treat_mercury_retrograde",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Cardboard Box Vigil",
+    "materials": ["a cardboard box", "a sunny window"],
+    "steps_template": [
+      "Set out a fresh cardboard box facing the nearest window.",
+      "Don't point it out or nudge them toward it — let them find it on their own.",
+      "Let them sit in it, unbothered, for one full sunbeam cycle."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "If Mercury's still retrograde next week, repeat as needed — there's no rush.",
+    "personalization_slots": []
+  },
+  {
+    "id": "ritual_vacuum_residue_std",
+    "parent_treatment_id": "treat_vacuum_residue",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Lint-Roller Smudge",
+    "materials": ["a lint roller"],
+    "steps_template": [
+      "Perform a lint-roller smudge stick pass along their favorite perch.",
+      "Speak softly the whole time.",
+      "Do not vacuum again for at least 24 hours."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "The hum fades on its own; you don't need to do anything else.",
+    "personalization_slots": []
+  },
+  {
+    "id": "ritual_chaos_spirit_box_std",
+    "parent_treatment_id": "treat_chaos_spirit_box",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Catnip Blessing",
+    "materials": ["a pinch of catnip", "the cardboard box"],
+    "steps_template": [
+      "Offer a small catnip blessing at the mouth of the box.",
+      "Back away slowly.",
+      "Let them finish the ritual alone, without an audience."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "The chaos spirit moves on once it's acknowledged — no further action needed.",
+    "personalization_slots": []
+  },
+  {
+    "id": "ritual_moon_phase_whiskers_std",
+    "parent_treatment_id": "treat_moon_phase_whiskers",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Bowl Shift",
+    "materials": ["the food bowl"],
+    "steps_template": [
+      "Move their food bowl six inches to the left, just for tonight.",
+      "Announce the change out loud before doing it.",
+      "Let them inspect the new spot before eating from it."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "One realignment is usually enough; repeat only if the whiskers seem unsettled again.",
+    "personalization_slots": []
+  },
+  {
+    "id": "ritual_three_am_zoomies_std",
+    "parent_treatment_id": "treat_three_am_zoomies",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Hallway Light Vigil",
+    "materials": ["a hallway light"],
+    "steps_template": [
+      "Leave one hallway light on before bed.",
+      "Do not intervene once the zoomies begin.",
+      "Let the ritual complete itself, however long it takes."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "Zoomies that continue past a week are just personality, not a lingering issue.",
+    "personalization_slots": []
+  },
+  {
+    "id": "ritual_sunbeam_schedule_std",
+    "parent_treatment_id": "treat_sunbeam_schedule",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Sunbeam Repositioning",
+    "materials": ["a cushion"],
+    "steps_template": [
+      "Reposition a cushion directly in today's strongest patch of sunlight.",
+      "Apologize out loud for the inconvenience.",
+      "Leave the cushion in place for the rest of the day."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "Sunbeams shift daily — you may need to repeat this through the week.",
+    "personalization_slots": []
+  },
+  {
+    "id": "ritual_houseguest_aura_std",
+    "parent_treatment_id": "treat_houseguest_aura",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Counter-Clockwise Fluffing",
+    "materials": ["the room's cushions"],
+    "steps_template": [
+      "Fluff every cushion in the room once, counter-clockwise.",
+      "Do this while they supervise from a safe distance.",
+      "Thank them for their vigilance when you're done."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "The aura fades within a day or two on its own.",
+    "personalization_slots": []
+  },
+  {
+    "id": "ritual_static_corner_std",
+    "parent_treatment_id": "treat_static_corner",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Corner Acknowledgment",
+    "materials": ["the corner in question"],
+    "steps_template": [
+      "Pet the corner once, gently, where they can see you do it.",
+      "Say out loud that it's been handled.",
+      "Resume your evening as normal."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "One acknowledgment is usually enough to settle the charge.",
+    "personalization_slots": []
+  },
+  {
+    "id": "ritual_ceremonial_fast_std",
+    "parent_treatment_id": "treat_ceremonial_fast",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Warmed Offering",
+    "materials": ["their usual food"],
+    "steps_template": [
+      "Warm their usual food for ten extra seconds.",
+      "Present it with both hands, like an offering.",
+      "Wait a moment before stepping back, rather than walking away immediately."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "Appetite should return to normal within a day; if not, that's a vet question, not a ritual one.",
+    "personalization_slots": []
+  },
+  {
+    "id": "ritual_meditative_aloofness_std",
+    "parent_treatment_id": "treat_meditative_aloofness",
+    "selection_conditions": { "severity_band": ["present"] },
+    "priority": 1,
+    "title_template": "The Patient Sit",
+    "materials": ["a low seat or floor cushion"],
+    "steps_template": [
+      "Sit near them without making eye contact for five minutes.",
+      "Let them approach first, on their own timeline.",
+      "If they don't approach today, try again tomorrow — there's no deadline."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "Aloofness on its own timeline is normal — this isn't something to fix quickly.",
+    "personalization_slots": []
+  }
+]

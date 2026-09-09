@@ -2,10 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { QuizQuestion } from "@/content/quiz";
 import { Button } from "@/components/ui/Button";
 import { QuizProgress } from "@/components/ui/QuizProgress";
 import { useToast } from "@/components/ui/Toast";
+
+// R-CONTENT-1: question content is DB-backed (see prisma/schema.prisma's
+// Question/AnswerOption models) — this is the shape the quiz page maps
+// those rows into, not a re-export of a static content file anymore.
+interface QuizQuestion {
+  id: string;
+  prompt: string;
+  options: { id: string; label: string }[];
+}
 
 export function QuizFlow({
   catId,
