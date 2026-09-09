@@ -687,6 +687,65 @@ is edited later, the same live-content behavior `imagePath` already has).
       JSON and reseeding again collapses it back to one.
 - [ ] `npm run build` and `npm run lint` both pass.
 
+## Phase 16 — Content-model id integrity fix — **proposed, pending approval**
+Not yet approved — do not start without an explicit go-ahead. Full plan:
+`board/content-id-integrity-fix.md` (gitignored, local planning board per
+`board/README.md` — this section is a self-contained summary since that
+file doesn't travel with the repo).
+
+**Bug found post-Phase-14-deploy:** 18 of the 20 live quiz questions render
+with zero selectable answers — a user starting the quiz gets stuck on
+question 1. Root cause: `AnswerOption.id` is a *global* Prisma primary key,
+but `prisma/seed/content/questions.json` authors every question's answers
+with the same 5 short, question-local-looking ids (`a1`–`a5`) reused across
+all 20 questions. `prisma/seed/index.ts`'s upsert-by-id logic silently
+overwrites the same 5 physical rows as the seed loop walks each question,
+so only the *last* question to touch each id ends up owning it — the other
+18 questions end up with zero related `AnswerOption` rows. Worse, the
+surviving 5 rows' `AnswerOptionTagEffect` data is also corrupted: because
+that join table is only ever upserted, never pruned, each surviving id has
+accumulated a jumbled union of tag effects from every question that touched
+it (confirmed live: id `a1` alone carries 17 tag-effect rows spanning
+nearly the entire tag vocabulary). The same investigation also found two
+independent, adjacent issues: `prisma/seed/index.ts`'s `validate()` never
+checks id uniqueness for any content class (so this shipped through
+validation cleanly), and **no foreign-key column anywhere in the schema has
+a database index** (Postgres doesn't auto-index the referencing side of an
+FK) — invisible today at this row count, a real query-performance risk once
+`Cat`/`QuizAttempt`/`Diagnosis` accumulate real usage.
+
+**Proposed solution (see the board file for full reasoning):** derive
+`AnswerOption`'s DB id from `` `${questionId}::${localId}` `` inside the
+seed script (structural fix — global uniqueness by construction, not author
+discipline), change the `AnswerOptionTagEffect` sync from blind upsert to
+delete-then-recreate per answer (closing the staleness risk for good, not
+just this one incident — mirrors the same pattern Phase 15's
+`DiagnosisDefImage` plan independently proposes), add a global
+id-uniqueness check to `validate()` for every content class as
+defense-in-depth, repair the live data (delete the 5 corrupted
+`AnswerOption` rows and reseed — safe, since `Diagnosis` has no FK into
+`AnswerOption`, unlike its `Restrict`-protected FKs into
+`DiagnosisDef`/`Treatment`/`Ritual`), and add the missing `@@index`
+declarations via one new migration.
+- [ ] Confirm the proposed solution with the user before starting — the
+      board file's implementation instructions cover the exact sequence.
+- [ ] `prisma/seed/index.ts`: derive `AnswerOption.id` as
+      `${questionId}::${localId}`.
+- [ ] `prisma/seed/index.ts`: sync `AnswerOptionTagEffect` by
+      delete-then-recreate, not blind upsert.
+- [ ] `prisma/seed/index.ts`: add per-content-class id-uniqueness checks to
+      `validate()`.
+- [ ] Repair live data: delete the 5 corrupted `AnswerOption` rows, reseed.
+- [ ] Add `@@index` for every unindexed FK column (see board file for the
+      full list); hand-write and apply the migration.
+- [ ] Update `docs/content/content-storage-architecture.md` and
+      `CLAUDE.md` with the id-uniqueness-by-construction and
+      delete-then-recreate rules as standing decisions.
+- [ ] Full 20-question quiz walk confirms every question has selectable
+      answers; multi-path `getDiagnosis` smoke test (distinct answer
+      combinations, not the single-path shortcut that missed this the
+      first time) confirms correct tag totals and results.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
