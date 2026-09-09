@@ -561,32 +561,53 @@ separate, later, gated work — see Phase 14.
   `User` row was left in place, consistent with every prior phase's smoke
   test (no delete-account endpoint exists).
 
-## Phase 14 — Rich content authoring pass — **proposed, pending approval**
-Not yet approved — do not start any item below without an explicit
-go-ahead, and depends on Phase 13 being live first. The actual content-
-design work `docs/content/content-framework.md` was written to drive —
-distinct in kind from Phase 13's plumbing (editorial/tone judgment, not
-schema/engine work).
-- [ ] Define the canonical tag vocabulary up front, before any question or
+## Phase 14 — Rich content authoring pass — **content authored, not yet deployed**
+The content itself (tags/topics/questions/diagnoses/treatments/rituals) has
+been authored and merged to `main` (`d2e80a5`, PR #20). It has **not** been
+applied to the production database, tone-reviewed, or smoke-tested — the
+live site is still running Phase 13's placeholder content (5 questions/10
+diagnoses) today. Do not run `npm run db:seed-content` against production,
+or otherwise deploy this content, without an explicit go-ahead — the
+remaining items below are still gated.
+- [x] Define the canonical tag vocabulary up front, before any question or
       diagnosis authoring begins (per `content-storage-architecture.md`
-      §10.1).
-- [ ] Author a full question bank organized into topics, each answer
-      option carrying real tag effects.
-- [ ] Author 10 `DiagnosisDef` entries (per §10.2) with real trigger rules,
+      §10.1). 17 tags authored (`prisma/seed/content/tags.json`).
+- [x] Author a full question bank organized into topics, each answer
+      option carrying real tag effects. 5 topics, 20 questions/85 answers
+      (`prisma/seed/content/topics.json`, `questions.json`).
+- [x] Author `DiagnosisDef` entries (per §10.2) with real trigger rules,
       including a `none_of` exclusion wherever two diagnoses could
-      plausibly both fire from overlapping tags.
-- [ ] Author the corresponding `Treatment` entries with real, populated
+      plausibly both fire from overlapping tags. 12 authored (11
+      pattern-based + 1 catch-all, not the 10 originally scoped here —
+      `prisma/seed/content/diagnoses.json`); the old 10 placeholder ids are
+      disjoint from the new ones and are set `isActive: false` at deploy
+      time rather than deleted (`Diagnosis` has `onDelete: Restrict` FKs
+      into `DiagnosisDef`/`Treatment`/`Ritual` protecting the live DB's
+      existing historical rows).
+- [x] Author the corresponding `Treatment` entries with real, populated
       `contraindications` the app can actually evaluate (severity-based
-      this round, not cat-trait-based — see §9 point 6).
-- [ ] Author `Ritual` variants selected by severity band, each with at
+      this round, not cat-trait-based — see §9 point 6). 10 treatments
+      authored (`prisma/seed/content/treatments.json`).
+- [x] Author `Ritual` variants selected by severity band, each with at
       least 3 concrete sequential steps and a per-ritual incantation
-      decision (structural support already in place per §10.4).
+      decision (structural support already in place per §10.4). 19
+      rituals authored (`prisma/seed/content/rituals.json`).
+      All of the above validated locally against `prisma/seed/index.ts`'s
+      `validate()` — referential integrity, the totality invariant (exactly
+      one catch-all with strictly-highest priority), gapless/non-overlapping
+      severity bands, personalization-slot consistency, and mutually
+      exclusive sibling ritual coverage all pass. This is static JSON
+      validation only — it has not been run as a real `db:seed-content`
+      upsert against the live database.
 - [ ] Full tone/content review of every new entry against R-TONE-1/R-TONE-2.
+      Not yet done.
 - [ ] Re-run `npm run db:seed-content` against the real content and
-      re-verify all seed-time invariants at real scale.
+      re-verify all seed-time invariants at real scale. Not yet done —
+      production has not been touched; this is a production deploy/seed
+      action and needs explicit approval first.
 - [ ] Golden-path + multi-path smoke test confirming distinct tag-total
       combinations route to distinct, correct diagnosis/treatment/ritual
-      results.
+      results. Not yet done — blocked on the seed-content deploy above.
 
 ## Phase 15 — Diagnosis image pool (R-CONTENT-5 extension) — **proposed, pending approval**
 Not yet approved — do not start without an explicit go-ahead; independent of

@@ -24,10 +24,23 @@ PostgreSQL (`Tag`/`Question`/`DiagnosisDef`/`Treatment`/`Ritual`, seeded via
 rule engine. Phase 13 shipped only *placeholder* content (today's 5
 questions/10 diagnoses migrated into the new shape, minimal tag
 scaffolding) — see `docs/content/content-storage-architecture.md` for the
-full schema/engine spec this implements. Only **Phase 14 (rich content
-authoring)** remains, and it's still **proposed, pending approval** — do
-not start it without an explicit go-ahead; see `workplan.md` for its exact
-checklist.
+full schema/engine spec this implements.
+
+**Phase 14 (rich content authoring): the content itself is authored and
+merged to `main`, but not yet deployed.** `prisma/seed/content/*.json` now
+holds a full real content bank — 17 tags, 5 topics, 20 questions/85
+answers, 10 treatments, 12 diagnoses (11 pattern-based + 1 catch-all), 19
+rituals — validated locally against `prisma/seed/index.ts`'s `validate()`
+(referential integrity, the totality invariant, severity-band coverage,
+slot consistency, ritual exclusivity). **None of this is live yet**:
+`npm run db:seed-content` has not been run against the production
+database, so `purrification.com` is still serving Phase 13's placeholder
+content (5 questions/10 diagnoses) today. Also still outstanding: a full
+tone/content review of the new entries against R-TONE-1/R-TONE-2, and the
+golden-path + multi-path smoke test. **Do not run `db:seed-content`
+against production, or otherwise deploy this content, without an explicit
+go-ahead** — see `workplan.md`'s Phase 14 checklist for the exact
+remaining items.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
