@@ -1,11 +1,27 @@
 [
-  { "id": "topic_mood", "name": "Mood & Temperament", "sort_order": 0 },
-  { "id": "topic_sleep", "name": "Sleep & Rest", "sort_order": 1 },
   {
-    "id": "topic_environment",
-    "name": "Environment & Changes",
+    "id": "topic_territory",
+    "name": "Territory & Space",
+    "sort_order": 1
+  },
+  {
+    "id": "topic_sleep",
+    "name": "Sleep & Rhythm",
     "sort_order": 2
   },
-  { "id": "topic_mealtime", "name": "Mealtime", "sort_order": 3 },
-  { "id": "topic_vocal", "name": "Vocal Behavior", "sort_order": 4 }
+  {
+    "id": "topic_social",
+    "name": "Social Bonds",
+    "sort_order": 3
+  },
+  {
+    "id": "topic_objects",
+    "name": "Object Relations",
+    "sort_order": 4
+  },
+  {
+    "id": "topic_vocal",
+    "name": "Vocal Behavior",
+    "sort_order": 5
+  }
 ]

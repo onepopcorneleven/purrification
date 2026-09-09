@@ -1,142 +1,323 @@
 [
   {
-    "id": "diag_mercury_retrograde",
-    "name_mystical": "Mercury Retrograde Third Eye",
-    "name_plain": "Mercury Retrograde Third Eye",
-    "trigger_rule": { "any_of": [{ "tag": "mood_aloof", "gte": 1 }] },
+    "id": "diag_separation_static",
+    "name_mystical": "Separation Static",
+    "name_plain": "Anticipatory distress tied to a bonded human's departure",
     "priority": 1,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "Mercury retrograde has clogged your cat's third eye. They're not ignoring you — they're recalibrating.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "attachment_anxiety", "gte": 6 },
+        { "tag": "human_bond_seeking", "gte": 3 }
+      ],
+      "none_of": [
+        { "tag": "social_overwhelm", "gte": 6 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 9, "max": 13, "label": "mild" },
+      { "min": 14, "max": 19, "label": "moderate" },
+      { "min": 20, "max": null, "label": "acute" }
+    ],
+    "description_template": "{cat_name} has learned your departure sequence better than you have — the keys, the coat, the particular sound the door makes — and the anticipation itself has become the hard part, often worse than the absence that follows it. This is a prediction problem as much as a bonding one.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the shadow that appears the moment you reach for your coat",
+      "the vocalizing that starts before you've even reached the door",
+      "the constant room-to-room following through the day"
+    ],
     "is_catch_all": false,
-    "image_path": "mercury-retrograde.png",
-    "linked_treatments": ["treat_mercury_retrograde"]
+    "linked_treatments": ["treat_secure_departure"]
   },
   {
-    "id": "diag_vacuum_residue",
-    "name_mystical": "Vacuum Residue",
-    "name_plain": "Vacuum Residue",
-    "trigger_rule": { "any_of": [{ "tag": "homeChanges_vacuum", "gte": 1 }] },
+    "id": "diag_social_flooding",
+    "name_mystical": "Social Flooding",
+    "name_plain": "Overwhelm from excess social contact",
     "priority": 2,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "Your cat has absorbed residual negative energy from the vacuum cleaner. It's still in there, humming quietly.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "social_overwhelm", "gte": 6 }
+      ],
+      "none_of": [
+        { "tag": "attachment_anxiety", "gte": 6 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 6, "max": 10, "label": "mild" },
+      { "min": 11, "max": 16, "label": "moderate" },
+      { "min": 17, "max": null, "label": "acute" }
+    ],
+    "description_template": "{cat_name}'s nervous system has a ceiling for social input, and it's being reached faster than it can reset. This isn't shyness or a dislike of people — it's a volume problem. Too many new voices, too much handling, too little control over when it stops, and {cat_name}'s only remaining lever is to leave the room entirely.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "disappearing for the full length of a gathering and staying gone well after",
+      "the flattened ears and low posture the moment the doorbell rings",
+      "needing hours, not minutes, to fully resurface after guests leave"
+    ],
     "is_catch_all": false,
-    "image_path": "vacuum-residue.png",
-    "linked_treatments": ["treat_vacuum_residue"]
+    "linked_treatments": ["treat_gentle_exposure"]
   },
   {
-    "id": "diag_chaos_spirit_box",
-    "name_mystical": "Chaos Spirit in the Box",
-    "name_plain": "Chaos Spirit in the Box",
-    "trigger_rule": { "any_of": [{ "tag": "napSpot_box", "gte": 1 }] },
+    "id": "diag_boundary_erosion",
+    "name_mystical": "Boundary Erosion",
+    "name_plain": "Territorial insecurity from unclear household boundaries",
     "priority": 3,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "A minor chaos spirit has taken up residence in the cardboard box. Your cat is guarding the threshold.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "territorial_anxiety", "gte": 5 },
+        { "tag": "boundary_guarding", "gte": 2 }
+      ],
+      "none_of": [
+        { "tag": "social_overwhelm", "gte": 6 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 7, "max": 11, "label": "mild" },
+      { "min": 12, "max": 17, "label": "moderate" },
+      { "min": 18, "max": null, "label": "acute" }
+    ],
+    "description_template": "{cat_name}'s edges have gone soft. The line between 'mine' and 'shared' has blurred, and {cat_name} is spending real energy re-drawing it — at the door, on the sill, in the doorway stand-offs you've probably noticed. This isn't aggression. It's upkeep.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the way {cat_name} claims the doorway before guests arrive",
+      "the extra patrol laps at dusk",
+      "the long pause before approaching anything new in the room"
+    ],
     "is_catch_all": false,
-    "image_path": "chaos-spirit-box.png",
-    "linked_treatments": ["treat_chaos_spirit_box"]
+    "linked_treatments": ["treat_boundary_restoration"]
   },
   {
-    "id": "diag_moon_phase_whiskers",
-    "name_mystical": "Moon-Phase Whiskers",
-    "name_plain": "Moon-Phase Whiskers",
-    "trigger_rule": { "any_of": [{ "tag": "homeChanges_nothing", "gte": 1 }] },
+    "id": "diag_threshold_vigil",
+    "name_mystical": "Threshold Vigil",
+    "name_plain": "Elevated watchfulness without active territorial defense",
     "priority": 4,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "Your cat's whiskers have picked up on a shift in the household's moon-phase alignment.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "vigilance", "gte": 6 },
+        { "tag": "territorial_anxiety", "gte": 3 }
+      ],
+      "none_of": [
+        { "tag": "boundary_guarding", "gte": 2 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 9, "max": 13, "label": "mild" },
+      { "min": 14, "max": 19, "label": "moderate" },
+      { "min": 20, "max": null, "label": "acute" }
+    ],
+    "description_template": "{cat_name} isn't defending anything yet. This is the watching that comes before a decision about whether defending is even necessary. {cat_name} has taken up a post at the window or the high shelf and isn't leaving it, running a constant assessment of a world that hasn't settled into 'safe' or 'not safe' yet.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the fixed, tense posture at the window when something passes outside",
+      "startling into full alertness at ordinary house sounds",
+      "the preference for the highest surface in any room"
+    ],
     "is_catch_all": false,
-    "image_path": "moon-phase-whiskers.png",
-    "linked_treatments": ["treat_moon_phase_whiskers"]
+    "linked_treatments": ["treat_boundary_restoration"]
   },
   {
-    "id": "diag_three_am_zoomies",
-    "name_mystical": "The 3am Purification",
-    "name_plain": "The 3am Purification",
-    "trigger_rule": { "any_of": [{ "tag": "mood_hyper", "gte": 1 }] },
+    "id": "diag_resource_vigilance",
+    "name_mystical": "Resource Vigilance",
+    "name_plain": "Guarding behavior around shared food, water, or litter access",
     "priority": 5,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "The 3am zoomies are a purification ritual your cat invented and has not yet explained to you.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "resource_guarding", "gte": 5 },
+        { "tag": "multi_cat_tension", "gte": 2 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 7, "max": 11, "label": "mild" },
+      { "min": 12, "max": 17, "label": "moderate" },
+      { "min": 18, "max": null, "label": "acute" }
+    ],
+    "description_template": "Somewhere in the shared spaces of this home, {cat_name} has decided that resources are scarcer than they actually are, and is spending real vigilance protecting access that isn't actually contested. This is rarely about the food itself — it's about whether the household's resource map feels safe to use without competition.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the quick, watchful eating instead of relaxed grazing",
+      "blocking or tension near the food or litter area with other cats present",
+      "the hesitation at a shared litter box before committing to use it"
+    ],
     "is_catch_all": false,
-    "image_path": "three-am-zoomies.png",
-    "linked_treatments": ["treat_three_am_zoomies"]
+    "linked_treatments": ["treat_resource_generosity"]
   },
   {
-    "id": "diag_sunbeam_schedule",
-    "name_mystical": "Sunbeam Schedule Disturbance",
-    "name_plain": "Sunbeam Schedule Disturbance",
-    "trigger_rule": { "any_of": [{ "tag": "napSpot_sunbeam", "gte": 1 }] },
+    "id": "diag_quiet_static",
+    "name_mystical": "Quiet Static",
+    "name_plain": "Internalized stress expressed as withdrawal and overgrooming",
     "priority": 6,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "Your cat has detected a disturbance in the sunbeam schedule and is quietly displeased about it.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "vocal_suppression", "gte": 5 },
+        { "tag": "grooming_excess", "gte": 3 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 8, "max": 12, "label": "mild" },
+      { "min": 13, "max": 18, "label": "moderate" },
+      { "min": 19, "max": null, "label": "acute" }
+    ],
+    "description_template": "{cat_name}'s stress isn't going outward — there's no loud complaint, no visible confrontation. It's turning inward instead, into an unusual quiet and into grooming that's gone past routine maintenance. This pattern is easy to miss precisely because it doesn't look like a problem from across the room.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the noticeable quiet where there used to be more chatter",
+      "grooming sessions that run longer than they used to",
+      "thinning fur or bald patches in reachable spots"
+    ],
     "is_catch_all": false,
-    "image_path": "sunbeam-schedule.png",
-    "linked_treatments": ["treat_sunbeam_schedule"]
+    "linked_treatments": ["treat_internal_release"]
   },
   {
-    "id": "diag_houseguest_aura",
-    "name_mystical": "Houseguest Aura",
-    "name_plain": "Houseguest Aura",
-    "trigger_rule": { "any_of": [{ "tag": "homeChanges_guest", "gte": 1 }] },
+    "id": "diag_rhythm_slip",
+    "name_mystical": "Rhythm Slip",
+    "name_plain": "Sleep and behavior disruption from an unstable daily schedule",
     "priority": 7,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "An old houseguest left behind a lingering aura, and your cat has appointed themselves its sole critic.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "routine_disruption", "gte": 5 },
+        { "tag": "sleep_fragmentation", "gte": 3 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 8, "max": 12, "label": "mild" },
+      { "min": 13, "max": 18, "label": "moderate" },
+      { "min": 19, "max": null, "label": "acute" }
+    ],
+    "description_template": "{cat_name}'s body clock runs on repetition, and it's currently missing the fixed points it needs to settle around. When feeding, activity, and quiet hours keep shifting, sleep fragments into short, watchful bouts instead of the long stretches a secure schedule would allow.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "sleep that comes in short bursts rather than long stretches",
+      "the agitation when a meal arrives even slightly off schedule",
+      "the way the whole day seems to reset when your own hours shift"
+    ],
     "is_catch_all": false,
-    "image_path": "houseguest-aura.png",
-    "linked_treatments": ["treat_houseguest_aura"]
+    "linked_treatments": ["treat_rhythm_anchoring"]
   },
   {
-    "id": "diag_static_corner",
-    "name_mystical": "Static Corner Charge",
-    "name_plain": "Static Corner Charge",
-    "trigger_rule": { "any_of": [{ "tag": "vocalizing_hissing", "gte": 1 }] },
+    "id": "diag_nocturnal_unrest",
+    "name_mystical": "Nocturnal Unrest",
+    "name_plain": "Disproportionate nighttime activity independent of routine instability",
     "priority": 8,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "The empty corner your cat keeps hissing at holds a very minor, very confused static charge.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "nocturnal_restlessness", "gte": 6 }
+      ],
+      "none_of": [
+        { "tag": "routine_disruption", "gte": 5 },
+        { "tag": "vocal_suppression", "gte": 5 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 6, "max": 10, "label": "mild" },
+      { "min": 11, "max": 16, "label": "moderate" },
+      { "min": 17, "max": null, "label": "acute" }
+    ],
+    "description_template": "The daytime hours are fine — it's the dark ones where {cat_name}'s energy has nowhere scheduled to go. This usually isn't a broken routine, it's an intact one that simply never accounted for burning off enough energy before the house goes quiet.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the sprinting, crying, or knocking that shows up specifically after midnight",
+      "how calm and settled the daytime hours are by comparison",
+      "waking fully alert the instant something moves after dark"
+    ],
     "is_catch_all": false,
-    "image_path": "static-corner.png",
-    "linked_treatments": ["treat_static_corner"]
+    "linked_treatments": ["treat_rhythm_anchoring"]
   },
   {
-    "id": "diag_ceremonial_fast",
-    "name_mystical": "Ceremonial Fast",
-    "name_plain": "Ceremonial Fast",
-    "trigger_rule": { "any_of": [{ "tag": "mealtime_picky", "gte": 1 }] },
+    "id": "diag_vocal_overflow",
+    "name_mystical": "Vocal Overflow",
+    "name_plain": "Escalated vocalization used as a primary request channel",
     "priority": 9,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "Your cat's sudden pickiness at mealtime is a ceremonial fast, not a comment on the food.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "vocal_escalation", "gte": 6 }
+      ],
+      "none_of": [
+        { "tag": "attachment_anxiety", "gte": 6 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 6, "max": 10, "label": "mild" },
+      { "min": 11, "max": 16, "label": "moderate" },
+      { "min": 17, "max": null, "label": "acute" }
+    ],
+    "description_template": "{cat_name} has learned that the voice works — that enough volume or insistence reliably gets a response — and the channel has widened to cover requests that used to go unspoken. This isn't distress on its own, it's a communication habit that's gotten loud because loud has been effective.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the escalating volume when a request goes unanswered for even a minute",
+      "vocalizing that starts well before a meal is actually due",
+      "the near-constant narration throughout an ordinary day"
+    ],
     "is_catch_all": false,
-    "image_path": "ceremonial-fast.png",
-    "linked_treatments": ["treat_ceremonial_fast"]
+    "linked_treatments": ["treat_voice_channeling"]
   },
   {
-    "id": "diag_meditative_aloofness",
-    "name_mystical": "Meditative Aloofness",
-    "name_plain": "Meditative Aloofness",
-    "trigger_rule": { "all_of": [] },
+    "id": "diag_object_tethering",
+    "name_mystical": "Object Tethering",
+    "name_plain": "Strong reliance on a single object as a coping anchor",
     "priority": 10,
-    "severity_bands": [{ "min": 0, "max": null, "label": "present" }],
-    "description_template": "Your cat's aloofness is a form of advanced meditation, not a personal rejection of you specifically.",
-    "description_slots": [],
-    "symptom_callback_pool": [],
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "object_fixation", "gte": 6 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 6, "max": 10, "label": "mild" },
+      { "min": 11, "max": 16, "label": "moderate" },
+      { "min": 17, "max": null, "label": "acute" }
+    ],
+    "description_template": "{cat_name} has found one fixed point in a world that doesn't always hold still, and it isn't a person or a place — it's a specific object. That's not a red flag on its own. It's a coping mechanism that's working, and the real risk isn't the attachment, it's what happens if that one object is ever lost without warning.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "carrying the same object from room to room",
+      "visible distress when that one item goes missing, even briefly",
+      "settling immediately the moment the object is nearby"
+    ],
+    "is_catch_all": false,
+    "linked_treatments": ["treat_object_investiture"]
+  },
+  {
+    "id": "diag_understimulation_drift",
+    "name_mystical": "Understimulation Drift",
+    "name_plain": "Behavioral overflow from insufficient active engagement",
+    "priority": 11,
+    "trigger_rule": {
+      "all_of": [
+        { "tag": "play_deficit", "gte": 5 },
+        { "tag": "novelty_seeking", "gte": 3 }
+      ]
+    },
+    "severity_bands": [
+      { "min": 8, "max": 12, "label": "mild" },
+      { "min": 13, "max": 18, "label": "moderate" },
+      { "min": 19, "max": null, "label": "acute" }
+    ],
+    "description_template": "{cat_name}'s energy is real and has to go somewhere, and right now it's finding its own outlets — knocked-over objects, sudden sprints, shredded things — because a structured one hasn't been offered in enough supply. This isn't misbehavior, it's an unmet appetite for engagement finding whatever channel is available.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the sudden bursts of destructive energy with no clear trigger",
+      "the immediate, intense interest in anything new placed in the room",
+      "restless pacing or attention-seeking when playtime hasn't happened"
+    ],
+    "is_catch_all": false,
+    "linked_treatments": ["treat_enrichment_cascade"]
+  },
+  {
+    "id": "diag_equilibrium",
+    "name_mystical": "The Ordinary Day",
+    "name_plain": "No significant imbalance detected",
+    "priority": 12,
+    "trigger_rule": {
+      "all_of": []
+    },
+    "severity_bands": [
+      { "min": 0, "max": null, "label": "steady" }
+    ],
+    "description_template": "Nothing in {cat_name}'s recent answers points toward a specific imbalance worth naming today. That's not a non-answer — a steady reading is still a reading, and it's worth treating the current rhythm as something to protect rather than something to wait out.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the general evenness across territory, sleep, social contact, objects, and voice",
+      "no single theme in the answers standing out from the others"
+    ],
     "is_catch_all": true,
-    "image_path": "meditative-aloofness.png",
-    "linked_treatments": ["treat_meditative_aloofness"]
+    "linked_treatments": ["treat_equilibrium_maintenance"]
   }
 ]

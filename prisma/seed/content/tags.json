@@ -1,82 +1,70 @@
 [
   {
-    "id": "mood_chill",
-    "description": "Placeholder scaffolding tag for quiz.ts's mood question, \"chill\" answer. Real tag vocabulary is Phase 14 work."
+    "id": "territorial_anxiety",
+    "description": "Stress arising from a sense that the cat's home range or personal space is unclear or contested."
   },
   {
-    "id": "mood_hyper",
-    "description": "Placeholder scaffolding tag for quiz.ts's mood question, \"hyper\" answer."
+    "id": "boundary_guarding",
+    "description": "Active patrol or defense behavior at thresholds, doorways, or the edges of claimed territory."
   },
   {
-    "id": "mood_aloof",
-    "description": "Placeholder scaffolding tag for quiz.ts's mood question, \"aloof\" answer."
+    "id": "vigilance",
+    "description": "Heightened watchfulness and scanning behavior, often from a high vantage point."
   },
   {
-    "id": "mood_dramatic",
-    "description": "Placeholder scaffolding tag for quiz.ts's mood question, \"dramatic\" answer."
+    "id": "social_overwhelm",
+    "description": "Distress from an excess of social contact — too many people, too much handling, too much noise at once."
   },
   {
-    "id": "napSpot_sunbeam",
-    "description": "Placeholder scaffolding tag for quiz.ts's napSpot question, \"sunbeam\" answer."
+    "id": "attachment_anxiety",
+    "description": "Distress specifically tied to separation from, or anticipation of separation from, a bonded human."
   },
   {
-    "id": "napSpot_box",
-    "description": "Placeholder scaffolding tag for quiz.ts's napSpot question, \"box\" answer."
+    "id": "human_bond_seeking",
+    "description": "Active proximity-seeking and shadowing of a specific bonded human."
   },
   {
-    "id": "napSpot_laptop",
-    "description": "Placeholder scaffolding tag for quiz.ts's napSpot question, \"laptop\" answer."
+    "id": "routine_disruption",
+    "description": "Stress arising from an unpredictable or recently-changed daily schedule (feeding, sleep, human presence)."
   },
   {
-    "id": "napSpot_weird",
-    "description": "Placeholder scaffolding tag for quiz.ts's napSpot question, \"weird\" answer."
+    "id": "sleep_fragmentation",
+    "description": "Broken, shortened, or erratic sleep bouts rather than the cat's typical long stretches."
   },
   {
-    "id": "homeChanges_furniture",
-    "description": "Placeholder scaffolding tag for quiz.ts's homeChanges question, \"furniture\" answer."
+    "id": "nocturnal_restlessness",
+    "description": "Elevated activity specifically during night hours, out of proportion to daytime activity."
   },
   {
-    "id": "homeChanges_vacuum",
-    "description": "Placeholder scaffolding tag for quiz.ts's homeChanges question, \"vacuum\" answer."
+    "id": "object_fixation",
+    "description": "Strong, repeated attachment to one specific object, texture, or item used as a coping anchor."
   },
   {
-    "id": "homeChanges_guest",
-    "description": "Placeholder scaffolding tag for quiz.ts's homeChanges question, \"guest\" answer."
+    "id": "resource_guarding",
+    "description": "Possessive or defensive behavior around food, water, or litter access points."
   },
   {
-    "id": "homeChanges_nothing",
-    "description": "Placeholder scaffolding tag for quiz.ts's homeChanges question, \"nothing\" answer."
+    "id": "multi_cat_tension",
+    "description": "Friction, avoidance, or vigilance arising specifically from cohabitation with other cats."
   },
   {
-    "id": "mealtime_normal",
-    "description": "Placeholder scaffolding tag for quiz.ts's mealtime question, \"normal\" answer."
+    "id": "vocal_escalation",
+    "description": "Increased frequency, volume, or insistence of vocalization beyond the cat's own baseline."
   },
   {
-    "id": "mealtime_picky",
-    "description": "Placeholder scaffolding tag for quiz.ts's mealtime question, \"picky\" answer."
+    "id": "vocal_suppression",
+    "description": "Unusually reduced vocalization — an atypical quietness read as withdrawal rather than contentment."
   },
   {
-    "id": "mealtime_begging",
-    "description": "Placeholder scaffolding tag for quiz.ts's mealtime question, \"begging\" answer."
+    "id": "grooming_excess",
+    "description": "Grooming behavior that exceeds routine self-maintenance, used as self-soothing under stress."
   },
   {
-    "id": "mealtime_ignoring",
-    "description": "Placeholder scaffolding tag for quiz.ts's mealtime question, \"ignoring\" answer."
+    "id": "play_deficit",
+    "description": "Signs of under-stimulation arising from insufficient active play or environmental engagement."
   },
   {
-    "id": "vocalizing_silent",
-    "description": "Placeholder scaffolding tag for quiz.ts's vocalizing question, \"silent\" answer."
-  },
-  {
-    "id": "vocalizing_chatty",
-    "description": "Placeholder scaffolding tag for quiz.ts's vocalizing question, \"chatty\" answer."
-  },
-  {
-    "id": "vocalizing_yowling",
-    "description": "Placeholder scaffolding tag for quiz.ts's vocalizing question, \"yowling\" answer."
-  },
-  {
-    "id": "vocalizing_hissing",
-    "description": "Placeholder scaffolding tag for quiz.ts's vocalizing question, \"hissing\" answer."
+    "id": "novelty_seeking",
+    "description": "Active interest in new objects, textures, or environmental changes — the drive an under-stimulated cat is trying to satisfy."
   }
 ]
