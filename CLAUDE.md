@@ -8,23 +8,26 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–12 are all done and live in production at
+`docs/workplan.md` Phases 0–13 are all done and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
 deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
 jewel-tone/gold identity, shared `PageShell`/`Button`/`Card`/`Field`/`Modal`/
-`Toast`/`DiagnosisCard` components), and a visual-richness pass (atmosphere,
-a full illustration set, theatrical component detail, motion/rhythm). Phase
-11's hardening pass is also done: the auth rate-limit values were reviewed
-against real traffic and left unchanged (not enough real usage yet to tune
-against), a nightly `pg_dump` backup job is live (`scripts/backup-db.sh` via
-`deploy`'s crontab), and a content tone review found nothing to fix. Two
-further phases are fully speced but **proposed, pending approval** — do not
-start either without an explicit go-ahead: Phase 13 (moving quiz/diagnosis
-content from the static `src/content/*.ts` files into PostgreSQL) and Phase
-14 (the rich content-authoring pass that storage migration would unblock).
-See `workplan.md` for exact checklists and `docs/content/content-storage-
-architecture.md` for Phase 13's full spec.
+`Toast`/`DiagnosisCard` components), a visual-richness pass (atmosphere, a
+full illustration set, theatrical component detail, motion/rhythm), a
+hardening pass (rate-limit values reviewed against real traffic and left
+unchanged, a nightly `pg_dump` backup job, a content tone review), and — as
+of the most recent work — the content storage foundation: quiz/diagnosis
+content moved from the static `src/content/*.ts` files (deleted) into
+PostgreSQL (`Tag`/`Question`/`DiagnosisDef`/`Treatment`/`Ritual`, seeded via
+`npm run db:seed-content`), with `getDiagnosis` rewritten as a DB-backed
+rule engine. Phase 13 shipped only *placeholder* content (today's 5
+questions/10 diagnoses migrated into the new shape, minimal tag
+scaffolding) — see `docs/content/content-storage-architecture.md` for the
+full schema/engine spec this implements. Only **Phase 14 (rich content
+authoring)** remains, and it's still **proposed, pending approval** — do
+not start it without an explicit go-ahead; see `workplan.md` for its exact
+checklist.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
@@ -49,6 +52,7 @@ don't claim a visual check that didn't happen.
 - `npm run format` / `npm run format:check` — Prettier, scoped to app code only (`.prettierignore` excludes `docs/`, other `*.md`, and `src/generated/`).
 - `npm run db:migrate` — `prisma migrate deploy`, applies `prisma/migrations/` against `DATABASE_URL` (see above — points at the VPS DB via tunnel).
 - `npm run db:generate` — `prisma generate` (also runs automatically via `postinstall`).
+- `npm run db:seed-content` — idempotent upsert of `prisma/seed/content/*.json` into the content-model tables (`Tag`/`Question`/`DiagnosisDef`/`Treatment`/`Ritual`, Phase 13). Runs every deploy, right after `db:migrate` — see `vps-runbook.md` step 12.
 - No test runner is set up yet — add one when Phase 1+ introduces code worth testing.
 
 **Structure:**
@@ -57,8 +61,10 @@ don't claim a visual check that didn't happen.
 - `src/components/diagnosis/` — `DiagnosisCard`, the one bespoke component (CSS Modules, not Tailwind utilities), shared by the results and share pages.
 - `src/generated/prisma/` — generated Prisma Client output, gitignored, never edit by hand.
 - `src/lib/db/client.ts` — the typed data-access entry point: a singleton `PrismaClient` (via the `@prisma/adapter-pg` driver adapter — Prisma 7's engine-less client requires an explicit driver adapter, not just a `DATABASE_URL`) cached on `globalThis` so Next.js dev-mode hot reload doesn't leak connections. Import `prisma` from here in API routes rather than instantiating `PrismaClient` directly.
-- `prisma/schema.prisma` — the data model, mirroring `docs/architecture.md`'s schema sketch exactly (`User`, `Cat`, `QuizAttempt`, `Diagnosis`, with `shareSlug` and cascade deletes).
-- `prisma/migrations/` — committed migration history; the initial migration is applied to the real (VPS) database — see above.
+- `prisma/schema.prisma` — the data model, mirroring `docs/architecture.md`'s schema sketch: `User`, `Cat`, `QuizAttempt`, `Diagnosis` (with `shareSlug` and cascade deletes), plus the Phase 13 content model (`Tag`, `QuestionTopic`, `Question`, `AnswerOption`, `AnswerOptionTagEffect`, `Treatment`, `DiagnosisDef`, `DiagnosisDefTreatment`, `Ritual`) that `Diagnosis` now has FKs into — see `docs/content/content-storage-architecture.md` §7.
+- `prisma/migrations/` — committed migration history; every migration is applied to the real (VPS) database — see above. The Phase 13 migration (`20260908130000_add_content_model`) is a real example of the expand→backfill→contract pattern this project uses for a NOT-NULL column added to a table with existing rows — read its header comment before writing another migration that touches a populated table.
+- `prisma/seed/` — the content authoring pipeline (Phase 13, `docs/content/content-storage-architecture.md` §8): `content/*.json` (one file per content class, edited by hand for Phase 14) and `index.ts` (validates then idempotently upserts them by stable id — run via `npm run db:seed-content`, using `tsx` since it runs outside Next.js).
+- `src/lib/diagnosis/engine.ts` — the DB-access-free derivation logic (tag accumulation, trigger-rule evaluation, severity banding, template rendering), imported by both `getDiagnosis.ts` (the runtime engine) and `prisma/seed/index.ts` (its `extractTemplateSlots` powers seed-time slot validation) — kept dependency-free of Prisma/DB access so both call sites can load their own content and reuse identical rule evaluation. `tsx` resolves the `@/*` path alias outside Next.js the same way `tsconfig.json` defines it, which is what makes this cross-context import work.
 - `prisma7.config.ts` — Prisma's config file (this is its actual generated filename in the installed Prisma 7 version, not a typo); reads `DATABASE_URL` from `.env`.
 - `next.config.ts` sets `output: "standalone"` — required by `docs/vps-runbook.md` step 11's systemd unit, which runs the standalone `server.js` directly.
 - `src/app/globals.css` — Tailwind v4 entry point; its `@theme` block is where the brand's design tokens actually live (ported from `docs/design/design-tokens.json`). Dark-only — no light-mode variant exists or is planned.
@@ -74,12 +80,12 @@ Docs were written in dependency order, each derived from the one before it:
 5. `docs/design-system.md` — how the UI will look and behave: visual language, design tokens, and component conventions for retrofitting a real design onto the functional layer built in Phases 2–7. Plays the same role for the frontend that `architecture.md` plays for the backend.
 6. `docs/workplan.md` — the sequenced build plan (phases 0–11) tying it all together, from project scaffolding through VPS provisioning, launch, and UI design.
 7. `docs/specs-updates.md` — a cross-doc consistency check that found and resolved contradictions/gaps across the docs above (e.g. the sharing model, deletion cascades, password reset scope). Treat the docs above as already incorporating these resolutions; check here first if something in them still looks contradictory.
-8. `docs/content/content-framework.md` — the content *shape and rules* spec (Question/Topic → Tag → Diagnosis → Treatment → Ritual derivation pipeline), written to drive a future content-authoring pass, not to describe what's live today.
-9. `docs/content/content-storage-architecture.md` — how that content model would be stored in PostgreSQL and served (schema, seed workflow, engine behavior), derived from `content-framework.md` and `architecture.md`. Specifies `docs/workplan.md` Phase 13 (storage/engine plumbing) and Phase 14 (real content authoring) — both proposed, pending approval, not yet built.
+8. `docs/content/content-framework.md` — the content *shape and rules* spec (Question/Topic → Tag → Diagnosis → Treatment → Ritual derivation pipeline), written to drive the Phase 14 content-authoring pass; Phase 13 (below) implements the storage/engine shape it describes, but only with placeholder content — this doc still describes what Phase 14's real authoring pass should produce, not what's live today.
+9. `docs/content/content-storage-architecture.md` — how that content model is stored in PostgreSQL and served (schema, seed workflow, engine behavior), derived from `content-framework.md` and `architecture.md`. Specifies `docs/workplan.md` Phase 13 (storage/engine plumbing, **shipped**) and Phase 14 (real content authoring, still proposed/pending approval).
 
 ## Key decisions to know before touching this repo
 
-- **Diagnosis/ritual generation is rule-based, not an LLM call** — a deterministic mapping from quiz answers to a curated, in-repo content pool (`R-DIAG-2`). `getDiagnosis` must be a *total* function (hash-bucket into the content pool, not a switch/case with gaps), and `QuizAttempt`+`Diagnosis` creation is one atomic DB transaction (`R-DIAG-5`) — no orphaned quiz attempts without a diagnosis.
+- **Diagnosis/ritual generation is rule-based, not an LLM call** — a deterministic mapping from quiz answers to DB-backed content (`R-DIAG-2`). As of Phase 13, `getDiagnosis` (`src/lib/diagnosis/getDiagnosis.ts`) accumulates weighted tags from the submitted answers and evaluates active `DiagnosisDef` trigger rules in priority order, first match wins; totality (`R-DIAG-5`, every possible answer combination must resolve to *some* result) is now guaranteed by a validated invariant — exactly one active catch-all `DiagnosisDef` with an always-true rule and the strictly-highest priority — rather than the earlier hash-bucket-into-a-static-pool approach, which was total by construction. `QuizAttempt`+`Diagnosis` creation is still one atomic DB transaction — no orphaned quiz attempts without a diagnosis.
 - **"Shareable" result page (R-DIAG-3/4) means a public, unauthenticated link keyed on a separate `shareSlug`** (not the row id), showing only diagnosis/ritual/cat-name — distinct from the still-out-of-scope platform share integrations (OAuth, share buttons, share-count tracking).
 - **Cat deletion is in scope (R-CAT-5)**: cascades to that cat's `QuizAttempt`/`Diagnosis` history (including share links), and the UI must confirm before deleting.
 - **Cat `traits` are display-only this round (R-CAT-3/R-DIAG-2)** — shown on the cat's profile, not fed into `getDiagnosis`. Don't wire them into diagnosis logic without a deliberate scope change.
@@ -87,7 +93,7 @@ Docs were written in dependency order, each derived from the one before it:
 - **Auth rate-limiting is provisioned at the Nginx layer during VPS setup (`R-INFRA-4`, `vps-runbook.md` step 9, Phase 8)**, before the app is ever deployed (Phase 9) — not bolted on later in the Phase 11 hardening pass.
 - **The systemd service runs a Next.js standalone build** (`output: "standalone"`), which is what actually produces the `server.js` the unit's `ExecStart` expects — don't assume a hand-rolled custom server.
 - **Hosting is a self-managed bare-metal VPS**, not a managed platform like Vercel — the project owns provisioning and hardening (`docs/vps-runbook.md`) as part of the learning goal.
-- **Content is edited by committing to seed/config data**, not through an admin CMS — that's explicitly out of scope for this round. Today that means the static `src/content/{quiz,diagnoses}.ts` files. `docs/content/content-storage-architecture.md` specifies a DB-backed replacement (`docs/workplan.md` Phase 13, proposed/pending approval) — the storage engine would move to PostgreSQL, but the authoring workflow stays commit-to-repo (versioned JSON seed files applied via an idempotent `npm run db:seed-content` script), never an admin CMS. Not yet built — this bullet still describes what's actually live.
+- **Content is edited by committing to seed/config data**, not through an admin CMS — that's explicitly out of scope for this round. As of Phase 13, that means `prisma/seed/content/*.json` (versioned JSON, one file per content class) applied via the idempotent `npm run db:seed-content` script — the storage engine is PostgreSQL, but the authoring workflow is still commit-to-repo, never an admin CMS. The old static `src/content/{quiz,diagnoses}.ts` files are deleted. Phase 13 shipped only placeholder content (today's 5 questions/10 diagnoses migrated into the new shape) — a real, rich content bank is Phase 14, separately gated.
 - **Prisma was chosen over Drizzle** (Phase 0) — the default per `docs/architecture.md`, no learning-goal reason came up to prefer Drizzle instead.
 - Whether sessions are stateless-signed-cookie or DB-backed is still open per `docs/architecture.md` — starts stateless.
 - **The visual identity is fixed, not a Claude Code judgment call**: `docs/design/purrification-brand-guidelines.md` (dark-only, jewel-tone-and-gold "antique fortune-teller machine meets tarot deck") and its `design-tokens.json` are authoritative for palette/type/imagery/motion, ahead of `docs/design-system.md`. Don't introduce new colors/fonts without updating that chain — the one sanctioned exception is `--color-error-text`/`--color-error-hover` in `globals.css`, added because the brand's own `error` swatch fails WCAG AA for small text (documented in `design-system.md`'s accessibility rules).

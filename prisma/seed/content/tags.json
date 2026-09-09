@@ -1,0 +1,82 @@
+[
+  {
+    "id": "mood_chill",
+    "description": "Placeholder scaffolding tag for quiz.ts's mood question, \"chill\" answer. Real tag vocabulary is Phase 14 work."
+  },
+  {
+    "id": "mood_hyper",
+    "description": "Placeholder scaffolding tag for quiz.ts's mood question, \"hyper\" answer."
+  },
+  {
+    "id": "mood_aloof",
+    "description": "Placeholder scaffolding tag for quiz.ts's mood question, \"aloof\" answer."
+  },
+  {
+    "id": "mood_dramatic",
+    "description": "Placeholder scaffolding tag for quiz.ts's mood question, \"dramatic\" answer."
+  },
+  {
+    "id": "napSpot_sunbeam",
+    "description": "Placeholder scaffolding tag for quiz.ts's napSpot question, \"sunbeam\" answer."
+  },
+  {
+    "id": "napSpot_box",
+    "description": "Placeholder scaffolding tag for quiz.ts's napSpot question, \"box\" answer."
+  },
+  {
+    "id": "napSpot_laptop",
+    "description": "Placeholder scaffolding tag for quiz.ts's napSpot question, \"laptop\" answer."
+  },
+  {
+    "id": "napSpot_weird",
+    "description": "Placeholder scaffolding tag for quiz.ts's napSpot question, \"weird\" answer."
+  },
+  {
+    "id": "homeChanges_furniture",
+    "description": "Placeholder scaffolding tag for quiz.ts's homeChanges question, \"furniture\" answer."
+  },
+  {
+    "id": "homeChanges_vacuum",
+    "description": "Placeholder scaffolding tag for quiz.ts's homeChanges question, \"vacuum\" answer."
+  },
+  {
+    "id": "homeChanges_guest",
+    "description": "Placeholder scaffolding tag for quiz.ts's homeChanges question, \"guest\" answer."
+  },
+  {
+    "id": "homeChanges_nothing",
+    "description": "Placeholder scaffolding tag for quiz.ts's homeChanges question, \"nothing\" answer."
+  },
+  {
+    "id": "mealtime_normal",
+    "description": "Placeholder scaffolding tag for quiz.ts's mealtime question, \"normal\" answer."
+  },
+  {
+    "id": "mealtime_picky",
+    "description": "Placeholder scaffolding tag for quiz.ts's mealtime question, \"picky\" answer."
+  },
+  {
+    "id": "mealtime_begging",
+    "description": "Placeholder scaffolding tag for quiz.ts's mealtime question, \"begging\" answer."
+  },
+  {
+    "id": "mealtime_ignoring",
+    "description": "Placeholder scaffolding tag for quiz.ts's mealtime question, \"ignoring\" answer."
+  },
+  {
+    "id": "vocalizing_silent",
+    "description": "Placeholder scaffolding tag for quiz.ts's vocalizing question, \"silent\" answer."
+  },
+  {
+    "id": "vocalizing_chatty",
+    "description": "Placeholder scaffolding tag for quiz.ts's vocalizing question, \"chatty\" answer."
+  },
+  {
+    "id": "vocalizing_yowling",
+    "description": "Placeholder scaffolding tag for quiz.ts's vocalizing question, \"yowling\" answer."
+  },
+  {
+    "id": "vocalizing_hissing",
+    "description": "Placeholder scaffolding tag for quiz.ts's vocalizing question, \"hissing\" answer."
+  }
+]

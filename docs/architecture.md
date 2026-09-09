@@ -26,29 +26,34 @@ one codebase, matching the brief's "single codebase for learning" goal.
 | **Pages/UI** (`app/`) | Landing page, auth forms, cat dashboard, quiz flow, result cards, public share page, history view | R-LAND-1, R-CAT-4, R-QUIZ-1/2, R-DIAG-3/4, R-HIST-2 |
 | **API routes** (`app/api/*`) | `POST /signup`, `POST /login`, `POST /logout`, `POST /cats`, `GET /cats`, `PATCH /cats/:id`, `DELETE /cats/:id` (cascades to that cat's history — see R-CAT-5), `POST /cats/:id/quiz` (creates `QuizAttempt` + `Diagnosis` atomically), `GET /cats/:id/history` | R-AUTH-1/2/3, R-CAT-1/2/3/4/5, R-QUIZ-3, R-HIST-1, R-DIAG-5 |
 | **Public routes** (`app/share/[shareSlug]`, unauthenticated) | Read-only diagnosis view by `shareSlug`, not `id` | R-DIAG-3/4 |
-| **Domain services** (`lib/`) | Password hashing/verification, session issuance, diagnosis-engine lookup, content-pool access | R-AUTH-1/2, R-DIAG-1/2/5 |
+| **Domain services** (`lib/`) | Password hashing/verification, session issuance, DB-backed diagnosis-engine derivation | R-AUTH-1/2, R-DIAG-1/2/5 |
 | **Data access** (Prisma/Drizzle client) | Typed queries, migrations | R-DATA-1, R-DATA-2 |
 | **Content data** (PostgreSQL, seeded via `npm run db:seed-content` from versioned `prisma/seed/content/` files — see below) | Quiz questions/topics/tags, diagnosis/treatment/ritual definitions | R-CONTENT-1..6, out-of-scope "no admin CMS" |
 
-### Diagnosis engine (R-DIAG-1/2/5)
-A pure function, not a service call: `getDiagnosis(answers: QuizAnswer[]) ->
-{ diagnosisText, ritualText }`. It maps answer patterns to entries in a
-versioned, in-repo content pool (e.g. `content/diagnoses.ts`), so results are
-deterministic and testable without a database or network call. This keeps
-R-TONE-1/2 enforceable by content review rather than runtime moderation.
-Deliberately, `Cat.traits` is not a parameter here (per R-CAT-3/R-DIAG-2):
-traits are display-only this round, not diagnosis input — keeping the
-signature to just `answers` is what makes the pool a plain, versioned data
-file instead of a second axis of content to author and test.
+### Diagnosis engine (R-DIAG-1/2/5, R-CONTENT-1..6)
+`getDiagnosis(catName: string, answers: QuizAnswer[]) -> { diagnosisDefId,
+treatmentId, ritualId, tagTotalsSnapshot, severityLabel, diagnosisText,
+ritualText }`, DB-backed as of Phase 13 (`src/lib/diagnosis/getDiagnosis.ts`)
+rather than the pure static-array function this section originally
+described. Answers accumulate weighted tags; active `DiagnosisDef` rows are
+evaluated in priority order (first full match wins); severity is banded from
+the matched rule's own tags; the default `Treatment` and a severity-matched
+`Ritual` are selected; templates are slot-filled and frozen into
+`diagnosisText`/`ritualText`. Full behavior spec:
+`docs/content/content-storage-architecture.md` §9 — not duplicated here.
+This keeps R-TONE-1/2 enforceable by content review (of the seeded content,
+not runtime moderation). Deliberately, `Cat.traits` is not a parameter here
+(per R-CAT-3/R-DIAG-2): traits are display-only this round, not diagnosis
+input.
 
 To satisfy R-DIAG-5 (the function must be *total* — it can never fail to
-return a result), the mapping is a deterministic bucket, not a hand-written
-switch/case that could have gaps: `getDiagnosis` reduces the sorted answers
-to a stable hash and indexes into the content pool with `hash % pool.length`.
-As long as the pool has at least one entry (enforced by a startup/test
-assertion, not a runtime check on every call), every possible answer
-combination resolves to some entry — there is no "no match" branch to leave
-unhandled.
+return a result), exactly one active `DiagnosisDef` is authored as a
+catch-all (always-true trigger rule, highest priority) — checked both at
+content-seed time and as an in-process assertion on first use. This is a
+deliberately *weaker* totality guarantee than the pre-Phase-13 hash-bucket
+approach it replaced (mathematically total by construction, vs. total by
+authored-content-plus-a-validated-invariant now) — see
+content-storage-architecture.md §9.3 for the full tradeoff discussion.
 
 ### Diagnosis persistence is atomic (R-DIAG-1/5)
 `POST /cats/:id/quiz` creates the `QuizAttempt` and its `Diagnosis` together
@@ -127,19 +132,18 @@ model Diagnosis {
   // delete, R-CAT-5) deletes its Diagnosis, including the public share
   // link it exposed (R-DIAG-4).
   quizAttempt   QuizAttempt  @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
-  // Below: added by the R-CONTENT-* content-storage work (Phase 13, not yet
-  // built — see docs/content/content-storage-architecture.md §7). FKs
-  // reference the DB-backed content definitions by stable id (R-CONTENT-5)
-  // instead of the current diagnosisText/ritualText-only shape;
-  // diagnosisText/ritualText stay as the frozen rendered output (R-CONTENT-6).
-  // diagnosisDefId String
-  // diagnosisDef   DiagnosisDef @relation(fields: [diagnosisDefId], references: [id], onDelete: Restrict)
-  // treatmentId    String
-  // treatment      Treatment    @relation(fields: [treatmentId], references: [id], onDelete: Restrict)
-  // ritualId       String
-  // ritual         Ritual       @relation(fields: [ritualId], references: [id], onDelete: Restrict)
-  // tagTotalsSnapshot Json
-  // severityLabel     String
+  // Added by the R-CONTENT-* content-storage work (Phase 13). FKs reference
+  // the DB-backed content definitions by stable id (R-CONTENT-5) instead of
+  // matching rendered text; diagnosisText/ritualText stay as the frozen
+  // rendered output (R-CONTENT-6) — see content-storage-architecture.md §7.
+  diagnosisDefId    String
+  diagnosisDef      DiagnosisDef @relation(fields: [diagnosisDefId], references: [id], onDelete: Restrict)
+  treatmentId       String
+  treatment         Treatment    @relation(fields: [treatmentId], references: [id], onDelete: Restrict)
+  ritualId          String
+  ritual            Ritual       @relation(fields: [ritualId], references: [id], onDelete: Restrict)
+  tagTotalsSnapshot Json
+  severityLabel     String
   diagnosisText String
   ritualText    String
   shareSlug     String       @unique @default(cuid())
@@ -207,16 +211,17 @@ flowchart TB
   post-launch hardening pass. See `vps-runbook.md` for the concrete config.
 
 ## Content storage (R-CONTENT-1..6)
-The `getDiagnosis` hash-bucket design above and the `content/`-as-seed-config
-row in the Application layers table describe the *current* implementation.
-`docs/content/content-storage-architecture.md` specifies a DB-backed
-replacement — a full Question/Tag/DiagnosisDef/Treatment/Ritual content
-model per `docs/content/content-framework.md`'s pipeline, still seeded from
-versioned repo files (not an admin CMS) and still rule-based/deterministic
-(R-DIAG-2) — planned as `docs/workplan.md` Phase 13 (storage/engine
-plumbing) and the separately-gated Phase 14 (real content authoring). Not
-yet built; this section stays accurate to what's live today until Phase 13
-ships.
+Shipped in `docs/workplan.md` Phase 13: a full Question/Tag/DiagnosisDef/
+Treatment/Ritual content model per `docs/content/content-framework.md`'s
+pipeline, stored in PostgreSQL and seeded from versioned repo files
+(`prisma/seed/content/*.json`, applied via `npm run db:seed-content` —
+never an admin CMS) rather than compiled into the app bundle. Still rule-
+based/deterministic (R-DIAG-2) — see "Diagnosis engine" above and
+`docs/content/content-storage-architecture.md` for the full schema/engine
+spec this implements. Phase 13 shipped only placeholder content (today's 5
+questions and 10 diagnoses migrated into the new shape, minimal tag
+scaffolding); authoring a real, rich content bank is the separately-gated
+`docs/workplan.md` Phase 14.
 
 ## Open questions / carried from requirements.md
 - Final choice between Prisma and Drizzle — either satisfies R-DATA-2; default

@@ -3,23 +3,31 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/client";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { findOwnedCat } from "@/lib/cats/findOwnedCat";
-import { quizQuestions } from "@/content/quiz";
 import { getDiagnosis, type QuizAnswer } from "@/lib/diagnosis/getDiagnosis";
 
-function parseAnswers(body: unknown): QuizAnswer[] | null {
+async function parseAnswers(body: unknown): Promise<QuizAnswer[] | null> {
   const answers = (body as { answers?: unknown })?.answers;
-  if (!Array.isArray(answers) || answers.length !== quizQuestions.length) {
-    return null;
-  }
+  if (!Array.isArray(answers)) return null;
+
+  // R-CONTENT-1: validate against active DB-backed Question/AnswerOption
+  // rows, not the old static content/quiz.ts import.
+  const activeQuestions = await prisma.question.findMany({
+    where: { isActive: true },
+    select: { id: true, answers: { select: { id: true } } },
+  });
+  if (answers.length !== activeQuestions.length) return null;
 
   const byQuestionId = new Map(
-    answers.map((a) => [a?.questionId, a?.optionId]),
+    answers.map((a) => [
+      (a as { questionId?: unknown })?.questionId,
+      (a as { optionId?: unknown })?.optionId,
+    ]),
   );
   const validated: QuizAnswer[] = [];
-  for (const question of quizQuestions) {
+  for (const question of activeQuestions) {
     const optionId = byQuestionId.get(question.id);
-    const validOption = question.options.some((o) => o.id === optionId);
-    if (!validOption) return null;
+    const validOption = question.answers.some((o) => o.id === optionId);
+    if (!validOption || typeof optionId !== "string") return null;
     validated.push({ questionId: question.id, optionId });
   }
   return validated;
@@ -41,7 +49,7 @@ export async function POST(
   }
 
   const body = await request.json().catch(() => null);
-  const answers = parseAnswers(body);
+  const answers = await parseAnswers(body);
   if (!answers) {
     return NextResponse.json(
       { error: "Answer every question before submitting." },
@@ -49,15 +57,27 @@ export async function POST(
     );
   }
 
-  // R-DIAG-5: QuizAttempt and its Diagnosis are created together, or not at
-  // all — a QuizAttempt is never left without a Diagnosis.
+  // R-DIAG-2/5 unchanged: rule-based (no LLM), and QuizAttempt + Diagnosis
+  // are created together, or not at all. getDiagnosis is now DB-backed
+  // (docs/content/content-storage-architecture.md §9), so it's called
+  // inside the same transaction as before.
   const diagnosis = await prisma.$transaction(async (tx) => {
     const attempt = await tx.quizAttempt.create({
       data: { catId, answers: answers as unknown as Prisma.InputJsonValue },
     });
-    const { diagnosisText, ritualText } = getDiagnosis(answers);
+    const result = await getDiagnosis(cat.name, answers);
     return tx.diagnosis.create({
-      data: { quizAttemptId: attempt.id, diagnosisText, ritualText },
+      data: {
+        quizAttemptId: attempt.id,
+        diagnosisDefId: result.diagnosisDefId,
+        treatmentId: result.treatmentId,
+        ritualId: result.ritualId,
+        tagTotalsSnapshot:
+          result.tagTotalsSnapshot as unknown as Prisma.InputJsonValue,
+        severityLabel: result.severityLabel,
+        diagnosisText: result.diagnosisText,
+        ritualText: result.ritualText,
+      },
     });
   });
 

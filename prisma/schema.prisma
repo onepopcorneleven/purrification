@@ -32,12 +32,12 @@ model Cat {
 }
 
 model QuizAttempt {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   catId     String
   // onDelete: Cascade satisfies R-CAT-5 — deleting a Cat deletes its
   // QuizAttempt history (and, transitively, each attempt's Diagnosis
   // below), since that history has no meaning without the cat.
-  cat       Cat       @relation(fields: [catId], references: [id], onDelete: Cascade)
+  cat       Cat        @relation(fields: [catId], references: [id], onDelete: Cascade)
   answers   Json
   // Optional only because Prisma requires the FK on the Diagnosis side of
   // a 1:1 relation — the app-level transaction (see architecture.md's
@@ -45,18 +45,161 @@ model QuizAttempt {
   // actually null. Do not read this `?` as "a QuizAttempt without a
   // Diagnosis is expected."
   diagnosis Diagnosis?
-  createdAt DateTime  @default(now())
+  createdAt DateTime   @default(now())
 }
 
 model Diagnosis {
-  id            String      @id @default(cuid())
-  quizAttemptId String      @unique
+  id                String       @id @default(cuid())
+  quizAttemptId     String       @unique
   // onDelete: Cascade — deleting the QuizAttempt (e.g. via a cascaded Cat
   // delete, R-CAT-5) deletes its Diagnosis, including the public share
   // link it exposed (R-DIAG-4).
-  quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
-  diagnosisText String
-  ritualText    String
-  shareSlug     String      @unique @default(cuid())
-  createdAt     DateTime    @default(now())
+  quizAttempt       QuizAttempt  @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+  // R-CONTENT-5: reference content by stable id, not by matching rendered
+  // text — see docs/content/content-storage-architecture.md §7/§9.
+  // onDelete: Restrict — content rows are retired (isActive: false), never
+  // deleted, so a historical Diagnosis can never be orphaned by content
+  // cleanup (see that doc's §6).
+  diagnosisDefId    String
+  diagnosisDef      DiagnosisDef @relation(fields: [diagnosisDefId], references: [id], onDelete: Restrict)
+  treatmentId       String
+  treatment         Treatment    @relation(fields: [treatmentId], references: [id], onDelete: Restrict)
+  ritualId          String
+  ritual            Ritual       @relation(fields: [ritualId], references: [id], onDelete: Restrict)
+  tagTotalsSnapshot Json // frozen audit snapshot of the tag totals that produced this result
+  severityLabel     String // frozen at generation time
+  // R-CONTENT-6: frozen rendered output — never re-rendered from a
+  // later-edited DiagnosisDef/Ritual.
+  diagnosisText     String
+  ritualText        String
+  shareSlug         String       @unique @default(cuid())
+  createdAt         DateTime     @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Content model (R-CONTENT-1..6) — see docs/content/content-storage-
+// architecture.md for the full design rationale. Content rows use stable,
+// human-authored string ids (not cuid()) and are retired via isActive,
+// never deleted — see that doc's §5/§6.
+// ---------------------------------------------------------------------------
+
+enum QuestionInputType {
+  SINGLE_SELECT
+  MULTI_SELECT
+  SCALE
+}
+
+// R-CONTENT-1: canonical tag vocabulary, defined up front (see §10).
+model Tag {
+  id          String                  @id
+  description String?
+  createdAt   DateTime                @default(now())
+  effects     AnswerOptionTagEffect[]
+}
+
+model QuestionTopic {
+  id        String     @id
+  name      String
+  sortOrder Int
+  questions Question[]
+  createdAt DateTime   @default(now())
+}
+
+// R-CONTENT-1: content stored in Postgres, not compiled into the bundle.
+model Question {
+  id             String            @id
+  topicId        String
+  topic          QuestionTopic     @relation(fields: [topicId], references: [id])
+  promptMystical String
+  promptPlain    String
+  inputType      QuestionInputType
+  sortOrder      Int
+  isActive       Boolean           @default(true)
+  answers        AnswerOption[]
+  createdAt      DateTime          @default(now())
+}
+
+model AnswerOption {
+  id            String                  @id
+  questionId    String
+  question      Question                @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  labelMystical String
+  labelPlain    String
+  sortOrder     Int
+  tagEffects    AnswerOptionTagEffect[]
+  createdAt     DateTime                @default(now())
+}
+
+// Relational tag_effects map, not Json — see content-storage-architecture.md §4.
+model AnswerOptionTagEffect {
+  answerOptionId String
+  answerOption   AnswerOption @relation(fields: [answerOptionId], references: [id], onDelete: Cascade)
+  tagId          String
+  tag            Tag          @relation(fields: [tagId], references: [id])
+  weight         Int
+
+  @@id([answerOptionId, tagId])
+}
+
+model Treatment {
+  id                 String                  @id
+  nameMystical       String
+  namePlain          String
+  philosophy         String
+  materialCategories String[]
+  typicalDuration    String
+  contraindications  String[] // must always be non-empty — validated at seed time
+  isActive           Boolean                 @default(true)
+  ritualVariants     Ritual[]
+  diagnosisLinks     DiagnosisDefTreatment[]
+  results            Diagnosis[]
+  createdAt          DateTime                @default(now())
+}
+
+// R-CONTENT-3/4: the rule-based derivation engine's content definitions.
+model DiagnosisDef {
+  id                  String                  @id
+  nameMystical        String
+  namePlain           String
+  triggerRule         Json // { all_of, any_of, none_of } over tag totals
+  priority            Int // evaluation order, most-specific first
+  severityBands       Json // [{ min, max, label }]
+  descriptionTemplate String
+  descriptionSlots    String[] // every {slot} used in descriptionTemplate; validated like Ritual.personalizationSlots
+  symptomCallbackPool String[]
+  isCatchAll          Boolean                 @default(false) // exactly one active row — totality guarantee
+  imagePath           String? // R-CONTENT-5: replaces getDiagnosisImage's text-equality lookup
+  isActive            Boolean                 @default(true)
+  linkedTreatments    DiagnosisDefTreatment[]
+  results             Diagnosis[]
+  createdAt           DateTime                @default(now())
+}
+
+// Ordered linked_treatments — sortOrder 0 is the default.
+model DiagnosisDefTreatment {
+  diagnosisDefId String
+  diagnosisDef   DiagnosisDef @relation(fields: [diagnosisDefId], references: [id])
+  treatmentId    String
+  treatment      Treatment    @relation(fields: [treatmentId], references: [id])
+  sortOrder      Int
+
+  @@id([diagnosisDefId, treatmentId])
+  @@unique([diagnosisDefId, sortOrder])
+}
+
+model Ritual {
+  id                   String      @id
+  parentTreatmentId    String
+  parentTreatment      Treatment   @relation(fields: [parentTreatmentId], references: [id])
+  selectionConditions  Json // { severity_band: [...] } — only severity is evaluated this round, see §9
+  priority             Int // sibling-variant priority order
+  titleTemplate        String
+  materials            String[]
+  stepsTemplate        String[] // >= 3 steps — validated at seed time
+  incantationTemplate  String? // nullable — resolves content-framework.md's open question structurally, see §10
+  aftercareNote        String
+  personalizationSlots String[] // renderer validates every entry has real data before returning
+  isActive             Boolean     @default(true)
+  results              Diagnosis[]
+  createdAt            DateTime    @default(now())
 }

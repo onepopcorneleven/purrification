@@ -298,10 +298,15 @@ ssh deploy@<server-ip> '
   rm -rf .next/standalone/public .next/standalone/.next/static &&
   cp -r public/. .next/standalone/public/ &&
   cp -r .next/static .next/standalone/.next/static &&
-  (set -a && source .env.production && set +a && npx prisma migrate deploy) &&
+  (set -a && source .env.production && set +a && npx prisma migrate deploy && npm run db:seed-content) &&
   sudo systemctl restart purrification
 '
 ```
+`npm run db:seed-content` (added in Phase 13, `docs/content/content-storage-
+architecture.md` §8) runs right after `prisma migrate deploy`, in the same
+`.env.production`-sourced subshell — content seeding needs `DATABASE_URL`
+too, and it's idempotent (upsert-by-stable-id), so running it on every
+deploy is safe even when the seed JSON hasn't changed.
 Requires `deploy` to have passwordless `sudo` scoped to
 `systemctl restart purrification` only (edit via `sudo visudo`):
 ```

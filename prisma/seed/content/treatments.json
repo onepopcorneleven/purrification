@@ -1,0 +1,115 @@
+[
+  {
+    "id": "treat_mercury_retrograde",
+    "name_mystical": "Mercury Retrograde Care",
+    "name_plain": "Mercury Retrograde Care",
+    "philosophy": "Give your cat space to recalibrate without pressure or fuss — the goal is patience, not intervention.",
+    "material_categories": ["a quiet resting spot near natural light"],
+    "typical_duration": "one sunbeam cycle",
+    "contraindications": [
+      "Skip prompting or coaxing them toward the spot — let them find it unassisted."
+    ]
+  },
+  {
+    "id": "treat_vacuum_residue",
+    "name_mystical": "The Lint-Roller Smudge",
+    "name_plain": "Vacuum Residue Clearing",
+    "philosophy": "Clear the lingering hum with a calm, deliberate pass rather than more noise or activity.",
+    "material_categories": ["a lint roller or soft brush"],
+    "typical_duration": "24 hours",
+    "contraindications": [
+      "Skip if your cat is still startled by the vacuum — wait until they've fully settled first."
+    ]
+  },
+  {
+    "id": "treat_chaos_spirit_box",
+    "name_mystical": "The Catnip Blessing",
+    "name_plain": "Cardboard Box Threshold Care",
+    "philosophy": "Acknowledge the box as guarded territory and let your cat finish the ritual on their own terms.",
+    "material_categories": [
+      "a pinch of catnip",
+      "the cardboard box in question"
+    ],
+    "typical_duration": "one sitting",
+    "contraindications": [
+      "Skip if your cat doesn't respond to catnip — offer a treat at the threshold instead."
+    ]
+  },
+  {
+    "id": "treat_moon_phase_whiskers",
+    "name_mystical": "The Bowl Shift",
+    "name_plain": "Minor Environmental Realignment",
+    "philosophy": "A small, announced change gives your cat something concrete to reorient around.",
+    "material_categories": ["the food bowl already in use"],
+    "typical_duration": "one evening",
+    "contraindications": [
+      "Skip moving anything else in the room at the same time — one change at a time."
+    ]
+  },
+  {
+    "id": "treat_three_am_zoomies",
+    "name_mystical": "The Hallway Light Vigil",
+    "name_plain": "Nighttime Zoomies Accommodation",
+    "philosophy": "Let the burst of energy run its course in a safe, lit space instead of trying to suppress it.",
+    "material_categories": ["a hallway or open path", "a light source"],
+    "typical_duration": "one night",
+    "contraindications": [
+      "Skip if the zoomies routinely end in destructive behavior — that's a vet or behaviorist question, not a ritual one."
+    ]
+  },
+  {
+    "id": "treat_sunbeam_schedule",
+    "name_mystical": "The Sunbeam Repositioning",
+    "name_plain": "Sunbeam Access Restoration",
+    "philosophy": "Restore easy access to direct light — the disruption is about access, not the cat's mood.",
+    "material_categories": ["a cushion or soft surface"],
+    "typical_duration": "the rest of the day",
+    "contraindications": [
+      "Skip placing the cushion somewhere that blocks a walkway or door."
+    ]
+  },
+  {
+    "id": "treat_houseguest_aura",
+    "name_mystical": "The Counter-Clockwise Fluffing",
+    "name_plain": "Post-Guest Resettling",
+    "philosophy": "A visible, repeated action signals the space is fully back under your cat's ownership.",
+    "material_categories": ["the room's soft furnishings"],
+    "typical_duration": "one pass, once",
+    "contraindications": [
+      "Skip if guests are still present — this works best once the room is empty again."
+    ]
+  },
+  {
+    "id": "treat_static_corner",
+    "name_mystical": "The Corner Acknowledgment",
+    "name_plain": "Empty-Corner Reassurance",
+    "philosophy": "A visible gesture of acknowledgment resolves the standoff faster than ignoring it does.",
+    "material_categories": ["the corner in question"],
+    "typical_duration": "one gesture",
+    "contraindications": [
+      "Skip if the corner hissing is new and persistent across many days — that's worth a vet visit, not just a ritual."
+    ]
+  },
+  {
+    "id": "treat_ceremonial_fast",
+    "name_mystical": "The Warmed Offering",
+    "name_plain": "Mealtime Reassurance",
+    "philosophy": "A small, deliberate gesture at mealtime reframes the food as an offering rather than a routine chore.",
+    "material_categories": ["their usual food"],
+    "typical_duration": "one meal",
+    "contraindications": [
+      "Skip if the pickiness lasts more than a couple of days — sustained appetite changes are a vet question."
+    ]
+  },
+  {
+    "id": "treat_meditative_aloofness",
+    "name_mystical": "The Patient Sit",
+    "name_plain": "Aloofness Accommodation",
+    "philosophy": "Respect the distance your cat is choosing rather than closing it for them.",
+    "material_categories": ["a low seat or floor cushion"],
+    "typical_duration": "five minutes, repeatable",
+    "contraindications": [
+      "Skip making eye contact or reaching toward them — the point is that they approach, not you."
+    ]
+  }
+]

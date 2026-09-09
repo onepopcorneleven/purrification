@@ -7,9 +7,10 @@ type DiagnosisCardProps = {
   catName: string;
   diagnosisText: string;
   ritualText: string;
-  /** Filename under public/images/diagnoses/ — see getDiagnosisImage.ts.
-   * Optional so the component still renders (purely typographic, as it
-   * always has) for any diagnosisText that doesn't resolve to one. */
+  /** Filename under public/images/diagnoses/ — read directly from
+   * diagnosis.diagnosisDef.imagePath (R-CONTENT-5). Optional so the
+   * component still renders (purely typographic, as it always has) if a
+   * DiagnosisDef has no image set. */
   image?: string;
   /** Page-specific actions below the card (e.g. a share link) — the
    * logged-in results page and the public share page pass different
