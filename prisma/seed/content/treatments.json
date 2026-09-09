@@ -1,115 +1,141 @@
 [
   {
-    "id": "treat_mercury_retrograde",
-    "name_mystical": "Mercury Retrograde Care",
-    "name_plain": "Mercury Retrograde Care",
-    "philosophy": "Give your cat space to recalibrate without pressure or fuss — the goal is patience, not intervention.",
-    "material_categories": ["a quiet resting spot near natural light"],
-    "typical_duration": "one sunbeam cycle",
+    "id": "treat_boundary_restoration",
+    "name_mystical": "The Rite of Reclaimed Edges",
+    "name_plain": "Boundary Restoration",
+    "philosophy": "Give {cat_name} a boundary that is visibly, reliably theirs, so the nervous energy spent defending or watching an ambiguous one has somewhere to stand down. This works by adding certainty, not by removing stimulus.",
+    "applies_when": "diagnosis in [diag_boundary_erosion, diag_threshold_vigil]",
+    "material_categories": ["a physical marker object", "a scent anchor", "a fixed time-of-day action"],
+    "typical_duration": "7-10 days of a nightly minimum-5-minute practice",
     "contraindications": [
-      "Skip prompting or coaxing them toward the spot — let them find it unassisted."
-    ]
-  },
-  {
-    "id": "treat_vacuum_residue",
-    "name_mystical": "The Lint-Roller Smudge",
-    "name_plain": "Vacuum Residue Clearing",
-    "philosophy": "Clear the lingering hum with a calm, deliberate pass rather than more noise or activity.",
-    "material_categories": ["a lint roller or soft brush"],
-    "typical_duration": "24 hours",
-    "contraindications": [
-      "Skip if your cat is still startled by the vacuum — wait until they've fully settled first."
-    ]
-  },
-  {
-    "id": "treat_chaos_spirit_box",
-    "name_mystical": "The Catnip Blessing",
-    "name_plain": "Cardboard Box Threshold Care",
-    "philosophy": "Acknowledge the box as guarded territory and let your cat finish the ritual on their own terms.",
-    "material_categories": [
-      "a pinch of catnip",
-      "the cardboard box in question"
+      "households with 3+ cats sharing the same main doorway — territorial routines can escalate friction between cats rather than settle it; pair this with the resource-generosity treatment instead",
+      "cats under 4 months old — territorial marking behavior isn't yet meaningful at this age"
     ],
-    "typical_duration": "one sitting",
-    "contraindications": [
-      "Skip if your cat doesn't respond to catnip — offer a treat at the threshold instead."
-    ]
+    "ritual_variants": ["ritual_boundary_restoration_gentle", "ritual_boundary_restoration_standard"]
   },
   {
-    "id": "treat_moon_phase_whiskers",
-    "name_mystical": "The Bowl Shift",
-    "name_plain": "Minor Environmental Realignment",
-    "philosophy": "A small, announced change gives your cat something concrete to reorient around.",
-    "material_categories": ["the food bowl already in use"],
-    "typical_duration": "one evening",
+    "id": "treat_gentle_exposure",
+    "name_mystical": "The Slow Return to the Room",
+    "name_plain": "Gentle Exposure & Decompression",
+    "philosophy": "{cat_name}'s system isn't broken by company, it's flooded by too much of it too fast. This works by shrinking the dose of stimulation until it's tolerable, then lengthening it in controlled steps, rather than by forcing tolerance through repeated exposure.",
+    "applies_when": "diagnosis in [diag_social_flooding]",
+    "material_categories": ["a designated safe room or space", "a controllable sound/scent buffer", "a graded reintroduction schedule"],
+    "typical_duration": "2-3 weeks of practice around any social gathering, with the first week focused on setup alone",
     "contraindications": [
-      "Skip moving anything else in the room at the same time — one change at a time."
-    ]
+      "homes with frequent unscheduled visitors — a graded exposure plan can't work if the actual exposures stay unpredictable; anchor this to gatherings you can plan ahead of time",
+      "very small homes with no separable room — adapt using a covered crate or carrier as the safe space instead"
+    ],
+    "ritual_variants": ["ritual_gentle_exposure_gentle", "ritual_gentle_exposure_standard"]
   },
   {
-    "id": "treat_three_am_zoomies",
-    "name_mystical": "The Hallway Light Vigil",
-    "name_plain": "Nighttime Zoomies Accommodation",
-    "philosophy": "Let the burst of energy run its course in a safe, lit space instead of trying to suppress it.",
-    "material_categories": ["a hallway or open path", "a light source"],
-    "typical_duration": "one night",
+    "id": "treat_secure_departure",
+    "name_mystical": "The Rite of the Steady Threshold",
+    "name_plain": "Secure Departure Conditioning",
+    "philosophy": "{cat_name}'s alarm isn't about the door, it's about what the door has come to predict. This works by decoupling the pre-departure cues from the departure itself, so the signal stops carrying the same charge.",
+    "applies_when": "diagnosis in [diag_separation_static]",
+    "material_categories": ["a departure-cue object", "a scent-bearing item left behind", "a practiced neutral-exit routine"],
+    "typical_duration": "10-14 days, including several short practice departures that aren't real errands",
     "contraindications": [
-      "Skip if the zoomies routinely end in destructive behavior — that's a vet or behaviorist question, not a ritual one."
-    ]
+      "cats with a documented veterinary anxiety diagnosis already under treatment — coordinate this practice with that treatment plan rather than running it independently",
+      "households where departure cues can't be controlled (e.g. shared entryways with roommates on different schedules) — focus the ritual on the scent-item step alone"
+    ],
+    "ritual_variants": ["ritual_secure_departure_gentle", "ritual_secure_departure_standard"]
   },
   {
-    "id": "treat_sunbeam_schedule",
-    "name_mystical": "The Sunbeam Repositioning",
-    "name_plain": "Sunbeam Access Restoration",
-    "philosophy": "Restore easy access to direct light — the disruption is about access, not the cat's mood.",
-    "material_categories": ["a cushion or soft surface"],
-    "typical_duration": "the rest of the day",
+    "id": "treat_rhythm_anchoring",
+    "name_mystical": "The Anchoring of the Hours",
+    "name_plain": "Rhythm Anchoring",
+    "philosophy": "{cat_name}'s system is built to predict, not to improvise. This works by giving the day a small number of genuinely fixed points, so the body can relax into the gaps between them instead of staying braced for the next unknown.",
+    "applies_when": "diagnosis in [diag_rhythm_slip, diag_nocturnal_unrest]",
+    "material_categories": ["a fixed-time feeding routine", "an evening wind-down activity", "a consistent lights-out cue"],
+    "typical_duration": "2-3 weeks to establish, since circadian patterns shift slowly",
     "contraindications": [
-      "Skip placing the cushion somewhere that blocks a walkway or door."
-    ]
+      "households with rotating shift work where no two days share the same schedule — anchor the ritual to the least-variable point in the day (usually the last feeding) rather than a fixed clock time",
+      "kittens under 6 months — their sleep cycles are naturally fragmented and shouldn't be treated as disordered"
+    ],
+    "ritual_variants": ["ritual_rhythm_anchoring_gentle", "ritual_rhythm_anchoring_standard"]
   },
   {
-    "id": "treat_houseguest_aura",
-    "name_mystical": "The Counter-Clockwise Fluffing",
-    "name_plain": "Post-Guest Resettling",
-    "philosophy": "A visible, repeated action signals the space is fully back under your cat's ownership.",
-    "material_categories": ["the room's soft furnishings"],
-    "typical_duration": "one pass, once",
+    "id": "treat_object_investiture",
+    "name_mystical": "The Investiture of the Anchor Object",
+    "name_plain": "Comfort-Object Investiture",
+    "philosophy": "{cat_name} has already found the mechanism that works — a fixed point to return to under stress. This works by formalizing and protecting that mechanism instead of second-guessing or removing it.",
+    "applies_when": "diagnosis in [diag_object_tethering]",
+    "material_categories": ["the existing anchor object", "a designated safe location for it", "a backup/duplicate of the object"],
+    "typical_duration": "ongoing — this is a maintenance ritual, not a time-limited course of treatment",
     "contraindications": [
-      "Skip if guests are still present — this works best once the room is empty again."
-    ]
+      "if the anchor object is a genuine choking or ingestion hazard (small parts, string, foam) — substitute a safe duplicate of similar texture rather than reinforcing attachment to the unsafe item",
+      "if the fixation intensified suddenly and recently — rule out a medical cause before treating this as purely behavioral"
+    ],
+    "ritual_variants": ["ritual_object_investiture_gentle", "ritual_object_investiture_standard"]
   },
   {
-    "id": "treat_static_corner",
-    "name_mystical": "The Corner Acknowledgment",
-    "name_plain": "Empty-Corner Reassurance",
-    "philosophy": "A visible gesture of acknowledgment resolves the standoff faster than ignoring it does.",
-    "material_categories": ["the corner in question"],
-    "typical_duration": "one gesture",
+    "id": "treat_resource_generosity",
+    "name_mystical": "The Rite of Abundant Ground",
+    "name_plain": "Resource Generosity",
+    "philosophy": "Guarding behavior is a response to scarcity that's felt, even when it isn't real. This works by making resource abundance visible and spatially obvious, so there's nothing left to compete over.",
+    "applies_when": "diagnosis in [diag_resource_vigilance]",
+    "material_categories": ["multiple separated feeding stations", "multiple separated litter boxes", "a resource map of the home"],
+    "typical_duration": "1-2 weeks to redistribute resources, then ongoing maintenance",
     "contraindications": [
-      "Skip if the corner hissing is new and persistent across many days — that's worth a vet visit, not just a ritual."
-    ]
+      "single-cat households — this ritual is specifically for tension between cohabiting cats and won't apply",
+      "very small homes where physical separation of stations isn't possible — use visual barriers (furniture, room dividers) as a substitute for distance"
+    ],
+    "ritual_variants": ["ritual_resource_generosity_gentle", "ritual_resource_generosity_standard"]
   },
   {
-    "id": "treat_ceremonial_fast",
-    "name_mystical": "The Warmed Offering",
-    "name_plain": "Mealtime Reassurance",
-    "philosophy": "A small, deliberate gesture at mealtime reframes the food as an offering rather than a routine chore.",
-    "material_categories": ["their usual food"],
-    "typical_duration": "one meal",
+    "id": "treat_voice_channeling",
+    "name_mystical": "The Channeling of the Voice",
+    "name_plain": "Vocal Redirection",
+    "philosophy": "The voice isn't the problem, it's the request — usually for attention, food, or engagement that isn't reliably arriving on its own. This works by giving that request a predictable, quieter channel to travel through.",
+    "applies_when": "diagnosis in [diag_vocal_overflow]",
+    "material_categories": ["a scheduled attention/play routine", "a non-vocal request signal (e.g. a mat or bell)", "consistent non-reinforcement of demand-vocalizing"],
+    "typical_duration": "2-3 weeks — vocal habits that have been reinforced for a long time take longer to shift than they took to form",
     "contraindications": [
-      "Skip if the pickiness lasts more than a couple of days — sustained appetite changes are a vet question."
-    ]
+      "sudden-onset vocal escalation in an older cat — rule out a medical cause (thyroid, cognitive, pain) before treating this as purely behavioral",
+      "multi-cat homes where the vocalizing cat may be responding to another cat's behavior — address any multi-cat tension first"
+    ],
+    "ritual_variants": ["ritual_voice_channeling_gentle", "ritual_voice_channeling_standard"]
   },
   {
-    "id": "treat_meditative_aloofness",
-    "name_mystical": "The Patient Sit",
-    "name_plain": "Aloofness Accommodation",
-    "philosophy": "Respect the distance your cat is choosing rather than closing it for them.",
-    "material_categories": ["a low seat or floor cushion"],
-    "typical_duration": "five minutes, repeatable",
+    "id": "treat_internal_release",
+    "name_mystical": "The Release of the Held Voice",
+    "name_plain": "Internalized Stress Release",
+    "philosophy": "{cat_name}'s stress is turning inward instead of outward — quiet instead of loud, groomed instead of expressed. This works by lowering ambient pressure and giving the body something safe to do with that energy besides self-directed grooming.",
+    "applies_when": "diagnosis in [diag_quiet_static]",
+    "material_categories": ["a low-stimulation decompression space", "a texture-safe grooming substitute", "a gentle daily check-in routine"],
+    "typical_duration": "2-3 weeks minimum, longer if grooming has caused visible coat or skin changes",
     "contraindications": [
-      "Skip making eye contact or reaching toward them — the point is that they approach, not you."
-    ]
+      "any visible skin damage, bald patches, or bleeding from grooming — this needs a veterinary visit before or alongside any behavioral ritual, since overgrooming this severe can also have a medical cause",
+      "recent major household change (move, new pet, new baby) — address stabilizing the environment first; this ritual works best once the underlying disruption has settled"
+    ],
+    "ritual_variants": ["ritual_internal_release_gentle", "ritual_internal_release_standard"]
+  },
+  {
+    "id": "treat_enrichment_cascade",
+    "name_mystical": "The Cascade of Enrichment",
+    "name_plain": "Structured Enrichment",
+    "philosophy": "{cat_name}'s energy is looking for somewhere to go and is currently finding it in whatever's available — furniture, 3am sprints, shredded items. This works by giving that energy a structured, satisfying outlet before it finds an unstructured one.",
+    "applies_when": "diagnosis in [diag_understimulation_drift]",
+    "material_categories": ["a rotating novel-object schedule", "a structured active-play routine", "a foraging or puzzle-feeding setup"],
+    "typical_duration": "2 weeks to establish, then ongoing as a standing routine",
+    "contraindications": [
+      "senior cats or cats with mobility limitations — favor low-impact foraging and puzzle enrichment over high-intensity chase play",
+      "cats already receiving significant daily play — if this diagnosis fired despite an already-active routine, focus on novelty (new objects/textures) rather than more volume of the same play"
+    ],
+    "ritual_variants": ["ritual_enrichment_cascade_gentle", "ritual_enrichment_cascade_standard"]
+  },
+  {
+    "id": "treat_equilibrium_maintenance",
+    "name_mystical": "The Rite of the Ordinary Day",
+    "name_plain": "Baseline Equilibrium Maintenance",
+    "philosophy": "No sharp imbalance stood out this time, and that itself is worth marking rather than skipping — {cat_name}'s current rhythm is worth reinforcing, not just leaving unattended until something breaks it.",
+    "applies_when": "diagnosis in [diag_equilibrium]",
+    "material_categories": ["an existing favorite toy or object", "a brief daily attention ritual"],
+    "typical_duration": "ongoing, low-effort maintenance rather than a fixed course",
+    "contraindications": [
+      "none specific — this is the general-maintenance path and has no household condition that redirects it elsewhere"
+    ],
+    "ritual_variants": ["ritual_equilibrium_maintenance_std"]
   }
 ]

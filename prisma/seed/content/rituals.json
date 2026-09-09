@@ -1,162 +1,326 @@
 [
   {
-    "id": "ritual_mercury_retrograde_std",
-    "parent_treatment_id": "treat_mercury_retrograde",
-    "selection_conditions": { "severity_band": ["present"] },
+    "id": "ritual_boundary_restoration_gentle",
+    "parent_treatment_id": "treat_boundary_restoration",
+    "selection_conditions": { "severity_band": ["mild"] },
     "priority": 1,
-    "title_template": "The Cardboard Box Vigil",
-    "materials": ["a cardboard box", "a sunny window"],
+    "title_template": "The Quiet Marking of {cat_name}'s Ground",
+    "materials": ["one soft object {cat_name} already sleeps on or near", "a small shallow dish"],
     "steps_template": [
-      "Set out a fresh cardboard box facing the nearest window.",
-      "Don't point it out or nudge them toward it — let them find it on their own.",
-      "Let them sit in it, unbothered, for one full sunbeam cycle."
+      "Each evening at roughly the same hour, place the object in the spot near the front entry where {cat_name} tends to linger.",
+      "Sit nearby for two or three minutes without inviting {cat_name} over — let any approach happen on their own terms.",
+      "Leave the object in place overnight, undisturbed, for five consecutive nights.",
+      "On the sixth night, move the object two feet further from the door and repeat, gradually widening the claimed ground."
     ],
     "incantation_template": null,
-    "aftercare_note": "If Mercury's still retrograde next week, repeat as needed — there's no rush.",
-    "personalization_slots": []
+    "aftercare_note": "A single missed night won't undo the pattern — consistency across most nights matters more than perfection on all of them.",
+    "personalization_slots": ["cat_name"]
   },
   {
-    "id": "ritual_vacuum_residue_std",
-    "parent_treatment_id": "treat_vacuum_residue",
-    "selection_conditions": { "severity_band": ["present"] },
-    "priority": 1,
-    "title_template": "The Lint-Roller Smudge",
-    "materials": ["a lint roller"],
+    "id": "ritual_boundary_restoration_standard",
+    "parent_treatment_id": "treat_boundary_restoration",
+    "selection_conditions": { "severity_band": ["moderate", "acute"] },
+    "priority": 2,
+    "title_template": "The Reclaiming of {cat_name}'s Edge",
+    "materials": ["one small object {cat_name} already sleeps near", "a pinch of dried catnip or valerian", "a saucer or shallow dish"],
     "steps_template": [
-      "Perform a lint-roller smudge stick pass along their favorite perch.",
-      "Speak softly the whole time.",
-      "Do not vacuum again for at least 24 hours."
+      "At the same hour each evening, ideally as the light starts to change, bring the object and saucer to the entryway {cat_name} has been guarding or watching.",
+      "Set the object in the saucer just inside the boundary line.",
+      "Sit for the length of one song, roughly three minutes, without calling {cat_name} over.",
+      "Once {cat_name} approaches or settles nearby, say quietly: 'This edge is yours to keep, not yours to defend' — the words matter less than saying the same ones every night.",
+      "Leave the object in place overnight. Repeat for 7 nights running."
     ],
-    "incantation_template": null,
-    "aftercare_note": "The hum fades on its own; you don't need to do anything else.",
-    "personalization_slots": []
+    "incantation_template": "This edge is yours to keep, not yours to defend.",
+    "aftercare_note": "If the guarding or watching fully stops before night 7, keep going anyway — the ritual is what makes the boundary feel earned, not just observed.",
+    "personalization_slots": ["cat_name"]
   },
   {
-    "id": "ritual_chaos_spirit_box_std",
-    "parent_treatment_id": "treat_chaos_spirit_box",
-    "selection_conditions": { "severity_band": ["present"] },
+    "id": "ritual_gentle_exposure_gentle",
+    "parent_treatment_id": "treat_gentle_exposure",
+    "selection_conditions": { "severity_band": ["mild"] },
     "priority": 1,
-    "title_template": "The Catnip Blessing",
-    "materials": ["a pinch of catnip", "the cardboard box"],
+    "title_template": "The First Retreat",
+    "materials": ["a small enclosed bed or covered space", "a worn piece of your clothing"],
     "steps_template": [
-      "Offer a small catnip blessing at the mouth of the box.",
-      "Back away slowly.",
-      "Let them finish the ritual alone, without an audience."
+      "Before guests arrive, set up the enclosed bed in a low-traffic room and place your worn clothing inside it so it carries your scent.",
+      "Let {cat_name} explore and settle into this space on an ordinary day first, with no guests present, so it's already familiar before it's needed.",
+      "On the day of a gathering, close {cat_name} into that room with food, water, and litter access at least 30 minutes before guests arrive.",
+      "Check in quietly once, partway through, without forcing interaction."
     ],
     "incantation_template": null,
-    "aftercare_note": "The chaos spirit moves on once it's acknowledged — no further action needed.",
-    "personalization_slots": []
+    "aftercare_note": "Release {cat_name} back into the main space only after guests have left and the noise has settled, not the moment the door closes.",
+    "personalization_slots": ["cat_name"]
   },
   {
-    "id": "ritual_moon_phase_whiskers_std",
-    "parent_treatment_id": "treat_moon_phase_whiskers",
-    "selection_conditions": { "severity_band": ["present"] },
-    "priority": 1,
-    "title_template": "The Bowl Shift",
-    "materials": ["the food bowl"],
+    "id": "ritual_gentle_exposure_standard",
+    "parent_treatment_id": "treat_gentle_exposure",
+    "selection_conditions": { "severity_band": ["moderate", "acute"] },
+    "priority": 2,
+    "title_template": "The Graded Return",
+    "materials": ["a small enclosed bed or covered space", "a worn piece of your clothing", "a white-noise source or fan"],
     "steps_template": [
-      "Move their food bowl six inches to the left, just for tonight.",
-      "Announce the change out loud before doing it.",
-      "Let them inspect the new spot before eating from it."
+      "Set up the enclosed safe space in the quietest room of the house, with your scent already on the bedding, at least three days before any planned gathering.",
+      "Run a white-noise source or fan in that room during ordinary days so the sound itself stops being novel.",
+      "On gathering days, move {cat_name} to the safe space a full hour before guests arrive, with food, water, and litter already inside.",
+      "For the first two gatherings, don't attempt any reintroduction at all — let the room be fully off-limits to guests.",
+      "From the third gathering onward, allow {cat_name} to choose to come out once things have quieted, never carried or coaxed out."
     ],
     "incantation_template": null,
-    "aftercare_note": "One realignment is usually enough; repeat only if the whiskers seem unsettled again.",
-    "personalization_slots": []
+    "aftercare_note": "Progress here is measured in weeks, not one event — a single calm gathering doesn't mean the pattern is resolved yet.",
+    "personalization_slots": ["cat_name"]
   },
   {
-    "id": "ritual_three_am_zoomies_std",
-    "parent_treatment_id": "treat_three_am_zoomies",
-    "selection_conditions": { "severity_band": ["present"] },
+    "id": "ritual_secure_departure_gentle",
+    "parent_treatment_id": "treat_secure_departure",
+    "selection_conditions": { "severity_band": ["mild"] },
     "priority": 1,
-    "title_template": "The Hallway Light Vigil",
-    "materials": ["a hallway light"],
+    "title_template": "The Practice Door",
+    "materials": ["your keys or coat, used as a neutral prop", "one item of recently worn clothing"],
     "steps_template": [
-      "Leave one hallway light on before bed.",
-      "Do not intervene once the zoomies begin.",
-      "Let the ritual complete itself, however long it takes."
+      "Pick up your keys or coat, walk to the door, and then simply sit back down, two or three times a day, on days you aren't actually leaving.",
+      "Leave the worn clothing item in {cat_name}'s usual resting spot before any real departure.",
+      "When you do leave for real, keep the goodbye under five seconds — no prolonged reassurance, which reads as confirmation something's wrong.",
+      "On return, wait until {cat_name} is calm before greeting warmly — an excited reunion teaches the departure was worth being anxious about."
     ],
     "incantation_template": null,
-    "aftercare_note": "Zoomies that continue past a week are just personality, not a lingering issue.",
-    "personalization_slots": []
+    "aftercare_note": "Expect the practice departures to feel silly — that's fine, the repetition itself is the mechanism.",
+    "personalization_slots": ["cat_name"]
   },
   {
-    "id": "ritual_sunbeam_schedule_std",
-    "parent_treatment_id": "treat_sunbeam_schedule",
-    "selection_conditions": { "severity_band": ["present"] },
-    "priority": 1,
-    "title_template": "The Sunbeam Repositioning",
-    "materials": ["a cushion"],
+    "id": "ritual_secure_departure_standard",
+    "parent_treatment_id": "treat_secure_departure",
+    "selection_conditions": { "severity_band": ["moderate", "acute"] },
+    "priority": 2,
+    "title_template": "The Steady Threshold",
+    "materials": ["your keys or coat, used as a neutral prop", "one item of recently worn clothing", "a food puzzle or slow-feeder"],
     "steps_template": [
-      "Reposition a cushion directly in today's strongest patch of sunlight.",
-      "Apologize out loud for the inconvenience.",
-      "Leave the cushion in place for the rest of the day."
+      "Practice the full pre-departure routine — keys, coat, shoes — four or five times a day without actually leaving, at random times so it stops predicting anything.",
+      "Introduce a food puzzle only at real departure times, so {cat_name} associates the door closing with something engaging rather than only your absence.",
+      "Leave the worn clothing item in {cat_name}'s resting spot every time you leave, without exception, for the full two weeks.",
+      "Keep every goodbye and every greeting brief and low-key, even after a long day away.",
+      "Once panic at the door visibly eases, begin lengthening real absences gradually rather than jumping back to a full day away."
     ],
-    "incantation_template": null,
-    "aftercare_note": "Sunbeams shift daily — you may need to repeat this through the week.",
-    "personalization_slots": []
+    "incantation_template": "You are held, even in the quiet.",
+    "aftercare_note": "A relapse after a disruption (travel, a schedule change) isn't a failure of the ritual — restart from day one of the practice-departure step.",
+    "personalization_slots": ["cat_name"]
   },
   {
-    "id": "ritual_houseguest_aura_std",
-    "parent_treatment_id": "treat_houseguest_aura",
-    "selection_conditions": { "severity_band": ["present"] },
+    "id": "ritual_rhythm_anchoring_gentle",
+    "parent_treatment_id": "treat_rhythm_anchoring",
+    "selection_conditions": { "severity_band": ["mild"] },
     "priority": 1,
-    "title_template": "The Counter-Clockwise Fluffing",
-    "materials": ["the room's cushions"],
+    "title_template": "The First Anchor",
+    "materials": ["a fixed evening feeding time", "a wind-down toy used only at that hour"],
     "steps_template": [
-      "Fluff every cushion in the room once, counter-clockwise.",
-      "Do this while they supervise from a safe distance.",
-      "Thank them for their vigilance when you're done."
+      "Pick one meal — ideally the last of the day — and serve it within the same 15-minute window every night, including weekends.",
+      "Immediately before that meal, run a five-minute play session with the wind-down toy, used at no other time of day.",
+      "After the meal, dim the lights in {cat_name}'s main resting area rather than leaving them at daytime brightness."
     ],
     "incantation_template": null,
-    "aftercare_note": "The aura fades within a day or two on its own.",
-    "personalization_slots": []
+    "aftercare_note": "Give this at least ten consecutive nights before judging whether it's working — a new rhythm doesn't register as reliable to a cat until it's been repeated many times.",
+    "personalization_slots": ["cat_name"]
   },
   {
-    "id": "ritual_static_corner_std",
-    "parent_treatment_id": "treat_static_corner",
-    "selection_conditions": { "severity_band": ["present"] },
-    "priority": 1,
-    "title_template": "The Corner Acknowledgment",
-    "materials": ["the corner in question"],
+    "id": "ritual_rhythm_anchoring_standard",
+    "parent_treatment_id": "treat_rhythm_anchoring",
+    "selection_conditions": { "severity_band": ["moderate", "acute"] },
+    "priority": 2,
+    "title_template": "The Anchoring of the Hours",
+    "materials": ["a fixed morning and evening feeding time", "a wind-down toy used only at the evening hour", "a food puzzle for overnight"],
     "steps_template": [
-      "Pet the corner once, gently, where they can see you do it.",
-      "Say out loud that it's been handled.",
-      "Resume your evening as normal."
+      "Fix two feeding times — morning and last-of-day — to the same 15-minute windows every day, weekends included, for the full three weeks.",
+      "Run a ten-minute active play session right before the evening meal, using a toy reserved only for that slot.",
+      "After the evening meal, set out a food puzzle that takes {cat_name} time and effort to empty, timed to land in the hour before your own bedtime.",
+      "Dim lights and reduce household activity in {cat_name}'s resting area at the same time each night.",
+      "Do not respond to nighttime vocalizing or activity by getting up to feed, play, or comfort — any response, even negative attention, reinforces the disruption."
     ],
     "incantation_template": null,
-    "aftercare_note": "One acknowledgment is usually enough to settle the charge.",
-    "personalization_slots": []
+    "aftercare_note": "The overnight behavior is often the last thing to settle — expect the daytime rhythm to stabilize a week or more before nights fully calm.",
+    "personalization_slots": ["cat_name"]
   },
   {
-    "id": "ritual_ceremonial_fast_std",
-    "parent_treatment_id": "treat_ceremonial_fast",
-    "selection_conditions": { "severity_band": ["present"] },
+    "id": "ritual_object_investiture_gentle",
+    "parent_treatment_id": "treat_object_investiture",
+    "selection_conditions": { "severity_band": ["mild"] },
     "priority": 1,
-    "title_template": "The Warmed Offering",
-    "materials": ["their usual food"],
+    "title_template": "The Object's Place",
+    "materials": ["the existing anchor object", "one consistent resting spot for it"],
     "steps_template": [
-      "Warm their usual food for ten extra seconds.",
-      "Present it with both hands, like an offering.",
-      "Wait a moment before stepping back, rather than walking away immediately."
+      "Choose one consistent spot for the object — not moved between locations — so {cat_name} can always find it in the same place.",
+      "Never wash, remove, or replace the object without first introducing a duplicate alongside it for at least a week.",
+      "When {cat_name} carries or settles with the object, let it happen without interference — this isn't a behavior to redirect."
     ],
     "incantation_template": null,
-    "aftercare_note": "Appetite should return to normal within a day; if not, that's a vet question, not a ritual one.",
-    "personalization_slots": []
+    "aftercare_note": "A strong attachment to one safe object is not, on its own, something to worry about — this ritual is about protecting the coping mechanism, not curing it.",
+    "personalization_slots": ["cat_name"]
   },
   {
-    "id": "ritual_meditative_aloofness_std",
-    "parent_treatment_id": "treat_meditative_aloofness",
-    "selection_conditions": { "severity_band": ["present"] },
-    "priority": 1,
-    "title_template": "The Patient Sit",
-    "materials": ["a low seat or floor cushion"],
+    "id": "ritual_object_investiture_standard",
+    "parent_treatment_id": "treat_object_investiture",
+    "selection_conditions": { "severity_band": ["moderate", "acute"] },
+    "priority": 2,
+    "title_template": "The Investiture of the Anchor Object",
+    "materials": ["the existing anchor object", "one consistent resting spot for it", "a scent-matched duplicate"],
     "steps_template": [
-      "Sit near them without making eye contact for five minutes.",
-      "Let them approach first, on their own timeline.",
-      "If they don't approach today, try again tomorrow — there's no deadline."
+      "Introduce a duplicate object early, worn in alongside the original by keeping both in {cat_name}'s bed for two weeks, so a loss of one isn't a loss of the coping mechanism itself.",
+      "Fix one consistent resting spot for whichever object is currently in use and never relocate it without cause.",
+      "If travel or washing requires the object's temporary absence, substitute the duplicate at least 48 hours beforehand rather than swapping it in cold.",
+      "Track whether the fixation is broadening (multiple objects) or narrowing (only ever this one) over several weeks — a broadening pattern is a good sign, a narrowing one is worth mentioning to a vet."
     ],
     "incantation_template": null,
-    "aftercare_note": "Aloofness on its own timeline is normal — this isn't something to fix quickly.",
-    "personalization_slots": []
+    "aftercare_note": "This ritual doesn't aim to reduce the attachment — it aims to make sure the attachment never becomes a single point of failure.",
+    "personalization_slots": ["cat_name"]
+  },
+  {
+    "id": "ritual_resource_generosity_gentle",
+    "parent_treatment_id": "treat_resource_generosity",
+    "selection_conditions": { "severity_band": ["mild"] },
+    "priority": 1,
+    "title_template": "The Second Bowl",
+    "materials": ["one additional food and water station", "one additional litter box"],
+    "steps_template": [
+      "Add one more feeding station in a different room from the current one, out of direct line of sight of it.",
+      "Add one more litter box in a separate location, following the general rule of one box per cat plus one extra.",
+      "Feed {cat_name} at the added station for at least a week before judging whether the guarding behavior has eased."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "More stations only help if they're genuinely separated — two bowls three feet apart in the same room don't count as two options to a cat.",
+    "personalization_slots": ["cat_name"]
+  },
+  {
+    "id": "ritual_resource_generosity_standard",
+    "parent_treatment_id": "treat_resource_generosity",
+    "selection_conditions": { "severity_band": ["moderate", "acute"] },
+    "priority": 2,
+    "title_template": "The Rite of Abundant Ground",
+    "materials": ["multiple feeding stations in separate rooms", "one litter box per cat plus one extra, in separate locations", "vertical resting spaces near each station"],
+    "steps_template": [
+      "Map every current food, water, and litter location in the home, and identify which ones sit in shared or contested pathways.",
+      "Relocate or add stations so that no two are visible from one another, following the one-per-cat-plus-one rule for both food and litter.",
+      "Add at least one elevated resting spot near {cat_name}'s preferred station, giving a retreat option that doesn't require leaving the resource area.",
+      "For the first two weeks, feed {cat_name} at the same time as any other cats but at fully separated stations, rather than staggering times, so competition has no opportunity to form.",
+      "Once tension visibly eases, reintroduce more casual scheduling — but keep the physical separation permanently."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "This is a spatial fix more than a behavioral one — most of the work is in where things are, not what anyone does.",
+    "personalization_slots": ["cat_name"]
+  },
+  {
+    "id": "ritual_voice_channeling_gentle",
+    "parent_treatment_id": "treat_voice_channeling",
+    "selection_conditions": { "severity_band": ["mild"] },
+    "priority": 1,
+    "title_template": "The Quiet Request",
+    "materials": ["a small mat or designated spot near where requests usually happen"],
+    "steps_template": [
+      "Place a small mat near the spot where {cat_name} usually vocalizes for attention (a doorway, the kitchen, a bedside).",
+      "Reward calm presence on the mat — quiet attention, a treat, a scratch — whenever {cat_name} chooses it over vocalizing.",
+      "When {cat_name} vocalizes for something you were about to give anyway (food, play), wait for a pause in the sound before responding, so silence — not noise — is what triggers the response."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "Expect vocalizing to briefly increase before it decreases — this is a normal 'extinction burst' as the old strategy is tested harder before it fades.",
+    "personalization_slots": ["cat_name"]
+  },
+  {
+    "id": "ritual_voice_channeling_standard",
+    "parent_treatment_id": "treat_voice_channeling",
+    "selection_conditions": { "severity_band": ["moderate", "acute"] },
+    "priority": 2,
+    "title_template": "The Channeling of the Voice",
+    "materials": ["a small mat or designated spot", "two or three short scheduled play sessions", "a treat reserved only for quiet-request rewards"],
+    "steps_template": [
+      "Establish three short, fixed-time play or attention sessions across the day, so {cat_name} has predictable engagement to rely on instead of vocalizing to request it.",
+      "Introduce a mat as the 'quiet request' spot and reward any calm presence there, using a treat reserved only for this purpose.",
+      "For demand-vocalizing outside the scheduled sessions, wait out a full pause in the sound — even a few seconds — before responding to anything, every time, without exception.",
+      "Never respond to vocalizing with the exact thing being demanded in the moment it's loudest — bridge every response through the pause-then-mat sequence.",
+      "Track which times of day the vocalizing clusters around, and make sure a scheduled session lands shortly before each one."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "Consistency matters more than any single step — one household member responding to loud demands undoes the pattern for everyone else.",
+    "personalization_slots": ["cat_name"]
+  },
+  {
+    "id": "ritual_internal_release_gentle",
+    "parent_treatment_id": "treat_internal_release",
+    "selection_conditions": { "severity_band": ["mild"] },
+    "priority": 1,
+    "title_template": "The Daily Check-In",
+    "materials": ["a soft brush", "a quiet, low-traffic resting spot"],
+    "steps_template": [
+      "Once a day, at a consistent time, offer a short, gentle brushing session in {cat_name}'s quiet resting spot, stopping the moment {cat_name} shows any sign of wanting to stop.",
+      "Keep this resting spot free of loud activity, sudden guests, or other pets during the hour around the check-in.",
+      "Note, without intervening, whether self-grooming eases on days this check-in happens versus days it's skipped."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "The goal isn't to replace all self-grooming — it's to offer a lower-intensity outlet so grooming stops being the only available release.",
+    "personalization_slots": ["cat_name"]
+  },
+  {
+    "id": "ritual_internal_release_standard",
+    "parent_treatment_id": "treat_internal_release",
+    "selection_conditions": { "severity_band": ["moderate", "acute"] },
+    "priority": 2,
+    "title_template": "The Release of the Held Voice",
+    "materials": ["a soft brush", "a quiet, low-traffic decompression space", "a food puzzle or slow-feeder"],
+    "steps_template": [
+      "Set up a dedicated low-stimulation space {cat_name} can retreat to at any time, kept free of loud noise, other pets, and sudden foot traffic.",
+      "Offer a gentle brushing session twice a day at consistent times, always stopping at the first sign {cat_name} wants to stop rather than pushing for a fixed duration.",
+      "Introduce a food puzzle during the hours grooming tends to spike, giving the same nervous energy a different outlet.",
+      "Reduce overall household noise and activity level during the two weeks of this ritual as much as is realistically possible.",
+      "If grooming intensity hasn't measurably eased after three weeks of consistent practice, treat that as a signal to involve a veterinarian rather than extending the ritual indefinitely."
+    ],
+    "incantation_template": "What you cannot say, you do not have to carry alone.",
+    "aftercare_note": "Progress here is usually gradual and uneven — judge it over weeks, not days, and don't be discouraged by an occasional bad night.",
+    "personalization_slots": ["cat_name"]
+  },
+  {
+    "id": "ritual_enrichment_cascade_gentle",
+    "parent_treatment_id": "treat_enrichment_cascade",
+    "selection_conditions": { "severity_band": ["mild"] },
+    "priority": 1,
+    "title_template": "The First Rotation",
+    "materials": ["three or four small toys", "a storage box out of sight"],
+    "steps_template": [
+      "Keep only two or three toys out at any time, storing the rest out of sight.",
+      "Once a week, swap the available toys for a different set from storage, so nothing stays 'boring' from overexposure.",
+      "Run one five-to-ten-minute active play session daily, ending on a 'catch' so {cat_name} experiences a full hunt-catch cycle rather than stopping mid-chase."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "The rotation matters more than the toy count — a cat with twenty toys always out gets less novelty than one with three that change weekly.",
+    "personalization_slots": ["cat_name"]
+  },
+  {
+    "id": "ritual_enrichment_cascade_standard",
+    "parent_treatment_id": "treat_enrichment_cascade",
+    "selection_conditions": { "severity_band": ["moderate", "acute"] },
+    "priority": 2,
+    "title_template": "The Cascade of Enrichment",
+    "materials": ["five or six toys of varying texture", "a storage box out of sight", "a foraging or puzzle feeder"],
+    "steps_template": [
+      "Divide toys into two or three rotating sets and swap the available set every four to five days.",
+      "Run two active play sessions daily, morning and evening, each ending on a real 'catch' so the hunt cycle completes rather than being cut short.",
+      "Introduce a foraging or puzzle feeder for at least one meal a day, so mealtime itself becomes a source of engagement for {cat_name} rather than a passive event.",
+      "Add one new, never-before-seen object (box, paper bag, textured mat) to the environment each week, removed after a few days before it becomes routine.",
+      "Track whether destructive or nighttime activity clusters around specific times of day, and place the active play session shortly before that window."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "If destructive behavior doesn't ease within two to three weeks of consistent enrichment, it's worth ruling out that the understimulation reading was actually the closest match.",
+    "personalization_slots": ["cat_name"]
+  },
+  {
+    "id": "ritual_equilibrium_maintenance_std",
+    "parent_treatment_id": "treat_equilibrium_maintenance",
+    "selection_conditions": { "severity_band": ["steady"] },
+    "priority": 1,
+    "title_template": "The Ordinary Blessing",
+    "materials": ["an existing favorite toy", "five uninterrupted minutes"],
+    "steps_template": [
+      "Once a day, spend five minutes of fully undistracted attention with {cat_name} — no phone, no chores, just the toy or your hand and their choice of engagement.",
+      "Notice, once a week, whether anything from the quiz's themes (territory, sleep, social contact, objects, voice) has started to shift, since a steady reading today doesn't mean it stays steady forever.",
+      "Keep feeding, litter, and rest routines exactly as they currently are — the instruction here is to preserve the pattern, not to change it."
+    ],
+    "incantation_template": null,
+    "aftercare_note": "A steady reading is a good result, not a null one — treat it as confirmation the current routine is working, worth protecting rather than second-guessing.",
+    "personalization_slots": ["cat_name"]
   }
 ]
