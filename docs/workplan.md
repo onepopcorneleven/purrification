@@ -588,6 +588,71 @@ schema/engine work).
       combinations route to distinct, correct diagnosis/treatment/ritual
       results.
 
+## Phase 15 — Diagnosis image pool (R-CONTENT-5 extension) — **proposed, pending approval**
+Not yet approved — do not start without an explicit go-ahead; independent of
+Phase 14 (doesn't need real content authored first). **Goal:** change Phase
+13's one-image-per-`DiagnosisDef` model (`imagePath String?`) to a
+one-to-many pool of candidate images, so future content authoring can attach
+multiple illustrations to a single diagnosis for visual variety, while
+keeping today's "one illustration shown per result" UX. The image shown for
+a given result is picked randomly from its `DiagnosisDef`'s pool, but
+**stable per `Diagnosis` row** — the same result shows the same image on
+every repeat view and every viewing of its public share link — computed
+deterministically from that row's id rather than stored on it (consistent
+with `imagePath` already being live-joined content today, not R-CONTENT-6
+frozen output like `diagnosisText`/`ritualText`; the one accepted tradeoff
+is that a result's picked image can shift if its `DiagnosisDef`'s image pool
+is edited later, the same live-content behavior `imagePath` already has).
+
+**Execution steps:**
+- [ ] Add a `DiagnosisDefImage` child table to `prisma/schema.prisma`
+      (composite `@@id([diagnosisDefId, sortOrder])`, no independent
+      `isActive`/lifecycle — same shape as the existing
+      `DiagnosisDefTreatment` link table), with `DiagnosisDef.images
+      DiagnosisDefImage[]`; remove `DiagnosisDef.imagePath`.
+- [ ] Hand-write the migration in the same expand → backfill → contract,
+      single-transaction style as Phase 13's
+      `20260908130000_add_content_model` (cited in `CLAUDE.md`): create
+      `DiagnosisDefImage`, backfill one row per existing non-null
+      `imagePath` at `sortOrder 0`, then drop the old column. Apply via
+      `npm run db:migrate` against the VPS DB.
+- [ ] Update the seed pipeline: `prisma/seed/content/diagnoses.json`'s
+      `image_path: string|null` becomes `image_paths: string[]` (all 10
+      existing entries become a one-element array); `prisma/seed/index.ts`'s
+      `RawDiagnosisDef` and `upsertContent()` sync each diagnosis's image
+      rows by delete-then-recreate per `diagnosisDefId` — these child rows
+      have no identity of their own outside the array, unlike top-level
+      content types, so this is a deliberate, documented exception to the
+      seed pipeline's usual "upsert, never delete" rule.
+- [ ] Add a `pickStableImage(images, seed)` helper to
+      `src/lib/diagnosis/engine.ts` (alongside the existing
+      `pickSymptomCallbacks`): a pure deterministic hash of a seed string
+      (the `Diagnosis.id`) into an index into the ordered image list.
+- [ ] Update `src/app/results/[id]/page.tsx` and
+      `src/app/share/[shareSlug]/page.tsx` to `include`/`select`
+      `diagnosisDef.images` (ordered by `sortOrder`) instead of
+      `diagnosisDef.imagePath`, and call `pickStableImage(...)` with the
+      diagnosis's own id as the seed before passing the result into
+      `DiagnosisCard` (unchanged — it still just takes one filename).
+- [ ] Update `docs/content/content-storage-architecture.md`'s schema mirror
+      and R-CONTENT-5 description to describe the one-to-many table and the
+      deterministic-per-result pick, replacing the single-FK description.
+
+**Testable deliverables:**
+- [ ] After migration + reseed, each of the 10 `DiagnosisDef` rows has
+      exactly one `DiagnosisDefImage` row (`sortOrder 0`) and
+      `DiagnosisDef.imagePath` no longer exists in the schema.
+- [ ] Taking the quiz shows a result image; reloading `/results/[id]` and
+      then opening that same result's `/share/[shareSlug]` both show the
+      *identical* image; a second, different quiz result shows an
+      appropriately different image (still deterministic on its own
+      reloads).
+- [ ] Temporarily seeding a two-element `image_paths` array for one
+      diagnosis and re-running `npm run db:seed-content` produces two
+      `DiagnosisDefImage` rows (`sortOrder` 0 and 1) for it; reverting the
+      JSON and reseeding again collapses it back to one.
+- [ ] `npm run build` and `npm run lint` both pass.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
