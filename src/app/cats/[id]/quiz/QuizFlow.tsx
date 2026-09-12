@@ -19,7 +19,7 @@ interface QuizQuestion {
 // --duration-divination-final — these drive the JS timers below, the CSS
 // custom properties drive the matching visual pacing; keep both in sync if
 // either changes.
-const DIVINATION_MS = 3000;
+const DIVINATION_MS = 2000;
 const DIVINATION_FINAL_MS = 5000;
 
 const DIVINING_LINES = [
