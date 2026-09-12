@@ -95,6 +95,25 @@ matters), and stable ids keep seed files git-diffable and cross-referenceable
 in prose. Runtime rows (`User`, `Cat`, `QuizAttempt`, `Diagnosis`) are
 unaffected and keep `cuid()` — that convention doesn't change.
 
+**Every content class's stable id must be unique within that class — the
+seed script upserts by id, so a reused id silently overwrites rather than
+erroring.** For most classes this is naturally satisfied (an author would
+never reuse `diag_boundary_erosion` for two different diagnoses), but
+`AnswerOption` is the one case where authors naturally want short,
+question-local ids (`a1`, `a2`, ...) — a real content pass did exactly this,
+reusing the same handful of ids across all 20 questions, and the seed
+script's upsert-by-id silently reassigned each id's row to whichever
+question was processed last, leaving every earlier question with zero
+answers (see `board/content-id-integrity-fix.md`'s incident writeup, Phase
+16). The fix is structural, not a naming convention to remember: the seed
+script derives `AnswerOption.id` as `` `${questionId}::${localId}` ``, so
+authors keep writing question-local ids in `questions.json` and global
+uniqueness is guaranteed by construction rather than by discipline.
+`prisma/seed/index.ts`'s `validate()` additionally asserts id-uniqueness for
+every content class (including per-question local-id uniqueness and a final
+check on the derived global id) as defense-in-depth, but that validator is
+a safety net — it is not what makes `AnswerOption` ids actually unique.
+
 ## 6. Content rows are retired, never deleted
 
 `Question`, `DiagnosisDef`, `Treatment`, and `Ritual` all get
@@ -314,11 +333,26 @@ running app.
   exclusive or explicitly priority-ordered. Then it **upserts by stable id**
   in dependency order:
   tags → topics → questions + answers + tag effects → treatments →
-  diagnosis defs + treatment links → rituals. It never deletes a row; a
-  stable id present in the DB but absent from the current seed files is
-  reported as stale (a candidate for hand-editing to `isActive: false`),
-  never auto-removed — preserving FK integrity for historical `Diagnosis`
-  rows that may still reference it.
+  diagnosis defs + treatment links → rituals. It never deletes a *top-level*
+  content row; a stable id present in the DB but absent from the current
+  seed files is reported as stale (a candidate for hand-editing to
+  `isActive: false`), never auto-removed — preserving FK integrity for
+  historical `Diagnosis` rows that may still reference it.
+- **Join/child rows are synced, not just upserted.** `AnswerOptionTagEffect`
+  (an answer's `tag_effects` map) has no identity of its own outside its
+  parent answer's current JSON — unlike top-level content, there's no
+  `isActive` flag to retire an individual tag effect, and no historical FK
+  ever points at one directly. So after upserting the tag effects present
+  in the current pass, the seed script also deletes any existing
+  `AnswerOptionTagEffect` row for that answer whose tag is *no longer*
+  present in its `tag_effects` — otherwise a future edit that removes a tag
+  from an answer would leave the old row behind, silently still
+  contributing to tag totals forever (confirmed as a real, distinct latent
+  bug during the Phase 16 investigation, on top of the id-collision one
+  above). Any future child collection with the same "no independent
+  identity, expressed as an array in the parent's JSON" shape (e.g. Phase
+  15's planned `DiagnosisDefImage` pool) should follow the same
+  delete-then-recreate-per-parent pattern, not a bare upsert loop.
 - **New script:** `npm run db:seed-content`, named to match the existing
   `db:migrate`/`db:generate` convention. Kept separate from
   `prisma migrate deploy` (schema DDL, not data) and from `postinstall`'s

@@ -93,11 +93,57 @@ const treatments = treatmentsJson as unknown as RawTreatment[];
 const diagnosisDefs = diagnosesJson as unknown as RawDiagnosisDef[];
 const rituals = ritualsJson as unknown as RawRitual[];
 
+// AnswerOption.id is a *global* Prisma primary key, but authors naturally
+// want to write short, question-local answer ids (a1, a2, ...). Deriving
+// the DB id from (questionId, localId) guarantees global uniqueness by
+// construction instead of relying on author discipline — see
+// board/content-id-integrity-fix.md (Phase 16) for the incident this fixes:
+// reused local ids across questions previously caused later questions'
+// upserts to silently overwrite earlier questions' AnswerOption rows.
+function answerOptionId(questionId: string, localId: string): string {
+  return `${questionId}::${localId}`;
+}
+
+function assertUniqueIds(errors: string[], label: string, ids: string[]): void {
+  const seen = new Set<string>();
+  for (const id of ids) {
+    if (seen.has(id)) {
+      errors.push(`Duplicate ${label} id "${id}"`);
+    }
+    seen.add(id);
+  }
+}
+
 function validate(): void {
   const errors: string[] = [];
   const tagIds = new Set(tags.map((t) => t.id));
   const topicIds = new Set(topics.map((t) => t.id));
   const treatmentIds = new Set(treatments.map((t) => t.id));
+
+  // Id-uniqueness (R-CONTENT-2 follow-up, Phase 16): every content class's
+  // ids must be unique within that class, since upsert-by-id silently
+  // overwrites rather than erroring on a collision. AnswerOption ids are
+  // checked per-question (local ids are *expected* to repeat across
+  // questions — that's what answerOptionId() above is for) plus a final
+  // global check on the derived id as a belt-and-suspenders sanity check.
+  assertUniqueIds(errors, "Tag", tags.map((t) => t.id));
+  assertUniqueIds(errors, "QuestionTopic", topics.map((t) => t.id));
+  assertUniqueIds(errors, "Question", questions.map((q) => q.id));
+  assertUniqueIds(errors, "Treatment", treatments.map((t) => t.id));
+  assertUniqueIds(errors, "DiagnosisDef", diagnosisDefs.map((d) => d.id));
+  assertUniqueIds(errors, "Ritual", rituals.map((r) => r.id));
+  for (const q of questions) {
+    assertUniqueIds(
+      errors,
+      `AnswerOption (within question ${q.id})`,
+      q.answers.map((a) => a.id),
+    );
+  }
+  assertUniqueIds(
+    errors,
+    "AnswerOption (derived global id)",
+    questions.flatMap((q) => q.answers.map((a) => answerOptionId(q.id, a.id))),
+  );
 
   for (const q of questions) {
     if (!topicIds.has(q.topic_id)) {
@@ -306,10 +352,11 @@ async function upsertContent(): Promise<void> {
       },
     });
     for (const a of q.answers) {
+      const optionId = answerOptionId(q.id, a.id);
       await prisma.answerOption.upsert({
-        where: { id: a.id },
+        where: { id: optionId },
         create: {
-          id: a.id,
+          id: optionId,
           questionId: q.id,
           labelMystical: a.label_mystical,
           labelPlain: a.label_plain,
@@ -322,13 +369,24 @@ async function upsertContent(): Promise<void> {
           sortOrder: a.sort_order,
         },
       });
+      const currentTagIds = Object.keys(a.tag_effects);
       for (const [tagId, weight] of Object.entries(a.tag_effects)) {
         await prisma.answerOptionTagEffect.upsert({
-          where: { answerOptionId_tagId: { answerOptionId: a.id, tagId } },
-          create: { answerOptionId: a.id, tagId, weight },
+          where: {
+            answerOptionId_tagId: { answerOptionId: optionId, tagId },
+          },
+          create: { answerOptionId: optionId, tagId, weight },
           update: { weight },
         });
       }
+      // Sync, don't just add: a tag removed from this answer's tag_effects
+      // in a future content edit must not leave a stale row silently still
+      // contributing to totals (Phase 16 — the same upsert-only pattern
+      // that let AnswerOptionTagEffect rows accumulate a jumbled union of
+      // effects from multiple colliding answers before this fix).
+      await prisma.answerOptionTagEffect.deleteMany({
+        where: { answerOptionId: optionId, tagId: { notIn: currentTagIds } },
+      });
     }
   }
 
