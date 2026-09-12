@@ -147,7 +147,7 @@
      millisecond values into its own DIVINATION_MS/DIVINATION_FINAL_MS
      constants (it needs numbers to drive a JS timer, not just a CSS
      duration) — keep both in sync if either changes. */
-  --duration-divination: 3000ms;
+  --duration-divination: 2000ms;
   --duration-divination-final: 5000ms;
 }
 
