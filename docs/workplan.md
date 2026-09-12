@@ -947,6 +947,115 @@ diagnosis identities map onto them 1:1.
   any deploy. Deployed anyway via the standard step-12 pipeline for
   consistency, confirmed `active (running)` with clean logs post-restart.
 
+## Phase 18 — Quiz confirm-and-divine interaction — **proposed, pending approval**
+Requested 2026-09-12. Not yet approved — do not start any item below
+without an explicit go-ahead.
+
+**Current behavior, for contrast** (`src/app/cats/[id]/quiz/QuizFlow.tsx`):
+a single click on an option selects it (today's highlighted look — gold
+border, `animate-glow-pulse`, filled diamond glyph); a separate "Next"
+button, disabled until an option is selected, advances `step` immediately
+with no transition. The last question shows "Get diagnosis" instead of
+"Next", which does the real `POST /api/cats/:id/quiz` submission with a
+"Consulting the cards…" status line. `QuizProgress.tsx` renders the
+step-dot row above the question. Back is a plain button, disabled only on
+question 1 or while submitting.
+
+**Goal:** replace the select-then-click-"Next" flow with a two-click
+confirm gesture per question, followed by a short mystical "divining"
+transition before the next question (or the final diagnosis) appears.
+Back is explicitly untouched by this change.
+
+**New interaction:**
+1. First click on an option selects it — today's existing highlighted look,
+   unchanged.
+2. A second click on that *same, already-selected* option confirms it: a
+   further, distinct visual change beyond the selection highlight (more
+   emphatic — e.g. a deeper/solid glow fill, or an animated pulse on the
+   existing diamond glyph), signaling the choice is locked in. Clicking a
+   *different*, not-yet-selected option while one is already selected (but
+   not yet confirmed) just re-selects — the confirm gesture only fires on
+   a second click of the *same* option.
+3. Confirming immediately starts a short "divining" transition — a themed
+   overlay/moment over the question card (candle-flare + drifting fog,
+   reusing the `flame-flicker`/`fog-drift` keyframes already in
+   `globals.css`, plus a short rotating mystical status line — "Reading
+   the signs…", "The cards are turning…", etc.) — then the next question
+   appears automatically. No separate "Next" click remains for a confirmed
+   answer; the second click on the option *is* the advance action.
+4. Back remains exactly as it is today: single click, immediate `step - 1`,
+   no confirm gesture, no divining animation.
+
+**Open design question — needs a decision before/during implementation:**
+the last question's confirm today triggers a *real* API call
+(`handleSubmit`), whose latency is unpredictable, unlike every other
+step's transition (pure client-side state, no network). Two reasonable
+options:
+  - **(a)** Run the same fixed-length divining animation on the last
+    question too, and only navigate to `/results/[id]` once *both* the
+    animation and the real fetch have finished (whichever takes longer) —
+    keeps the pacing/feel consistent even on a slow request, but risks a
+    longer-than-3-second wait if the API is slow, with no separate
+    "still working" signal beyond the animation itself.
+  - **(b)** Keep the last-question submit visually distinct from the new
+    mid-quiz transitions — reuse today's "Consulting the cards…"
+    indeterminate-wait treatment for the real network call, and reserve
+    the new two-click/divining animation for the `N-1` mid-quiz
+    transitions only.
+This document doesn't resolve that question; it needs an explicit choice
+before implementation.
+
+**Duration is a token, not a hardcoded literal:** `docs/design/
+design-tokens.json`'s `motion.duration` currently tops out at
+`slow: "450ms"` — add a new entry (e.g. `motion.duration.divination:
+"3000ms"`, the ~3s figure being a starting default, not a requirement)
+mirrored into a new `--duration-divination` CSS custom property in
+`globals.css`'s `@theme` block, so the actual pause length lives in one
+place, not inline in `QuizFlow.tsx`.
+
+**Execution steps:**
+- [ ] Add a `confirmed` state to `QuizFlow.tsx`'s per-question selection
+      tracking (`idle` -> `selected` -> `confirmed`, keyed per question id
+      the same way `answers` is today).
+- [ ] Wire the click handler: first click on an option sets `selected`;
+      second click on that same, already-`selected` option sets
+      `confirmed` and triggers the divining transition; a click on a
+      different option while in `selected` (not yet `confirmed`) re-selects
+      instead.
+- [ ] Add the third (`confirmed`) visual state to the option card —
+      building on today's existing gold/glow language, not introducing new
+      colors, per this project's brand-token discipline
+      (`docs/design/purrification-brand-guidelines.md`).
+- [ ] Build the divining transition component/overlay (candle-flare + fog
+      drift + rotating flavor line), driven by the new
+      `--duration-divination` token, that then advances `step` (or calls
+      `handleSubmit` on the last question, per the open question above).
+- [ ] Add a `prefers-reduced-motion: reduce` treatment for the new
+      animation, matching every other animation in `globals.css`.
+- [ ] Add the new `motion.duration.divination` token to
+      `docs/design/design-tokens.json` and mirror it into `globals.css`.
+- [ ] Resolve the last-question open question above.
+- [ ] Update `docs/design-system.md`'s component inventory / `QuizFlow`
+      description for the new two-click-confirm interaction.
+
+**Testable deliverables:**
+- [ ] A single click on an option shows exactly today's existing
+      selected/highlighted look; no automatic advance.
+- [ ] A second click on that same, already-selected option visibly changes
+      its appearance again, then the divining animation plays, then the
+      next question (or diagnosis result, per the resolved open question)
+      appears — with no separate "Next" click.
+- [ ] Clicking a different option after the first click re-selects rather
+      than confirming.
+- [ ] Back is unchanged: single click, immediate, no animation, still
+      disabled only on question 1 (and, as today, during any
+      submission-in-flight state).
+- [ ] The divining animation's duration comes from one named token, not a
+      hardcoded literal in the component.
+- [ ] `prefers-reduced-motion: reduce` shortens/removes the new animation
+      the same way every other motion in this app does.
+- [ ] `npm run build` and `npm run lint` both pass.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
