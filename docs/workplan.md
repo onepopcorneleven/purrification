@@ -777,6 +777,61 @@ declarations via one new migration.
   originally) produced correct, varying results with no totality-guard
   errors.
 
+## Phase 17 — Diagnosis image gap (Phase 14 regression) — **proposed, pending approval**
+Found during a status review on 2026-09-12. Not yet approved — do not start
+without an explicit go-ahead. Independent of Phase 15 and Phase 16.
+
+**The gap:** all 12 live `DiagnosisDef` rows (Phase 14's real content bank)
+currently have `imagePath = null`. `prisma/seed/content/diagnoses.json`'s 12
+entries carry no `image_path` field at all — Phase 14's rewrite of the
+content bank replaced the old 10 placeholder diagnoses' ids, names, and text
+but never carried over image assignments to the new ones. Meanwhile the
+visual-richness pass's 10 illustrations still sit in
+`public/images/diagnoses/` (`ceremonial-fast.png`, `chaos-spirit-box.png`,
+`houseguest-aura.png`, `meditative-aloofness.png`, `mercury-retrograde.png`,
+`moon-phase-whiskers.png`, `static-corner.png`, `sunbeam-schedule.png`,
+`three-am-zoomies.png`, `vacuum-residue.png`) — orphaned, since they were
+matched to the old placeholder diagnoses' text via the now-deleted
+`getDiagnosisImage()` text-equality lookup and have no relationship to the
+new 12 diagnoses' ids or content.
+
+Not a crash: `DiagnosisCard`'s `image` prop is optional, and the component
+renders correctly (just without an illustration) when `imagePath` is null.
+But it's a live regression from Phase 13's shipped behavior — every result
+page (`/results/[id]`) and every public share page (`/share/[shareSlug]`)
+currently renders with no diagnosis illustration, silently, for every user.
+
+**Relationship to Phase 15:** an independent problem. Phase 15 (one-to-many
+image pool) changes the schema shape but doesn't by itself supply any
+`image_path`s — a diagnosis with an empty pool renders the same as one with
+`imagePath: null` today. Whichever phase actually authors new image(s) needs
+to decide what to do with the 10 orphaned files, since none of the new
+diagnosis identities map onto them 1:1.
+
+**Execution steps:**
+- [ ] Decide the disposition of the 10 orphaned files in
+      `public/images/diagnoses/` per new diagnosis: reuse where
+      thematically close, regenerate via the `openai-imagegen` skill (same
+      pipeline as the original visual-richness pass), or retire.
+- [ ] Decide sequencing against Phase 15: assign images under the current
+      single-`imagePath` schema now and let Phase 15 migrate them into the
+      pool later, or gate this behind Phase 15 shipping first so images are
+      authored directly into `image_paths` (plural).
+- [ ] Author an image reference for all 12 diagnoses in
+      `prisma/seed/content/diagnoses.json`.
+- [ ] Reseed (`npm run db:seed-content`) and verify every active
+      `DiagnosisDef` row has a populated image reference.
+- [ ] Confirm live: a fresh quiz result and its `/share/[shareSlug]` link
+      both render an illustration, for a sample spanning multiple
+      diagnoses.
+- [ ] Remove or repurpose any of the 10 old files that end up unused, so
+      `public/images/diagnoses/` doesn't accumulate dead assets.
+
+**Testable deliverables:**
+- [ ] Every active `DiagnosisDef` row has at least one image reference.
+- [ ] No result or share page renders without an illustration.
+- [ ] `npm run build` and `npm run lint` both pass.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
