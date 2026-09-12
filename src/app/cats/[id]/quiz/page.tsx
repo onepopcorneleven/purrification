@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/guard";
 import { findOwnedCat } from "@/lib/cats/findOwnedCat";
 import { prisma } from "@/lib/db/client";
 import { PageShell } from "@/components/ui/PageShell";
+import { shuffleAnswerOptions } from "@/lib/quiz/shuffleAnswerOptions";
 import { QuizFlow } from "./QuizFlow";
 
 export default async function QuizPage({
@@ -30,6 +31,7 @@ export default async function QuizPage({
     select: {
       id: true,
       promptMystical: true,
+      inputType: true,
       answers: {
         orderBy: { sortOrder: "asc" },
         select: { id: true, labelMystical: true },
@@ -39,7 +41,13 @@ export default async function QuizPage({
   const questions = activeQuestions.map((q) => ({
     id: q.id,
     prompt: q.promptMystical,
-    options: q.answers.map((a) => ({ id: a.id, label: a.labelMystical })),
+    // Phase 19: randomize nominal (non-SCALE) answer order per page load so
+    // a fixed screen position doesn't correlate with a specific tag effect
+    // for anyone clicking through without reading each option.
+    options: shuffleAnswerOptions(
+      q.inputType,
+      q.answers.map((a) => ({ id: a.id, label: a.labelMystical })),
+    ),
   }));
 
   return (
