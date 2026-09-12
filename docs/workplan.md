@@ -1178,6 +1178,15 @@ verification available short of a real click-through; still recommend a
 manual check.
 - Fix shipped via a follow-up PR, merged to `main`, deployed the same way.
 
+### Tuning — 2026-09-12
+User confirmed the fix worked live, then asked to shorten the mid-quiz
+divining pause specifically (not the final reception moment). Changed
+`motion.duration.divination` from `3000ms` to `2000ms` in
+`docs/design/design-tokens.json`, `globals.css`'s `--duration-divination`,
+and `QuizFlow.tsx`'s `DIVINATION_MS` — all three kept in sync per the
+token's own documented convention. `motion.duration.divinationFinal`
+(`5000ms`, the last question's longer moment) is unchanged.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
