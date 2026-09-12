@@ -213,11 +213,28 @@ model DiagnosisDef {
   descriptionSlots    String[]                // every {slot} used in descriptionTemplate; validated like Ritual.personalizationSlots
   symptomCallbackPool String[]
   isCatchAll          Boolean                 @default(false) // exactly one active row — totality guarantee
-  imagePath           String?                 // R-CONTENT-5: replaces getDiagnosisImage's text-equality lookup
   isActive            Boolean                 @default(true)
   linkedTreatments    DiagnosisDefTreatment[]
+  images              DiagnosisDefImage[]     // R-CONTENT-5 pool (Phase 15) — see below
   results             Diagnosis[]
   createdAt           DateTime                @default(now())
+}
+
+// R-CONTENT-5 (Phase 15): ordered pool of candidate images for a
+// DiagnosisDef — replaces the earlier single-imagePath model. A result's
+// image is picked deterministically by pickStableImage(images, diagnosis.id)
+// (engine.ts) — a pure hash of the Diagnosis row's own id into an index —
+// so the same result shows the same image on every reload and every
+// viewing of its public share link, without storing the pick anywhere. Same
+// "no independent identity outside the array" shape as
+// AnswerOptionTagEffect (§8): synced by delete-then-recreate per
+// diagnosisDefId on every seed run, not upserted.
+model DiagnosisDefImage {
+  diagnosisDefId String
+  diagnosisDef   DiagnosisDef @relation(fields: [diagnosisDefId], references: [id])
+  path           String
+  sortOrder      Int
+  @@id([diagnosisDefId, sortOrder])
 }
 
 // Ordered linked_treatments — sortOrder 0 is the default.
@@ -351,8 +368,9 @@ running app.
   bug during the Phase 16 investigation, on top of the id-collision one
   above). Any future child collection with the same "no independent
   identity, expressed as an array in the parent's JSON" shape (e.g. Phase
-  15's planned `DiagnosisDefImage` pool) should follow the same
-  delete-then-recreate-per-parent pattern, not a bare upsert loop.
+  15's `DiagnosisDefImage` pool, which follows this exact pattern) should
+  follow the same delete-then-recreate-per-parent pattern, not a bare
+  upsert loop.
 - **New script:** `npm run db:seed-content`, named to match the existing
   `db:migrate`/`db:generate` convention. Kept separate from
   `prisma migrate deploy` (schema DDL, not data) and from `postinstall`'s
@@ -437,10 +455,13 @@ running app.
    via redeploy + reseed + `systemctl restart`, which already happens on
    every deploy.
 
-**`getDiagnosisImage` fix (`R-CONTENT-5`):** the current text-equality
+**`getDiagnosisImage` fix (`R-CONTENT-5`):** the original text-equality
 lookup (matching a stored `diagnosisText` string back against the static
-pool) is replaced entirely by a direct FK join —
-`diagnosis.diagnosisDef.imagePath`.
+pool) was replaced by a direct FK read (Phase 13); Phase 15 further replaced
+that single `imagePath` FK with the `DiagnosisDefImage` pool above —
+`results/[id]`/`share/[shareSlug]` now select `diagnosisDef.images` (ordered
+by `sortOrder`) and call `pickStableImage(images, diagnosis.id)` to pick one
+deterministically per result.
 
 ## 10. Resolutions to content-framework.md §7's open questions
 

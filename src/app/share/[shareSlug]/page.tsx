@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/client";
 import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard";
 import { PageShell } from "@/components/ui/PageShell";
+import { pickStableImage } from "@/lib/diagnosis/engine";
 
 // Public, unauthenticated route (R-DIAG-3/4) — keyed on shareSlug, not the
 // row id, so links can't be guessed from sequential ids. Only ever select
@@ -15,10 +16,15 @@ export default async function SharePage({
   const diagnosis = await prisma.diagnosis.findUnique({
     where: { shareSlug },
     select: {
+      id: true,
       diagnosisText: true,
       ritualText: true,
       quizAttempt: { select: { cat: { select: { name: true } } } },
-      diagnosisDef: { select: { imagePath: true } },
+      diagnosisDef: {
+        select: {
+          images: { orderBy: { sortOrder: "asc" }, select: { path: true } },
+        },
+      },
     },
   });
   if (!diagnosis) {
@@ -32,7 +38,10 @@ export default async function SharePage({
           catName={diagnosis.quizAttempt.cat.name}
           diagnosisText={diagnosis.diagnosisText}
           ritualText={diagnosis.ritualText}
-          image={diagnosis.diagnosisDef.imagePath ?? undefined}
+          image={pickStableImage(
+            diagnosis.diagnosisDef.images.map((img) => img.path),
+            diagnosis.id,
+          )}
         />
       </div>
     </PageShell>

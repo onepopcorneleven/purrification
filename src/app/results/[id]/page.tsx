@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db/client";
 import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard";
 import { PageShell } from "@/components/ui/PageShell";
+import { pickStableImage } from "@/lib/diagnosis/engine";
 
 export default async function ResultPage({
   params,
@@ -18,7 +19,10 @@ export default async function ResultPage({
   const { id } = await params;
   const diagnosis = await prisma.diagnosis.findUnique({
     where: { id },
-    include: { quizAttempt: { include: { cat: true } }, diagnosisDef: true },
+    include: {
+      quizAttempt: { include: { cat: true } },
+      diagnosisDef: { include: { images: { orderBy: { sortOrder: "asc" } } } },
+    },
   });
   if (!diagnosis || diagnosis.quizAttempt.cat.userId !== user.id) {
     notFound();
@@ -31,7 +35,10 @@ export default async function ResultPage({
           catName={diagnosis.quizAttempt.cat.name}
           diagnosisText={diagnosis.diagnosisText}
           ritualText={diagnosis.ritualText}
-          image={diagnosis.diagnosisDef.imagePath ?? undefined}
+          image={pickStableImage(
+            diagnosis.diagnosisDef.images.map((img) => img.path),
+            diagnosis.id,
+          )}
         >
           <p className="mt-6">
             <TextLink
