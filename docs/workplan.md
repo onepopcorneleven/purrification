@@ -1256,6 +1256,43 @@ one addition to that constant.
   pipeline (no schema or content change — `prisma migrate deploy` and
   `npm run db:seed-content` both no-ops, only the build + restart mattered).
 
+## Phase 20 — `/allimages` debug gallery — **done**
+Requested 2026-09-12: a temporary, debugging-only page listing every image
+under `public/images/diagnoses/*.png` in a phone-optimized viewer, for
+visually spot-checking the full Phase 17 illustration set without a working
+headless browser in this sandbox (see the "No usable headless browser"
+note earlier in this doc/`CLAUDE.md`).
+
+- `src/app/allimages/page.tsx` — an async Server Component (`export const
+  dynamic = "force-dynamic"`) that reads `public/images/diagnoses/` with
+  `fs.readdir` at request time and passes the resulting `/images/
+  diagnoses/<file>.png` paths to the client gallery. Filenames are never
+  hardcoded — the list always reflects whatever `.png` files actually exist
+  in that folder, so it stays correct as diagnosis images are added,
+  regenerated, or retired.
+- `src/app/allimages/ImageGallery.tsx` — a client component: a responsive
+  thumbnail grid (`auto-fill`, 4:5 tiles) that opens a fullscreen,
+  scroll-snapped lightbox on tap, one image per screen, swipe/scroll
+  through the full set, with an index counter and filename per slide and
+  an Escape/× to close.
+- Deliberately **not linked from any page** — reachable only by typing
+  `purrification.com/allimages` directly, per the request. No nav entry,
+  no `sitemap`/`robots` consideration was needed since nothing points to
+  it.
+- Deliberately **not gated by auth or `isActive` content flags** — it reads
+  the filesystem, not the DB, so it also shows the 10 retired
+  placeholder-diagnosis images kept per Phase 15/17's note (still
+  referenced by historical `Diagnosis` rows). That's intended for a debug
+  view: it's a folder listing, not a content-model view.
+- Verified with `npm run build` (route compiles, listed as `ƒ /allimages`
+  dynamic) and a local `npm start` smoke test confirming `GET /allimages`
+  returns 200 and the page's markup references all 22 files currently in
+  `public/images/diagnoses/`. No visual/screenshot check was possible for
+  the reason above — ask the user to eyeball it live instead.
+- Meant to be deleted once the manual image review it exists for is done —
+  it isn't part of the product and shouldn't accumulate as permanent
+  surface area.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
