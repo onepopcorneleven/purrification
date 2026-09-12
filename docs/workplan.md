@@ -341,9 +341,8 @@ brand doc is now the authoritative source for anything it covers, ahead of
       (`results/[id]` and the public `share/[shareSlug]` page). No content
       changes needed.
 
-## Phase 12 — Visual richness pass (design upgrade round 2) — **proposed, pending approval**
-Not yet approved — do not start any item below without an explicit
-go-ahead. `docs/design-upgrade-round-2.md` is the full plan: it evaluates
+## Phase 12 — Visual richness pass (design upgrade round 2) — **done**
+`docs/design-upgrade-round-2.md` is the full plan: it evaluates
 the current live UI (only one AI-generated image exists anywhere in the
 product, `DiagnosisCard` shipped purely typographic, the already-designed
 `seal-of-completion.svg` is unused, every route is an identical flat
