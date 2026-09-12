@@ -82,7 +82,9 @@
     "duration": {
       "fast": "150ms",
       "base": "300ms",
-      "slow": "450ms"
+      "slow": "450ms",
+      "divination": "3000ms",
+      "divinationFinal": "5000ms"
     },
     "easing": {
       "standard": "cubic-bezier(0.4, 0, 0.2, 1)",
@@ -90,7 +92,8 @@
     },
     "patterns": {
       "fadeIn": "opacity 0 -> 1, translateY(8px) -> 0, duration.slow, easing.dreamy",
-      "glowPulse": "box-shadow oscillates between shadow.glowGoldSm and shadow.glowGoldMd, 2400ms loop, used sparingly on active/focal mystical elements only"
+      "glowPulse": "box-shadow oscillates between shadow.glowGoldSm and shadow.glowGoldMd, 2400ms loop, used sparingly on active/focal mystical elements only",
+      "divination": "duration.divination (mid-quiz) / duration.divinationFinal (last question) one-shot themed pause between a confirmed quiz answer and the next question/diagnosis appearing (Phase 18, workplan.md) -- see QuizFlow.tsx and globals.css's .divining-overlay"
     }
   }
 }

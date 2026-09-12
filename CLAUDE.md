@@ -8,7 +8,7 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–17 are all done and live in production at
+`docs/workplan.md` Phases 0–18 are all done and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
 deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
@@ -41,12 +41,19 @@ the original visual-richness pass), authored into
 `prisma/seed/content/diagnoses.json`'s `image_paths`. The 10 old
 placeholder-diagnosis images were kept, not deleted — 22 real historical
 `Diagnosis` rows still reference their now-retired `DiagnosisDef`s and
-would lose their result-page image if those files went away. A dedicated
-tone/content review pass and
-exhaustive multi-path smoke testing across all 12 diagnoses are still
-flagged as follow-up, not yet done — see
-`docs/content/content-storage-architecture.md` for the full schema/engine
-spec, and `workplan.md`'s Phase 14/15/16 entries for each execution log.
+would lose their result-page image if those files went away. Most
+recently, the quiz's answer interaction changed (Phase 18): a click
+selects an option (unchanged), a second click on that same option
+confirms it and *is* the advance action — the old separate "Next"/"Get
+diagnosis" buttons are gone — triggering a themed "divining" pause
+(`.divining-overlay` in `globals.css`) before the next question appears,
+or a longer, more elaborate "spiritual reception" variant on the last
+question that gates the real diagnosis request underneath it. Back is
+unchanged. A dedicated tone/content review pass and exhaustive multi-path
+smoke testing across all 12 diagnoses are still flagged as follow-up, not
+yet done — see `docs/content/content-storage-architecture.md` for the
+full schema/engine spec, and `workplan.md`'s Phase 14/15/16/18 entries for
+each execution log.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the

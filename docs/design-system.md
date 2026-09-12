@@ -98,10 +98,13 @@ place to update them.
   elevation2}` — glow, not hard shadow, is this product's elevation
   language (brand doc §7).
 - **Motion**: `motion.duration.{fast,base,slow}`,
-  `motion.easing.{standard,dreamy}`, and two named patterns —
-  `fadeIn` (opacity + 8px upward drift, `duration.slow` + `easing.dreamy`)
-  and `glowPulse` (oscillates between `shadow.glowGoldSm`/`glowGoldMd` on a
-  2400ms loop, reserved for one focal/active element, never ambient).
+  `motion.easing.{standard,dreamy}`, and named patterns —
+  `fadeIn` (opacity + 8px upward drift, `duration.slow` + `easing.dreamy`),
+  `glowPulse` (oscillates between `shadow.glowGoldSm`/`glowGoldMd` on a
+  2400ms loop, reserved for one focal/active element, never ambient), and
+  `divination` (Phase 18: `duration.divination`/`duration.divinationFinal`,
+  the quiz's one-shot themed pause between a confirmed answer and the next
+  question/diagnosis — see `QuizFlow.tsx` below).
 
 ## Component inventory
 
@@ -120,6 +123,20 @@ original plan:
 | `QuizProgress` + quiz-option button states | `QuizFlow.tsx` |
 | `DiagnosisCard` (the bespoke, shareable hero component) | `results/[id]` and `share/[shareSlug]` — same component, two contexts |
 | `EmptyState` | cats dashboard with zero cats, history with zero attempts |
+
+**`QuizFlow.tsx`'s interaction model (Phase 18, `docs/workplan.md`):** a
+click selects an option (today's glow-pulse highlight); a second click on
+that *same*, already-selected option confirms it — a further, more
+emphatic gold-filled look — and is the advance action itself, replacing
+the old separate "Next" button entirely. Confirming triggers a themed
+"divining" pause (`.divining-overlay` in `globals.css`, reusing
+`.toast-flame`'s flicker) before the next question fades in; the last
+question's confirm triggers a longer, more elaborate "spiritual
+reception" variant (`.divining-overlay--final`, with an early, dimmer
+preview of the `seal-of-completion.svg` motif) that gates the real
+diagnosis request underneath it, so navigation to the result never comes
+before both the animation's minimum duration and the real fetch have
+resolved. Back is unaffected — still a single, immediate click.
 
 **Table**, also listed in the brand doc's v1 scope ("likely used for
 behavior-analysis data — keep the most restrained/legible part of the
