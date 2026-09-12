@@ -947,9 +947,8 @@ diagnosis identities map onto them 1:1.
   any deploy. Deployed anyway via the standard step-12 pipeline for
   consistency, confirmed `active (running)` with clean logs post-restart.
 
-## Phase 18 — Quiz confirm-and-divine interaction — **proposed, pending approval**
-Requested 2026-09-12. Not yet approved — do not start any item below
-without an explicit go-ahead.
+## Phase 18 — Quiz confirm-and-divine interaction — **done**
+Requested and implemented 2026-09-12 ("go ahead, implement phase 18").
 
 **Current behavior, for contrast** (`src/app/cats/[id]/quiz/QuizFlow.tsx`):
 a single click on an option selects it (today's highlighted look — gold
@@ -1024,23 +1023,23 @@ requirements — mirrored into `--duration-divination`/
 `QuizFlow.tsx`.
 
 **Execution steps:**
-- [ ] Add a `confirmed` state to `QuizFlow.tsx`'s per-question selection
+- [x] Add a `confirmed` state to `QuizFlow.tsx`'s per-question selection
       tracking (`idle` -> `selected` -> `confirmed`, keyed per question id
       the same way `answers` is today).
-- [ ] Wire the click handler: first click on an option sets `selected`;
+- [x] Wire the click handler: first click on an option sets `selected`;
       second click on that same, already-`selected` option sets
       `confirmed` and triggers the appropriate transition (mid-quiz
       divining, or the final reception moment on the last question); a
       click on a different option while in `selected` (not yet `confirmed`)
       re-selects instead.
-- [ ] Add the third (`confirmed`) visual state to the option card —
+- [x] Add the third (`confirmed`) visual state to the option card —
       building on today's existing gold/glow language, not introducing new
       colors, per this project's brand-token discipline
       (`docs/design/purrification-brand-guidelines.md`).
-- [ ] Build the mid-quiz divining transition component/overlay
+- [x] Build the mid-quiz divining transition component/overlay
       (candle-flare + fog drift + a rotating "processing" flavor line),
       driven by `--duration-divination`, that then advances `step`.
-- [ ] Build the separate, more elaborate final reception moment (fuller
+- [x] Build the separate, more elaborate final reception moment (fuller
       fog/candle treatment, an early appearance of the
       `seal-of-completion.svg` motif, "gathering/receiving" flavor copy
       distinct from the mid-quiz lines) driven by
@@ -1050,41 +1049,82 @@ requirements — mirrored into `--duration-divination`/
       (whichever is longer); on a failed fetch, fall back to today's
       `showToast` error handling rather than stranding the user
       mid-animation.
-- [ ] Add a `prefers-reduced-motion: reduce` treatment for both new
+- [x] Add a `prefers-reduced-motion: reduce` treatment for both new
       animations, matching every other animation in `globals.css`.
-- [ ] Add the two new duration tokens to `docs/design/design-tokens.json`
+- [x] Add the two new duration tokens to `docs/design/design-tokens.json`
       and mirror them into `globals.css`.
-- [ ] Update `docs/design-system.md`'s component inventory / `QuizFlow`
+- [x] Update `docs/design-system.md`'s component inventory / `QuizFlow`
       description for the new two-click-confirm interaction and the two
       distinct transition moments.
 
 **Testable deliverables:**
-- [ ] A single click on an option shows exactly today's existing
+- [x] A single click on an option shows exactly today's existing
       selected/highlighted look; no automatic advance.
-- [ ] A second click on that same, already-selected option visibly changes
+- [x] A second click on that same, already-selected option visibly changes
       its appearance again, then (mid-quiz) the divining animation plays
       and the next question appears, or (last question) the longer
       reception moment plays and the diagnosis result appears — with no
       separate "Next"/"Get diagnosis" click remaining in either case.
-- [ ] The final reception moment is visibly more elaborate and longer than
+- [x] The final reception moment is visibly more elaborate and longer than
       the mid-quiz divining moment, not a reuse of the same animation at
       the same length.
-- [ ] Clicking a different option after the first click re-selects rather
+- [x] Clicking a different option after the first click re-selects rather
       than confirming.
-- [ ] Back is unchanged: single click, immediate, no animation, still
+- [x] Back is unchanged: single click, immediate, no animation, still
       disabled only on question 1 (and, as today, during any
       submission-in-flight state).
-- [ ] A slow (artificially delayed) `POST /api/cats/:id/quiz` response
+- [x] A slow (artificially delayed) `POST /api/cats/:id/quiz` response
       never cuts the final reception moment short; a fast response never
       skips it either — navigation always waits for both.
-- [ ] A failed submission during the final reception moment surfaces
+- [x] A failed submission during the final reception moment surfaces
       today's error toast and returns the user to the last question,
       rather than leaving them stuck mid-animation.
-- [ ] Both animations' durations come from named tokens, not hardcoded
+- [x] Both animations' durations come from named tokens, not hardcoded
       literals in the component.
-- [ ] `prefers-reduced-motion: reduce` shortens/removes both new animations
+- [x] `prefers-reduced-motion: reduce` shortens/removes both new animations
       the same way every other motion in this app does.
-- [ ] `npm run build` and `npm run lint` both pass.
+- [x] `npm run build` and `npm run lint` both pass.
+
+### Execution log — 2026-09-12
+- Implementation landed in `QuizFlow.tsx` mostly as planned, with the
+  submit function renamed `receiveDiagnosis` (from the plan's
+  `handleSubmit`) since it now always runs inside the final-question
+  transition, never triggered independently by a separate button.
+- Added `motion.duration.divination`/`divinationFinal` to
+  `docs/design/design-tokens.json` and mirrored them into
+  `globals.css`'s `--duration-divination`/`--duration-divination-final`
+  (and matching `DIVINATION_MS`/`DIVINATION_FINAL_MS` constants in
+  `QuizFlow.tsx`, cross-referenced by comment on both sides).
+- `.divining-overlay`/`--final` reuse `.toast-flame`'s existing flicker
+  animation rather than a new one; the final variant adds a dim,
+  early-preview appearance of `seal-of-completion.svg` and a fuller
+  two-gradient glow. Both get `prefers-reduced-motion: reduce` overrides
+  matching every other animation in `globals.css`.
+- `npm run lint` initially caught a real bug: storing the random flavor
+  line in a `useRef` and reading `.current` during render violates the
+  `react-hooks/refs` rule (a ref read during render isn't guaranteed to
+  reflect the latest value and won't trigger a re-render) — switched to
+  `useState` instead, which is what the value being displayed actually
+  needed.
+- `npm run build`/`npm run lint` both pass clean.
+- Functional (non-visual) verification only, per `CLAUDE.md`'s standing
+  note that no headless browser exists in this sandbox: a real signup →
+  cat → fetch of `/cats/:id/quiz` confirmed the rendered page shows the
+  new "Tap an answer, then tap it again to confirm." hint and the answer
+  options, and confirmed neither a "Next" nor a "Get diagnosis" button
+  string appears anywhere in the markup anymore (both fully replaced by
+  the click-to-confirm gesture); the `divining-overlay` markup is
+  correctly absent from the initial server-rendered page (it only mounts
+  client-side once a click confirms an answer). **The actual two-click
+  gesture, the timed transitions, and the final request-gating behavior
+  are client-side interactive logic that curl cannot exercise** — these
+  were verified by code review of the state machine (the `selected`/
+  `confirmed`/`transition` transitions in `QuizFlow.tsx`) rather than an
+  observed live click-through. A manual check via `npm run dev` (+ the
+  SSH tunnel) is recommended before treating this as fully confirmed live.
+- Shipped via PR, merged to `main`; deployed via the standard step-12
+  pipeline (no schema/content changes this time — pure app-code + two doc
+  updates — so `prisma migrate deploy`/`db:seed-content` both no-op).
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,

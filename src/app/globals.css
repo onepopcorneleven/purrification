@@ -139,6 +139,16 @@
      element at a time (a selected quiz-option card, the wordmark on
      first paint), never ambient. */
   --animate-glow-pulse: glow-pulse 2400ms ease-in-out infinite;
+
+  /* Phase 18 (workplan.md): the quiz's confirm-and-divine transitions — a
+     one-shot themed pause between a confirmed answer and the next
+     question (divination) or the final diagnosis (divinationFinal, the
+     longer "spiritual reception" moment). QuizFlow.tsx mirrors these same
+     millisecond values into its own DIVINATION_MS/DIVINATION_FINAL_MS
+     constants (it needs numbers to drive a JS timer, not just a CSS
+     duration) — keep both in sync if either changes. */
+  --duration-divination: 3000ms;
+  --duration-divination-final: 5000ms;
 }
 
 @keyframes fade-in {
@@ -364,6 +374,87 @@
 .nav-link:hover::after,
 .nav-link:focus-visible::after {
   right: 0;
+}
+
+/*
+ * Phase 18 (workplan.md) — the quiz's confirm-and-divine transitions.
+ * `.divining-overlay` is the one-shot themed pause `QuizFlow.tsx` swaps in
+ * for a confirmed answer's mid-quiz "divining" beat; `--final` is the
+ * longer, more elaborate variant for the last question's "spiritual
+ * reception" moment (a fuller glow plus an early, dimmer preview of the
+ * `seal-of-completion.svg` motif that later stamps the actual result). Both
+ * reuse `.toast-flame`'s flicker rather than inventing a new flame
+ * animation.
+ */
+.divining-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.divining-overlay::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    circle,
+    rgba(212, 175, 55, 0.14),
+    transparent 60%
+  );
+  filter: blur(24px);
+  animation: divining-glow 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.divining-overlay--final::before {
+  background:
+    radial-gradient(circle, rgba(212, 175, 55, 0.2), transparent 55%),
+    radial-gradient(circle, rgba(122, 32, 72, 0.22), transparent 60%);
+}
+
+@keyframes divining-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .divining-overlay::before {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+.divining-flame--final {
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.6));
+}
+
+.divining-seal-preview {
+  opacity: 0.85;
+  animation: divining-seal-in 900ms cubic-bezier(0.19, 1, 0.22, 1) both;
+  animation-delay: 300ms;
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.45));
+}
+
+@keyframes divining-seal-in {
+  0% {
+    opacity: 0;
+    transform: scale(1.4) rotate(-14deg);
+  }
+  100% {
+    opacity: 0.85;
+    transform: scale(1) rotate(-8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .divining-seal-preview {
+    animation: none;
+    transform: rotate(-8deg);
+  }
 }
 
 html {
