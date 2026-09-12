@@ -731,13 +731,21 @@ is edited later, the same live-content behavior `imagePath` already has).
   its quiz attempt/diagnosis). Both pages returned 200 with correct
   content and no broken image reference.
 - `npm run build` and `npm run lint` both passed clean.
-- Shipped via PR (see below), merged to `main`. Not yet deployed to
-  production as part of this session — the migration/reseed above were
-  already applied directly against the shared VPS database (this project's
-  only Postgres instance, per `CLAUDE.md`), so the next regular deploy's
-  `prisma migrate deploy`/`db:seed-content` steps will correctly no-op
-  against this phase's changes; it only needs `npm run build` +
-  `systemctl restart` to pick up the updated `results`/`share` page code.
+- Shipped via PR #27, merged to `main`. Deployed the same session via the
+  standard step-12 repeat-deploy script (`git pull` → `npm ci` → `npm run
+  build` → static-asset copy → `prisma migrate deploy` — reported "No
+  pending migrations to apply", correctly a no-op since the migration was
+  already applied directly during testing — → `db:seed-content` —
+  idempotent re-confirmation, same pre-existing stale-placeholder warnings
+  as every prior reseed — → `sudo systemctl restart purrification`). This
+  closed a real window where production's DB schema (already migrated
+  during testing, since dev/prod share one Postgres instance) had briefly
+  outrun the still-running old code that queried the now-dropped
+  `imagePath` column.
+- Live verification: `systemctl status` showed `active (running)`
+  immediately post-restart; `journalctl` since the restart showed a clean
+  startup with no errors; `https://purrification.com/` returned `200`
+  (following its `307` HTTP→HTTPS redirect).
 
 ## Phase 16 — Content-model id integrity fix — **done**
 Full plan: `board/content-id-integrity-fix.md` (gitignored, local planning
