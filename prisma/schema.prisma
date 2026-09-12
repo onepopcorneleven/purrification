@@ -29,6 +29,8 @@ model Cat {
   traits       Json?
   quizAttempts QuizAttempt[]
   createdAt    DateTime      @default(now())
+
+  @@index([userId])
 }
 
 model QuizAttempt {
@@ -46,6 +48,8 @@ model QuizAttempt {
   // Diagnosis is expected."
   diagnosis Diagnosis?
   createdAt DateTime   @default(now())
+
+  @@index([catId])
 }
 
 model Diagnosis {
@@ -74,6 +78,10 @@ model Diagnosis {
   ritualText        String
   shareSlug         String       @unique @default(cuid())
   createdAt         DateTime     @default(now())
+
+  @@index([diagnosisDefId])
+  @@index([treatmentId])
+  @@index([ritualId])
 }
 
 // ---------------------------------------------------------------------------
@@ -117,6 +125,8 @@ model Question {
   isActive       Boolean           @default(true)
   answers        AnswerOption[]
   createdAt      DateTime          @default(now())
+
+  @@index([topicId])
 }
 
 model AnswerOption {
@@ -128,6 +138,8 @@ model AnswerOption {
   sortOrder     Int
   tagEffects    AnswerOptionTagEffect[]
   createdAt     DateTime                @default(now())
+
+  @@index([questionId])
 }
 
 // Relational tag_effects map, not Json — see content-storage-architecture.md §4.
@@ -139,6 +151,9 @@ model AnswerOptionTagEffect {
   weight         Int
 
   @@id([answerOptionId, tagId])
+  // answerOptionId lookups already use the composite PK's leftmost-column
+  // prefix; tagId alone needs its own index for the reverse direction.
+  @@index([tagId])
 }
 
 model Treatment {
@@ -185,6 +200,10 @@ model DiagnosisDefTreatment {
 
   @@id([diagnosisDefId, treatmentId])
   @@unique([diagnosisDefId, sortOrder])
+  // diagnosisDefId lookups already use the composite PK's leftmost-column
+  // prefix (and the unique index above); treatmentId alone needs its own
+  // index for the reverse direction.
+  @@index([treatmentId])
 }
 
 model Ritual {
@@ -202,4 +221,6 @@ model Ritual {
   isActive             Boolean     @default(true)
   results              Diagnosis[]
   createdAt            DateTime    @default(now())
+
+  @@index([parentTreatmentId])
 }
