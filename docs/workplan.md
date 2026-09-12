@@ -687,11 +687,11 @@ is edited later, the same live-content behavior `imagePath` already has).
       JSON and reseeding again collapses it back to one.
 - [ ] `npm run build` and `npm run lint` both pass.
 
-## Phase 16 — Content-model id integrity fix — **proposed, pending approval**
-Not yet approved — do not start without an explicit go-ahead. Full plan:
-`board/content-id-integrity-fix.md` (gitignored, local planning board per
-`board/README.md` — this section is a self-contained summary since that
-file doesn't travel with the repo).
+## Phase 16 — Content-model id integrity fix — **done**
+Full plan: `board/content-id-integrity-fix.md` (gitignored, local planning
+board per `board/README.md` — this section is a self-contained summary
+since that file doesn't travel with the repo). Implemented, deployed, and
+verified live 2026-09-12 — see the Execution log below.
 
 **Bug found post-Phase-14-deploy:** 18 of the 20 live quiz questions render
 with zero selectable answers — a user starting the quiz gets stuck on
@@ -727,24 +727,55 @@ defense-in-depth, repair the live data (delete the 5 corrupted
 `AnswerOption`, unlike its `Restrict`-protected FKs into
 `DiagnosisDef`/`Treatment`/`Ritual`), and add the missing `@@index`
 declarations via one new migration.
-- [ ] Confirm the proposed solution with the user before starting — the
+- [x] Confirm the proposed solution with the user before starting — the
       board file's implementation instructions cover the exact sequence.
-- [ ] `prisma/seed/index.ts`: derive `AnswerOption.id` as
+- [x] `prisma/seed/index.ts`: derive `AnswerOption.id` as
       `${questionId}::${localId}`.
-- [ ] `prisma/seed/index.ts`: sync `AnswerOptionTagEffect` by
+- [x] `prisma/seed/index.ts`: sync `AnswerOptionTagEffect` by
       delete-then-recreate, not blind upsert.
-- [ ] `prisma/seed/index.ts`: add per-content-class id-uniqueness checks to
+- [x] `prisma/seed/index.ts`: add per-content-class id-uniqueness checks to
       `validate()`.
-- [ ] Repair live data: delete the 5 corrupted `AnswerOption` rows, reseed.
-- [ ] Add `@@index` for every unindexed FK column (see board file for the
+- [x] Repair live data: delete the 5 corrupted `AnswerOption` rows, reseed.
+- [x] Add `@@index` for every unindexed FK column (see board file for the
       full list); hand-write and apply the migration.
-- [ ] Update `docs/content/content-storage-architecture.md` and
+- [x] Update `docs/content/content-storage-architecture.md` and
       `CLAUDE.md` with the id-uniqueness-by-construction and
       delete-then-recreate rules as standing decisions.
-- [ ] Full 20-question quiz walk confirms every question has selectable
+- [x] Full 20-question quiz walk confirms every question has selectable
       answers; multi-path `getDiagnosis` smoke test (distinct answer
       combinations, not the single-path shortcut that missed this the
       first time) confirms correct tag totals and results.
+
+### Execution log — 2026-09-12
+- Implemented and unit-verified locally: negative test (temporarily
+  reintroduced duplicate question/answer ids) confirmed the new
+  `validate()` checks throw with clear messages before any DB write; real
+  content reseeded cleanly with the fixed pipeline.
+- Data repair applied directly against the live DB (via the standard SSH
+  tunnel): all 85 answers recreated under derived ids, verified 0
+  mismatches between each answer's DB tag effects and its source JSON; the
+  5 legacy corrupted rows (`a1`–`a5`) confirmed referenced by zero
+  historical `QuizAttempt` rows, then deleted.
+- Index migration applied and cross-checked: `prisma migrate diff` against
+  the schema change produced byte-identical `CREATE INDEX` statements to
+  the hand-written migration; all 10 expected indexes confirmed present via
+  `pg_indexes` post-apply.
+- Shipped via PR #24, merged to `main`; deployed through the standard
+  step-12 pipeline (build, `prisma migrate deploy` — index migration
+  already applied, correctly reported as a no-op — `npm run db:seed-content`
+  — idempotent re-confirmation, correctly reported as a no-op beyond the
+  expected pre-existing Phase 14 stale-placeholder warnings — then
+  `systemctl restart`).
+- Live verification: `journalctl` clean post-restart; homepage/`/login`
+  respond correctly; a real signup → add cat → fetch quiz page walk (via
+  authenticated curl, then cleaned up — test cat deleted after) confirmed
+  all 20 questions render their correct answer count (4 or 5, matching the
+  source content exactly) in the live rendered page, with derived ids
+  (`q_0NN::aN`) visible in the payload — not just the first question this
+  time. Multi-path `getDiagnosis` smoke test (4 distinct answer-index
+  combinations, not the flawed single-path shortcut that missed this bug
+  originally) produced correct, varying results with no totality-guard
+  errors.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
