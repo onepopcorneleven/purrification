@@ -8,7 +8,7 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–16 are all done and live in production at
+`docs/workplan.md` Phases 0–17 are all done and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
 deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
@@ -28,16 +28,21 @@ retired via `isActive: false`, never deleted), a content-model id-integrity
 fix (Phase 16: derived `AnswerOption` ids from `${questionId}::${localId}`
 instead of author-chosen short ids that collided across questions,
 delete-then-recreate `AnswerOptionTagEffect` syncing, id-uniqueness
-validation, FK indexes), and — as of the most recent work — a diagnosis
-image pool (Phase 15): `DiagnosisDef.imagePath` (one image per diagnosis)
-replaced by a one-to-many `DiagnosisDefImage` table, with
+validation, FK indexes), a diagnosis image pool (Phase 15):
+`DiagnosisDef.imagePath` (one image per diagnosis) replaced by a
+one-to-many `DiagnosisDefImage` table, with
 `pickStableImage(images, diagnosis.id)` (`src/lib/diagnosis/engine.ts`)
 picking one deterministically per result, so a result shows the same image
-on every reload and on its public share link. **No diagnosis currently has
-any images seeded** — Phase 14's content rewrite shipped without image
-assignments (see `workplan.md`'s Phase 17, still proposed/pending approval,
-for that gap); Phase 15 only changes the schema/engine shape, it doesn't
-populate any `image_paths`. A dedicated tone/content review pass and
+on every reload and on its public share link, and — as of the most recent
+work — real images for all 12 active diagnoses (Phase 17): one
+purpose-generated illustration per diagnosis in `public/images/diagnoses/`
+(via `codex exec`, same brand-doc prompt template and 4:5 aspect ratio as
+the original visual-richness pass), authored into
+`prisma/seed/content/diagnoses.json`'s `image_paths`. The 10 old
+placeholder-diagnosis images were kept, not deleted — 22 real historical
+`Diagnosis` rows still reference their now-retired `DiagnosisDef`s and
+would lose their result-page image if those files went away. A dedicated
+tone/content review pass and
 exhaustive multi-path smoke testing across all 12 diagnoses are still
 flagged as follow-up, not yet done — see
 `docs/content/content-storage-architecture.md` for the full schema/engine

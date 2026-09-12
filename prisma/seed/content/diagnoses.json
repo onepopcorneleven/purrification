@@ -1,6 +1,7 @@
 [
   {
     "id": "diag_separation_static",
+    "image_paths": ["separation-static.png"],
     "name_mystical": "Separation Static",
     "name_plain": "Anticipatory distress tied to a bonded human's departure",
     "priority": 1,
@@ -30,6 +31,7 @@
   },
   {
     "id": "diag_social_flooding",
+    "image_paths": ["social-flooding.png"],
     "name_mystical": "Social Flooding",
     "name_plain": "Overwhelm from excess social contact",
     "priority": 2,
@@ -58,6 +60,7 @@
   },
   {
     "id": "diag_boundary_erosion",
+    "image_paths": ["boundary-erosion.png"],
     "name_mystical": "Boundary Erosion",
     "name_plain": "Territorial insecurity from unclear household boundaries",
     "priority": 3,
@@ -87,6 +90,7 @@
   },
   {
     "id": "diag_threshold_vigil",
+    "image_paths": ["threshold-vigil.png"],
     "name_mystical": "Threshold Vigil",
     "name_plain": "Elevated watchfulness without active territorial defense",
     "priority": 4,
@@ -116,6 +120,7 @@
   },
   {
     "id": "diag_resource_vigilance",
+    "image_paths": ["resource-vigilance.png"],
     "name_mystical": "Resource Vigilance",
     "name_plain": "Guarding behavior around shared food, water, or litter access",
     "priority": 5,
@@ -142,6 +147,7 @@
   },
   {
     "id": "diag_quiet_static",
+    "image_paths": ["quiet-static.png"],
     "name_mystical": "Quiet Static",
     "name_plain": "Internalized stress expressed as withdrawal and overgrooming",
     "priority": 6,
@@ -168,6 +174,7 @@
   },
   {
     "id": "diag_rhythm_slip",
+    "image_paths": ["rhythm-slip.png"],
     "name_mystical": "Rhythm Slip",
     "name_plain": "Sleep and behavior disruption from an unstable daily schedule",
     "priority": 7,
@@ -194,6 +201,7 @@
   },
   {
     "id": "diag_nocturnal_unrest",
+    "image_paths": ["nocturnal-unrest.png"],
     "name_mystical": "Nocturnal Unrest",
     "name_plain": "Disproportionate nighttime activity independent of routine instability",
     "priority": 8,
@@ -223,6 +231,7 @@
   },
   {
     "id": "diag_vocal_overflow",
+    "image_paths": ["vocal-overflow.png"],
     "name_mystical": "Vocal Overflow",
     "name_plain": "Escalated vocalization used as a primary request channel",
     "priority": 9,
@@ -251,6 +260,7 @@
   },
   {
     "id": "diag_object_tethering",
+    "image_paths": ["object-tethering.png"],
     "name_mystical": "Object Tethering",
     "name_plain": "Strong reliance on a single object as a coping anchor",
     "priority": 10,
@@ -276,6 +286,7 @@
   },
   {
     "id": "diag_understimulation_drift",
+    "image_paths": ["understimulation-drift.png"],
     "name_mystical": "Understimulation Drift",
     "name_plain": "Behavioral overflow from insufficient active engagement",
     "priority": 11,
@@ -302,6 +313,7 @@
   },
   {
     "id": "diag_equilibrium",
+    "image_paths": ["equilibrium.png"],
     "name_mystical": "The Ordinary Day",
     "name_plain": "No significant imbalance detected",
     "priority": 12,
