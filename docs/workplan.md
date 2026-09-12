@@ -963,8 +963,11 @@ question 1 or while submitting.
 
 **Goal:** replace the select-then-click-"Next" flow with a two-click
 confirm gesture per question, followed by a short mystical "divining"
-transition before the next question (or the final diagnosis) appears.
-Back is explicitly untouched by this change.
+transition before the next question appears — and, on the last question, a
+longer, more dramatic "spiritual reception" variant of that same moment
+before the diagnosis appears, framed as the cat's answers gathering into
+one reading rather than a generic "processing" beat. Back is explicitly
+untouched by this change.
 
 **New interaction:**
 1. First click on an option selects it — today's existing highlighted look,
@@ -986,32 +989,39 @@ Back is explicitly untouched by this change.
 4. Back remains exactly as it is today: single click, immediate `step - 1`,
    no confirm gesture, no divining animation.
 
-**Open design question — needs a decision before/during implementation:**
-the last question's confirm today triggers a *real* API call
-(`handleSubmit`), whose latency is unpredictable, unlike every other
-step's transition (pure client-side state, no network). Two reasonable
-options:
-  - **(a)** Run the same fixed-length divining animation on the last
-    question too, and only navigate to `/results/[id]` once *both* the
-    animation and the real fetch have finished (whichever takes longer) —
-    keeps the pacing/feel consistent even on a slow request, but risks a
-    longer-than-3-second wait if the API is slow, with no separate
-    "still working" signal beyond the animation itself.
-  - **(b)** Keep the last-question submit visually distinct from the new
-    mid-quiz transitions — reuse today's "Consulting the cards…"
-    indeterminate-wait treatment for the real network call, and reserve
-    the new two-click/divining animation for the `N-1` mid-quiz
-    transitions only.
-This document doesn't resolve that question; it needs an explicit choice
-before implementation.
+**Resolved: the last question gets its own, more dramatic "spiritual
+reception" moment**, not just a reuse of the mid-quiz divining transition.
+Confirming the final answer plays a longer, more elaborate version of the
+same divining language — the mid-quiz moment is a quick beat between
+questions; this one is the culmination, framed as summoning/receiving the
+diagnosis from everything just answered, not just "processing." Concretely:
+  - A distinct, longer animation/overlay than the per-question one — more
+    layers (e.g. multiple candle flames, a fuller fog bloom, the existing
+    `seal-of-completion.svg` motif making an early appearance rather than
+    only on the result page), and its own longer duration token (see
+    below) rather than reusing the mid-quiz one at the same length.
+  - Its copy leans into "gathering/receiving" rather than "processing" —
+    e.g. "Your cat's answers are gathering into a single reading…",
+    "The reading is arriving…" — distinct from the mid-quiz "Reading the
+    signs…"/"The cards are turning…" lines.
+  - This moment still gates the real `POST /api/cats/:id/quiz` call
+    underneath it: navigation to `/results/[id]` waits for *both* the
+    animation's minimum duration and the real fetch to finish (whichever
+    is longer), so a slow request never cuts the moment short, and a fast
+    one never feels rushed. If the request fails, fall back to today's
+    error-toast behavior (`showToast(...)`) and let the user retry from the
+    last question rather than stranding them mid-animation.
 
-**Duration is a token, not a hardcoded literal:** `docs/design/
-design-tokens.json`'s `motion.duration` currently tops out at
-`slow: "450ms"` — add a new entry (e.g. `motion.duration.divination:
-"3000ms"`, the ~3s figure being a starting default, not a requirement)
-mirrored into a new `--duration-divination` CSS custom property in
-`globals.css`'s `@theme` block, so the actual pause length lives in one
-place, not inline in `QuizFlow.tsx`.
+**Durations are tokens, not hardcoded literals — two of them:**
+`docs/design/design-tokens.json`'s `motion.duration` currently tops out at
+`slow: "450ms"` — add two new entries: `motion.duration.divination:
+"3000ms"` (the mid-quiz, between-questions moment) and
+`motion.duration.divinationFinal: "5000ms"` (the longer, more elaborate
+final "spiritual reception" moment) — both starting defaults, not
+requirements — mirrored into `--duration-divination`/
+`--duration-divination-final` CSS custom properties in `globals.css`'s
+`@theme` block, so both pause lengths live in one place, not inline in
+`QuizFlow.tsx`.
 
 **Execution steps:**
 - [ ] Add a `confirmed` state to `QuizFlow.tsx`'s per-question selection
@@ -1019,40 +1029,60 @@ place, not inline in `QuizFlow.tsx`.
       the same way `answers` is today).
 - [ ] Wire the click handler: first click on an option sets `selected`;
       second click on that same, already-`selected` option sets
-      `confirmed` and triggers the divining transition; a click on a
-      different option while in `selected` (not yet `confirmed`) re-selects
-      instead.
+      `confirmed` and triggers the appropriate transition (mid-quiz
+      divining, or the final reception moment on the last question); a
+      click on a different option while in `selected` (not yet `confirmed`)
+      re-selects instead.
 - [ ] Add the third (`confirmed`) visual state to the option card —
       building on today's existing gold/glow language, not introducing new
       colors, per this project's brand-token discipline
       (`docs/design/purrification-brand-guidelines.md`).
-- [ ] Build the divining transition component/overlay (candle-flare + fog
-      drift + rotating flavor line), driven by the new
-      `--duration-divination` token, that then advances `step` (or calls
-      `handleSubmit` on the last question, per the open question above).
-- [ ] Add a `prefers-reduced-motion: reduce` treatment for the new
-      animation, matching every other animation in `globals.css`.
-- [ ] Add the new `motion.duration.divination` token to
-      `docs/design/design-tokens.json` and mirror it into `globals.css`.
-- [ ] Resolve the last-question open question above.
+- [ ] Build the mid-quiz divining transition component/overlay
+      (candle-flare + fog drift + a rotating "processing" flavor line),
+      driven by `--duration-divination`, that then advances `step`.
+- [ ] Build the separate, more elaborate final reception moment (fuller
+      fog/candle treatment, an early appearance of the
+      `seal-of-completion.svg` motif, "gathering/receiving" flavor copy
+      distinct from the mid-quiz lines) driven by
+      `--duration-divination-final`, that calls `handleSubmit` underneath
+      itself and only navigates to `/results/[id]` once both the
+      animation's minimum duration and the real fetch have resolved
+      (whichever is longer); on a failed fetch, fall back to today's
+      `showToast` error handling rather than stranding the user
+      mid-animation.
+- [ ] Add a `prefers-reduced-motion: reduce` treatment for both new
+      animations, matching every other animation in `globals.css`.
+- [ ] Add the two new duration tokens to `docs/design/design-tokens.json`
+      and mirror them into `globals.css`.
 - [ ] Update `docs/design-system.md`'s component inventory / `QuizFlow`
-      description for the new two-click-confirm interaction.
+      description for the new two-click-confirm interaction and the two
+      distinct transition moments.
 
 **Testable deliverables:**
 - [ ] A single click on an option shows exactly today's existing
       selected/highlighted look; no automatic advance.
 - [ ] A second click on that same, already-selected option visibly changes
-      its appearance again, then the divining animation plays, then the
-      next question (or diagnosis result, per the resolved open question)
-      appears — with no separate "Next" click.
+      its appearance again, then (mid-quiz) the divining animation plays
+      and the next question appears, or (last question) the longer
+      reception moment plays and the diagnosis result appears — with no
+      separate "Next"/"Get diagnosis" click remaining in either case.
+- [ ] The final reception moment is visibly more elaborate and longer than
+      the mid-quiz divining moment, not a reuse of the same animation at
+      the same length.
 - [ ] Clicking a different option after the first click re-selects rather
       than confirming.
 - [ ] Back is unchanged: single click, immediate, no animation, still
       disabled only on question 1 (and, as today, during any
       submission-in-flight state).
-- [ ] The divining animation's duration comes from one named token, not a
-      hardcoded literal in the component.
-- [ ] `prefers-reduced-motion: reduce` shortens/removes the new animation
+- [ ] A slow (artificially delayed) `POST /api/cats/:id/quiz` response
+      never cuts the final reception moment short; a fast response never
+      skips it either — navigation always waits for both.
+- [ ] A failed submission during the final reception moment surfaces
+      today's error toast and returns the user to the last question,
+      rather than leaving them stuck mid-animation.
+- [ ] Both animations' durations come from named tokens, not hardcoded
+      literals in the component.
+- [ ] `prefers-reduced-motion: reduce` shortens/removes both new animations
       the same way every other motion in this app does.
 - [ ] `npm run build` and `npm run lint` both pass.
 
