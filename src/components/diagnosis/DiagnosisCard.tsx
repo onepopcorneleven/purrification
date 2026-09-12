@@ -7,10 +7,11 @@ type DiagnosisCardProps = {
   catName: string;
   diagnosisText: string;
   ritualText: string;
-  /** Filename under public/images/diagnoses/ — read directly from
-   * diagnosis.diagnosisDef.imagePath (R-CONTENT-5). Optional so the
-   * component still renders (purely typographic, as it always has) if a
-   * DiagnosisDef has no image set. */
+  /** Filename under public/images/diagnoses/ — picked via
+   * pickStableImage(diagnosis.diagnosisDef.images, diagnosis.id)
+   * (R-CONTENT-5, Phase 15). Optional so the component still renders
+   * (purely typographic, as it always has) if a DiagnosisDef has no images
+   * in its pool. */
   image?: string;
   /** Page-specific actions below the card (e.g. a share link) — the
    * logged-in results page and the public share page pass different

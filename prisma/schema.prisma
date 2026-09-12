@@ -183,11 +183,25 @@ model DiagnosisDef {
   descriptionSlots    String[] // every {slot} used in descriptionTemplate; validated like Ritual.personalizationSlots
   symptomCallbackPool String[]
   isCatchAll          Boolean                 @default(false) // exactly one active row — totality guarantee
-  imagePath           String? // R-CONTENT-5: replaces getDiagnosisImage's text-equality lookup
   isActive            Boolean                 @default(true)
   linkedTreatments    DiagnosisDefTreatment[]
+  images              DiagnosisDefImage[] // R-CONTENT-5 pool: pickStableImage(images, diagnosis.id) picks one per result (Phase 15)
   results             Diagnosis[]
   createdAt           DateTime                @default(now())
+}
+
+// Ordered pool of candidate images for a DiagnosisDef — no independent
+// isActive/lifecycle, same shape as DiagnosisDefTreatment below. A result's
+// image is picked deterministically from this list by pickStableImage
+// (engine.ts), seeded on the Diagnosis row's own id, so a given result shows
+// the same image on every reload/share view.
+model DiagnosisDefImage {
+  diagnosisDefId String
+  diagnosisDef   DiagnosisDef @relation(fields: [diagnosisDefId], references: [id])
+  path           String
+  sortOrder      Int
+
+  @@id([diagnosisDefId, sortOrder])
 }
 
 // Ordered linked_treatments — sortOrder 0 is the default.

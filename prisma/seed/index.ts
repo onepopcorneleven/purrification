@@ -70,7 +70,7 @@ interface RawDiagnosisDef {
   description_slots: string[];
   symptom_callback_pool: string[];
   is_catch_all: boolean;
-  image_path: string | null;
+  image_paths?: string[];
   linked_treatments: string[];
 }
 interface RawRitual {
@@ -427,7 +427,6 @@ async function upsertContent(): Promise<void> {
         descriptionSlots: d.description_slots,
         symptomCallbackPool: d.symptom_callback_pool,
         isCatchAll: d.is_catch_all,
-        imagePath: d.image_path,
       },
       update: {
         nameMystical: d.name_mystical,
@@ -439,9 +438,26 @@ async function upsertContent(): Promise<void> {
         descriptionSlots: d.description_slots,
         symptomCallbackPool: d.symptom_callback_pool,
         isCatchAll: d.is_catch_all,
-        imagePath: d.image_path,
       },
     });
+    // DiagnosisDefImage rows have no identity of their own outside this
+    // array (like AnswerOptionTagEffect above) — delete-then-recreate per
+    // diagnosisDefId rather than a bare upsert loop, so a shortened
+    // image_paths list actually drops the trailing rows instead of leaving
+    // them behind (content-storage-architecture.md §8).
+    await prisma.diagnosisDefImage.deleteMany({
+      where: { diagnosisDefId: d.id },
+    });
+    const imagePaths = d.image_paths ?? [];
+    if (imagePaths.length > 0) {
+      await prisma.diagnosisDefImage.createMany({
+        data: imagePaths.map((path, i) => ({
+          diagnosisDefId: d.id,
+          path,
+          sortOrder: i,
+        })),
+      });
+    }
     for (let i = 0; i < d.linked_treatments.length; i++) {
       await prisma.diagnosisDefTreatment.upsert({
         where: {

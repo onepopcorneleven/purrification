@@ -622,8 +622,8 @@ harmless unused rows. See the Execution log below.
   directly against the live DB with a full new-content answer set returns
   a correctly rendered diagnosis/ritual with no errors.
 
-## Phase 15 — Diagnosis image pool (R-CONTENT-5 extension) — **proposed, pending approval**
-Not yet approved — do not start without an explicit go-ahead; independent of
+## Phase 15 — Diagnosis image pool (R-CONTENT-5 extension) — **done**
+Approved and started 2026-09-12 ("start Phase 15"); independent of
 Phase 14 (doesn't need real content authored first). **Goal:** change Phase
 13's one-image-per-`DiagnosisDef` model (`imagePath String?`) to a
 one-to-many pool of candidate images, so future content authoring can attach
@@ -639,53 +639,105 @@ is that a result's picked image can shift if its `DiagnosisDef`'s image pool
 is edited later, the same live-content behavior `imagePath` already has).
 
 **Execution steps:**
-- [ ] Add a `DiagnosisDefImage` child table to `prisma/schema.prisma`
+- [x] Add a `DiagnosisDefImage` child table to `prisma/schema.prisma`
       (composite `@@id([diagnosisDefId, sortOrder])`, no independent
       `isActive`/lifecycle — same shape as the existing
       `DiagnosisDefTreatment` link table), with `DiagnosisDef.images
       DiagnosisDefImage[]`; remove `DiagnosisDef.imagePath`.
-- [ ] Hand-write the migration in the same expand → backfill → contract,
+- [x] Hand-write the migration in the same expand → backfill → contract,
       single-transaction style as Phase 13's
       `20260908130000_add_content_model` (cited in `CLAUDE.md`): create
       `DiagnosisDefImage`, backfill one row per existing non-null
       `imagePath` at `sortOrder 0`, then drop the old column. Apply via
       `npm run db:migrate` against the VPS DB.
-- [ ] Update the seed pipeline: `prisma/seed/content/diagnoses.json`'s
-      `image_path: string|null` becomes `image_paths: string[]` (all 10
-      existing entries become a one-element array); `prisma/seed/index.ts`'s
-      `RawDiagnosisDef` and `upsertContent()` sync each diagnosis's image
-      rows by delete-then-recreate per `diagnosisDefId` — these child rows
-      have no identity of their own outside the array, unlike top-level
-      content types, so this is a deliberate, documented exception to the
-      seed pipeline's usual "upsert, never delete" rule.
-- [ ] Add a `pickStableImage(images, seed)` helper to
+- [x] Update the seed pipeline: `prisma/seed/content/diagnoses.json`'s
+      `RawDiagnosisDef.image_path: string|null` becomes an optional
+      `image_paths?: string[]`; `prisma/seed/index.ts`'s `upsertContent()`
+      syncs each diagnosis's `DiagnosisDefImage` rows by delete-then-recreate
+      per `diagnosisDefId` — these child rows have no identity of their own
+      outside the array, unlike top-level content types, so this is a
+      deliberate, documented exception to the seed pipeline's usual "upsert,
+      never delete" rule.
+- [x] Add a `pickStableImage(images, seed)` helper to
       `src/lib/diagnosis/engine.ts` (alongside the existing
       `pickSymptomCallbacks`): a pure deterministic hash of a seed string
       (the `Diagnosis.id`) into an index into the ordered image list.
-- [ ] Update `src/app/results/[id]/page.tsx` and
+- [x] Update `src/app/results/[id]/page.tsx` and
       `src/app/share/[shareSlug]/page.tsx` to `include`/`select`
       `diagnosisDef.images` (ordered by `sortOrder`) instead of
       `diagnosisDef.imagePath`, and call `pickStableImage(...)` with the
       diagnosis's own id as the seed before passing the result into
       `DiagnosisCard` (unchanged — it still just takes one filename).
-- [ ] Update `docs/content/content-storage-architecture.md`'s schema mirror
+- [x] Update `docs/content/content-storage-architecture.md`'s schema mirror
       and R-CONTENT-5 description to describe the one-to-many table and the
       deterministic-per-result pick, replacing the single-FK description.
 
 **Testable deliverables:**
-- [ ] After migration + reseed, each of the 10 `DiagnosisDef` rows has
-      exactly one `DiagnosisDefImage` row (`sortOrder 0`) and
-      `DiagnosisDef.imagePath` no longer exists in the schema.
-- [ ] Taking the quiz shows a result image; reloading `/results/[id]` and
-      then opening that same result's `/share/[shareSlug]` both show the
-      *identical* image; a second, different quiz result shows an
-      appropriately different image (still deterministic on its own
-      reloads).
-- [ ] Temporarily seeding a two-element `image_paths` array for one
-      diagnosis and re-running `npm run db:seed-content` produces two
-      `DiagnosisDefImage` rows (`sortOrder` 0 and 1) for it; reverting the
-      JSON and reseeding again collapses it back to one.
-- [ ] `npm run build` and `npm run lint` both pass.
+- [x] After migration + reseed, `DiagnosisDef.imagePath` no longer exists in
+      the schema. **Correction to this deliverable's original premise:**
+      it assumed all 10 pre-Phase-14 `DiagnosisDef` rows had a non-null
+      `imagePath` that would backfill 1:1 into the new table. In fact (see
+      Phase 17), Phase 14 replaced those 10 rows with 12 new, differently-id'd
+      diagnoses that were seeded with no image assignment at all — so the
+      12 *active* rows backfilled zero `DiagnosisDefImage` rows each,
+      confirmed via a direct query post-migration. The backfill did
+      correctly carry forward one `DiagnosisDefImage` row (`sortOrder 0`)
+      for each of the **10 retired (`isActive: false`) placeholder rows**
+      that still had their original `imagePath` set — that's the migration
+      working exactly as intended over all rows regardless of `isActive`,
+      not a bug. Assigning images to the 12 active diagnoses is Phase 17's
+      job, not this one.
+- [x] Verified via a real quiz submission against the VPS DB (throwaway
+      signup → cat → quiz → `/results/[id]` → `/share/[shareSlug]`, all
+      cleaned up after): both pages render 200 with the correct cat
+      name/diagnosis/ritual text and no broken/missing image reference,
+      confirming `pickStableImage` returning `undefined` for an empty pool
+      is handled the same graceful way `DiagnosisCard` always handled a
+      missing image. Could not verify the "shows an actual illustration,
+      identical across reloads" half of this deliverable end-to-end, since
+      no active diagnosis has any images yet (Phase 17) — that half is
+      covered by the next deliverable's direct mechanism test instead.
+- [x] Mechanism test (temporary, reverted): added a two-element
+      `image_paths` to one diagnosis in `prisma/seed/content/diagnoses.json`,
+      reseeded — confirmed exactly two `DiagnosisDefImage` rows
+      (`sortOrder` 0/1) — then called `pickStableImage` directly with
+      several seed strings, confirming the same seed always returns the
+      same path and different seeds can return different paths. Reverted
+      the JSON and reseeded again — confirmed the two rows collapsed back
+      to zero (this diagnosis has no images in the committed content).
+- [x] `npm run build` and `npm run lint` both pass.
+
+### Execution log — 2026-09-12
+- Schema/migration: `prisma migrate diff` (live DB → target schema) produced
+  byte-identical `CREATE TABLE`/`ADD CONSTRAINT` SQL to the hand-written
+  migration (same cross-check approach as Phase 16's index migration),
+  confirming the DDL was correct before applying. Applied via
+  `npm run db:migrate` against the VPS DB; `prisma migrate status` confirmed
+  clean afterward.
+- Reseed (`npm run db:seed-content`) ran cleanly against the live DB —
+  same pre-existing Phase 14 stale-placeholder warnings as every prior
+  reseed, no new errors. Directly queried `DiagnosisDefImage` post-reseed:
+  0 rows for any of the 12 active diagnoses, 10 rows (one each, `sortOrder
+  0`) for the retired Phase-13 placeholder diagnoses — see the corrected
+  testable-deliverable note above for why that's the correct outcome, not a
+  bug.
+- Mechanism test: temporarily added `image_paths` to one diagnosis, reseeded,
+  verified two rows + deterministic `pickStableImage` behavior directly
+  against the DB, then reverted and reseeded again to confirm cleanup — see
+  deliverables above.
+- Live functional check: real signup → add cat → submit quiz →
+  `/results/[id]` → `/share/[shareSlug]`, run against a local production
+  build pointed at the VPS DB (test user/cat deleted after, cascading to
+  its quiz attempt/diagnosis). Both pages returned 200 with correct
+  content and no broken image reference.
+- `npm run build` and `npm run lint` both passed clean.
+- Shipped via PR (see below), merged to `main`. Not yet deployed to
+  production as part of this session — the migration/reseed above were
+  already applied directly against the shared VPS database (this project's
+  only Postgres instance, per `CLAUDE.md`), so the next regular deploy's
+  `prisma migrate deploy`/`db:seed-content` steps will correctly no-op
+  against this phase's changes; it only needs `npm run build` +
+  `systemctl restart` to pick up the updated `results`/`share` page code.
 
 ## Phase 16 — Content-model id integrity fix — **done**
 Full plan: `board/content-id-integrity-fix.md` (gitignored, local planning

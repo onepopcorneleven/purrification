@@ -125,3 +125,22 @@ export function pickSymptomCallbacks(pool: string[], count = 2): string[] {
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, Math.min(count, pool.length));
 }
+
+/** Deterministically picks one image from a `DiagnosisDef`'s ordered image
+ * pool (Phase 15) — a pure hash of `seed` (the `Diagnosis` row's own id)
+ * into an index, so a given result shows the same image on every reload and
+ * every viewing of its public share link, without storing the pick anywhere.
+ * Unlike `pickSymptomCallbacks`, this must not use `Math.random()`. Returns
+ * undefined for an empty pool (a `DiagnosisDef` with no images yet). */
+export function pickStableImage(
+  images: string[],
+  seed: string,
+): string | undefined {
+  if (images.length === 0) return undefined;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+  }
+  const index = Math.abs(hash) % images.length;
+  return images[index];
+}

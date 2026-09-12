@@ -8,7 +8,7 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–14 are all done and live in production at
+`docs/workplan.md` Phases 0–16 are all done and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
 deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
@@ -20,17 +20,28 @@ unchanged, a nightly `pg_dump` backup job, a content tone review), the
 content storage foundation (quiz/diagnosis content moved from the static
 `src/content/*.ts` files, deleted, into PostgreSQL — `Tag`/`Question`/
 `DiagnosisDef`/`Treatment`/`Ritual`, seeded via `npm run db:seed-content` —
-with `getDiagnosis` rewritten as a DB-backed rule engine), and — as of the
-most recent work — the real content bank: Phase 13's placeholder content
-(5 questions/10 diagnoses) replaced with 17 tags, 5 topics, 20
-questions/85 answers, 10 treatments, 12 diagnoses (11 pattern-based + 1
-catch-all), 19 rituals. The old placeholder content rows are retired via
-`isActive: false` (never deleted — see the "Key decisions" note below on
-why), not deleted; a dedicated tone/content review pass and exhaustive
-multi-path smoke testing across all 12 diagnoses are flagged as follow-up,
-not yet done — see `docs/content/content-storage-architecture.md` for the
-full schema/engine spec, and `workplan.md`'s Phase 14 entry for the
-execution log.
+with `getDiagnosis` rewritten as a DB-backed rule engine), the real content
+bank (Phase 14: Phase 13's placeholder content — 5 questions/10 diagnoses —
+replaced with 17 tags, 5 topics, 20 questions/85 answers, 10 treatments, 12
+diagnoses (11 pattern-based + 1 catch-all), 19 rituals; old placeholder rows
+retired via `isActive: false`, never deleted), a content-model id-integrity
+fix (Phase 16: derived `AnswerOption` ids from `${questionId}::${localId}`
+instead of author-chosen short ids that collided across questions,
+delete-then-recreate `AnswerOptionTagEffect` syncing, id-uniqueness
+validation, FK indexes), and — as of the most recent work — a diagnosis
+image pool (Phase 15): `DiagnosisDef.imagePath` (one image per diagnosis)
+replaced by a one-to-many `DiagnosisDefImage` table, with
+`pickStableImage(images, diagnosis.id)` (`src/lib/diagnosis/engine.ts`)
+picking one deterministically per result, so a result shows the same image
+on every reload and on its public share link. **No diagnosis currently has
+any images seeded** — Phase 14's content rewrite shipped without image
+assignments (see `workplan.md`'s Phase 17, still proposed/pending approval,
+for that gap); Phase 15 only changes the schema/engine shape, it doesn't
+populate any `image_paths`. A dedicated tone/content review pass and
+exhaustive multi-path smoke testing across all 12 diagnoses are still
+flagged as follow-up, not yet done — see
+`docs/content/content-storage-architecture.md` for the full schema/engine
+spec, and `workplan.md`'s Phase 14/15/16 entries for each execution log.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
@@ -64,7 +75,7 @@ don't claim a visual check that didn't happen.
 - `src/components/diagnosis/` — `DiagnosisCard`, the one bespoke component (CSS Modules, not Tailwind utilities), shared by the results and share pages.
 - `src/generated/prisma/` — generated Prisma Client output, gitignored, never edit by hand.
 - `src/lib/db/client.ts` — the typed data-access entry point: a singleton `PrismaClient` (via the `@prisma/adapter-pg` driver adapter — Prisma 7's engine-less client requires an explicit driver adapter, not just a `DATABASE_URL`) cached on `globalThis` so Next.js dev-mode hot reload doesn't leak connections. Import `prisma` from here in API routes rather than instantiating `PrismaClient` directly.
-- `prisma/schema.prisma` — the data model, mirroring `docs/architecture.md`'s schema sketch: `User`, `Cat`, `QuizAttempt`, `Diagnosis` (with `shareSlug` and cascade deletes), plus the Phase 13 content model (`Tag`, `QuestionTopic`, `Question`, `AnswerOption`, `AnswerOptionTagEffect`, `Treatment`, `DiagnosisDef`, `DiagnosisDefTreatment`, `Ritual`) that `Diagnosis` now has FKs into — see `docs/content/content-storage-architecture.md` §7.
+- `prisma/schema.prisma` — the data model, mirroring `docs/architecture.md`'s schema sketch: `User`, `Cat`, `QuizAttempt`, `Diagnosis` (with `shareSlug` and cascade deletes), plus the Phase 13 content model (`Tag`, `QuestionTopic`, `Question`, `AnswerOption`, `AnswerOptionTagEffect`, `Treatment`, `DiagnosisDef`, `DiagnosisDefTreatment`, `Ritual`, and Phase 15's `DiagnosisDefImage`) that `Diagnosis` now has FKs into — see `docs/content/content-storage-architecture.md` §7.
 - `prisma/migrations/` — committed migration history; every migration is applied to the real (VPS) database — see above. The Phase 13 migration (`20260908130000_add_content_model`) is a real example of the expand→backfill→contract pattern this project uses for a NOT-NULL column added to a table with existing rows — read its header comment before writing another migration that touches a populated table.
 - `prisma/seed/` — the content authoring pipeline (Phase 13, `docs/content/content-storage-architecture.md` §8): `content/*.json` (one file per content class, holding Phase 14's real content bank, hand-edited for any future content change) and `index.ts` (validates then idempotently upserts them by stable id — run via `npm run db:seed-content`, using `tsx` since it runs outside Next.js).
 - `src/lib/diagnosis/engine.ts` — the DB-access-free derivation logic (tag accumulation, trigger-rule evaluation, severity banding, template rendering), imported by both `getDiagnosis.ts` (the runtime engine) and `prisma/seed/index.ts` (its `extractTemplateSlots` powers seed-time slot validation) — kept dependency-free of Prisma/DB access so both call sites can load their own content and reuse identical rule evaluation. `tsx` resolves the `@/*` path alias outside Next.js the same way `tsconfig.json` defines it, which is what makes this cross-context import work.
