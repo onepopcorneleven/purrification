@@ -159,6 +159,26 @@ export function QuizFlow({
                     type="radio"
                     name={question.id}
                     checked={isSelected}
+                    // Phase 18: a native radio only fires onChange when its
+                    // checked state actually flips — clicking an
+                    // already-checked radio again fires no change event at
+                    // all, in any browser, so the confirm gesture's second
+                    // click can never reach selectOption through onChange
+                    // alone (the bug this shipped with). onClick, on the
+                    // *input itself*, fires exactly once per real click
+                    // regardless of whether checked changed — verified
+                    // against jsdom's real click/label-activation event
+                    // model, not just reasoned about, since a first attempt
+                    // at this fix (onClick on the wrapping <label>) turned
+                    // out to double-fire per click: a label's default
+                    // click-activation behavior forwards a second, bubbling
+                    // click event to its associated control, so a listener
+                    // on the label itself catches both the original click
+                    // and that forwarded one. onChange is kept alongside as
+                    // a harmless, idempotent second path (see selectOption)
+                    // for any keyboard/assistive-tech flow that changes
+                    // `checked` without synthesizing a click.
+                    onClick={() => selectOption(option.id)}
                     onChange={() => selectOption(option.id)}
                     className="sr-only"
                   />

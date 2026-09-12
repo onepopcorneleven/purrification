@@ -1126,6 +1126,58 @@ requirements — mirrored into `--duration-divination`/
   pipeline (no schema/content changes this time — pure app-code + two doc
   updates — so `prisma migrate deploy`/`db:seed-content` both no-op).
 
+### Post-deploy fix — 2026-09-12 (same day)
+Live check by the user found the shipped version genuinely broken: "first
+tap on question highlights it (1:1 as before). second tap on same question
+changes nothing. stuck, can not activate an answer." This confirmed the
+execution log's own caveat above — the interactive click/confirm behavior
+had only been reasoned about via code review, never actually exercised.
+
+**Root cause:** the confirm click handler was wired to the `<input
+type="radio">`'s `onChange` — but a native radio input only fires `change`
+when its `checked` state actually flips. Clicking an *already-checked*
+radio a second time never flips `checked` and so never fires `change`, in
+any browser — the second (confirm) click was silently dropped every time.
+
+**First fix attempt found a second, worse bug before shipping:** moving
+the handler to `onClick` on the *wrapping `<label>`* seemed like an
+obvious fix (a label's click always fires, unlike a radio's change) — but
+verifying it with a real jsdom DOM-event reproduction (`label.click()`,
+not hand-dispatched synthetic events) showed the label's own click handler
+fires **twice** per physical click. A `<label>` wrapping a form control
+has a spec'd "activation behavior": clicking the label dispatches the
+original click event (which bubbles through the label), *and* forwards a
+second, separately-bubbling click event directly at the wrapped control —
+both reach a listener attached to the label itself. Applied to this
+component, that would have double-scheduled the divining transition (two
+competing `setTimeout`s silently skipping an extra question forward) or
+double-submitted the final diagnosis request.
+
+**Actual fix:** put the click handler on the `<input>` itself (`onClick`,
+alongside the existing `onChange`), not the label. A label's forwarded
+click lands directly on the input — exactly once per physical click,
+regardless of whether `checked` changes — so the input's own `onClick`
+listener never double-fires the way the label's did. `onChange` is kept
+alongside as a harmless, idempotent second path (verified: `selectOption`
+called twice in the same synchronous event with unchanged closure state
+is a no-op-equivalent double call) for any keyboard/assistive-tech flow
+that changes `checked` without synthesizing a click.
+
+**Verified with real jsdom DOM-event simulation** (not hand-asserted
+custom events) before re-shipping: reproduced the exact reported bug
+(`onChange`-only: 2 real clicks on the same radio -> exactly 1 `change`
+event, confirming the confirm click is dropped); reproduced the
+label-onClick regression (2 real clicks -> 4 handler firings, confirming
+the double-fire); confirmed the final `onClick`-on-the-input fix produces
+exactly one handler firing for the confirm click and every click after
+it, every time. Re-ran `npm run build`/`npm run lint` (clean) and the same
+curl-based page-render check as the original deploy (unaffected). The
+underlying limitation from the original execution log still applies —
+this sandbox has no headless browser, so this was the most rigorous
+verification available short of a real click-through; still recommend a
+manual check.
+- Fix shipped via a follow-up PR, merged to `main`, deployed the same way.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
