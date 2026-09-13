@@ -158,3 +158,12 @@ existing state machine or interaction logic:
   instruction — merging the PR and running the actual
   `purrification-deploy` restart was left for the user to trigger
   manually rather than done autonomously.
+- **Deploy confirmed 2026-09-13** (a later session checked, since the
+  above only recorded the PR as merged, not the VPS as redeployed): the
+  VPS checkout is at commit `4dbe557` (one commit past the Phase 22 merge
+  — the `/allimages` restore), `.next/BUILD_ID` and the systemd service's
+  start time are from the same day, and the live site serves the actual
+  Treatment/Topic images — confirmed both via direct
+  `/images/treatments/*.png` and `/images/topics/*.png` fetches (200) and
+  via the quiz page's embedded RSC payload carrying real `topicImage`
+  values (e.g. `sleep-rhythm.png`) for every topic.
