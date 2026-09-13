@@ -87,8 +87,22 @@ document turns that accepted design into an implementation plan.
 6. **No content-model / schema changes are needed.** The overview's
    teaser text is a truncated view of the already-stored, already-frozen
    `Diagnosis.diagnosisText` / `Diagnosis.ritualText` snapshot fields — no
-   new column, no new query beyond what `results/[id]` and
-   `share/[shareSlug]` already fetch.
+   new column. (This is narrower than "no query changes at all" — see
+   "Data loading and ownership checks" below for the one query that does
+   need to grow.)
+7. **Resolved (gap review, 2026-09-13): every new name shown in the UI is
+   `nameMystical`, never `namePlain`.** Both `DiagnosisDef` and `Treatment`
+   carry two name fields (`nameMystical`, `namePlain`), and this phase is
+   the first time either is shown in the product at all —
+   today's `DiagnosisCard` shows neither, only the rendered
+   `diagnosisText`/`ritualText` body copy. `nameMystical` is the one
+   written in-voice with the rest of the site's copy (and with the brand
+   doc's "antique fortune-teller machine" register this whole redesign is
+   built around); `namePlain` remains what it already is — internal
+   authoring/seed metadata, there so a human editing
+   `prisma/seed/content/*.json` can tell entries apart at a glance — and
+   stays unrendered. Every "Cinzel name" / "full diagnosis name" / "ritual
+   name" reference elsewhere in this document means `nameMystical`.
 
 ## Proposed page/route structure
 
@@ -131,6 +145,70 @@ own (consistent with how `Lightbox`/`TextLightbox` are overlays, not
 pages); it does not replace the overview, it sits in front of the history
 list as a faster preview.
 
+### Data loading and ownership checks
+
+**Resolved (gap review, 2026-09-13).** Splitting one page into three per
+route family multiplies the places the ownership check can be gotten
+wrong or forgotten — `results/[id]/page.tsx` today does that check inline
+(`diagnosis.quizAttempt.cat.userId !== user.id`, then `notFound()`), and
+that logic must not be re-typed three (or, counting the share family and
+the quick-view endpoint below, more) separate times.
+
+- Add `src/lib/diagnosis/loadOwnedDiagnosis.ts`, exporting a single pure
+  function `getOwnedDiagnosis(id: string, userId: string)` that runs the
+  `prisma.diagnosis.findUnique` with the full `include` the authenticated
+  routes need (`diagnosisDef` + its images, `treatment` + its images) and
+  returns the diagnosis only if `quizAttempt.cat.userId === userId`,
+  otherwise `null`. No `redirect`/`notFound` calls inside it — those are
+  Next.js page/layout-only behaviors, not safe to call from the route
+  handler this function will also be used from (see the quick-view
+  endpoint below) — callers decide what "not found" means for their
+  context.
+- `src/app/results/[id]/page.tsx`, `.../diagnosis/page.tsx`, and
+  `.../treatment/page.tsx` each call `getCurrentUser()` (redirecting to
+  `/login` if absent) then `getOwnedDiagnosis()` (calling `notFound()` if
+  it returns `null`) — three thin, identical wrappers around one shared
+  check, not three independent re-derivations of it.
+- Add the equivalent `src/lib/diagnosis/loadSharedDiagnosis.ts` for the
+  public family (`getSharedDiagnosis(shareSlug: string)`) — no ownership
+  check needed there by design (per `share/[shareSlug]/page.tsx`'s
+  existing comment), but still one shared, explicit field `select` used
+  by all three public routes instead of three hand-written selects
+  drifting apart from each other over time.
+- **`getSharedDiagnosis`'s `select` needs to grow by three fields it
+  doesn't fetch today**: `diagnosisDef.nameMystical` and
+  `treatment.{nameMystical, typicalDuration}` (needed by the public
+  `DiagnosisReveal`/`TreatmentReveal` full views — see "Component
+  changes" below). Today's `share/[shareSlug]/page.tsx` deliberately
+  `select`s a narrow allowlist rather than `include`ing full rows,
+  per its own comment ("only ever select diagnosis/ritual/cat-name/image
+  fields here; never the owning user's data"). Adding these three fields
+  is a deliberate, reviewed widening, not a casualty of refactoring: they
+  are content-table display copy, not user data, so they don't violate
+  that rule — but the allowlist should be extended explicitly, field by
+  field, rather than swapped for a blanket `include` (which would
+  silently start exposing every future column added to `DiagnosisDef`/
+  `Treatment`, including ones never meant for the public route).
+- **Resolved (gap review, 2026-09-13): `ReadingQuickView`'s data is
+  fetched on demand, not eagerly joined onto the history list.**
+  `CatHistoryPage`'s current query
+  (`prisma.quizAttempt.findMany({ include: { diagnosis: true } })`) has no
+  `treatment`/`diagnosisDef`/image relations at all, and `ReadingQuickView`
+  needs both. Joining all of that onto every row of what can be an
+  arbitrarily long history list, just so a modal opened for at most one
+  row at a time has data ready, is real, avoidable over-fetching. Instead:
+  add `GET /api/diagnoses/[id]/quick-view`, a small authenticated route
+  handler that calls `getOwnedDiagnosis()` above (returning a 404 JSON
+  body if it comes back `null`) and responds with only the condensed
+  fields `ReadingQuickView` renders (both `nameMystical`s, both truncated
+  teasers, both picked image paths) for that one diagnosis id — already
+  available as `attempt.diagnosis.id` from the history list's existing
+  query. `ReadingQuickView` fetches from it the moment its row's modal
+  opens, not on page load. The history list page itself keeps its current,
+  cheap query unchanged — it never needs treatment/diagnosisDef data of
+  its own, since each row's own always-visible summary already only shows
+  `attempt.diagnosis.diagnosisText`.
+
 ## Component changes
 
 - **Retire** `DiagnosisCard`'s combined rendering of diagnosis + treatment
@@ -159,6 +237,43 @@ list as a faster preview.
   once rather than duplicated at each of the (at least four) call sites.
   Should wrap `Expandable` internally the same way today's per-page markup
   does.
+  - **Resolved (gap review, 2026-09-13): decorative layering must not
+    steal `Expandable`'s hit target.** `Expandable` already layers one
+    full-`inset-0` transparent `<button>` over the image as its
+    click-to-expand target; `FramedImage` now layers a second set of
+    decorative elements (corner-flourish SVGs, the Portal's gradient
+    scrim, the Medallion's dashed ring/tick marks) over that same image.
+    Every one of those decorative elements gets `pointer-events-none`
+    (on top of the `aria-hidden="true"` they already need) so they can
+    sit visually above the image without ever intercepting a click meant
+    for `Expandable`'s button underneath. Worth stating explicitly:
+    `Expandable`'s own doc comment already records one closely-related
+    trap it hit once — wrapping the `<Image>` itself in a `<button>` broke
+    every site's per-image CSS — and `FramedImage` must not reintroduce a
+    variant of that same class of bug via its own new decorative markup.
+  - **Resolved (gap review, 2026-09-13): every call site tunes its own
+    `sizes`/dimensions — `FramedImage` must not hardcode one default.**
+    Phase 21 deliberately tuned a real `sizes` prop per image site
+    project-wide; `FramedImage` changes rendered size substantially per
+    variant and call site (112px quiz thumbnail → large Portal frame;
+    small overview Medallion thumbnail → large Treatment-reveal
+    Medallion hero), so `FramedImage` takes `sizes` (and `width`/`height`,
+    or an aspect-ratio box for the `fill` cases) as required props, not
+    internal constants, exactly as `Expandable` already requires callers
+    to size and frame their own `<Image>` children. Starting points to
+    verify against the design canvas's own artboards at implementation
+    time (none of these are load-bearing on this document — they're a
+    starting point, not a spec, since the canvas's own measurements are
+    the actual source of truth):
+    - **Portal** (quiz topic image, full question-card width): roughly
+      `sizes="(min-width: 640px) 480px, 100vw"`.
+    - **Tarot Reveal** (diagnosis full-view hero): roughly
+      `sizes="(min-width: 640px) 420px, 90vw"`.
+    - **Medallion, small** (overview thumbnail row): a fixed small circle,
+      roughly `sizes="72px"`.
+    - **Medallion, large** (treatment full-view hero): roughly
+      `sizes="(min-width: 640px) 240px, 60vw"`.
+    - **Lightbox/full-screen image**: unchanged, already `sizes="90vw"`.
 - **Fix `Lightbox`** (`src/components/ui/Lightbox.tsx`): add the
   persistent bottom action bar with a large (≥52px), labeled "Close"
   button — the actual bug fix — plus the drag-handle hint, the secondary
@@ -288,6 +403,19 @@ too hectic → this).
   `@media (prefers-reduced-motion: reduce)` discipline — every animated
   element gets a `reduce`-mode fallback to its static end-state, matching
   every other animation already in `globals.css`.
+- **Resolved (gap review, 2026-09-13): backfill `design-tokens.json`'s
+  missing `fog-drift`/`flame-flicker` entries while this section is
+  already touching that file.** `design-tokens.json`'s
+  `motion.patterns` today documents only `fadeIn`, `glowPulse`, and
+  `divination` — `fog-drift` (32s, `.hero-fog`/`.app-atmosphere`) and
+  `flame-flicker` (2100ms, already shipped on `Toast`'s flame glyph) both
+  exist in `globals.css` and are being reused as-is (not invented) by
+  this phase, but were never added to the token doc when they first
+  shipped. Since this phase already edits `design-tokens.json` for the
+  `glowPulse` retune, add `fogDrift` and `flameFlicker` entries in the
+  same edit, described in the same one-line style as the existing three
+  (visual behavior + loop duration + real use sites) — a pre-existing
+  doc/code drift this phase would otherwise brush past without fixing.
 
 ## Accessibility notes
 
@@ -324,8 +452,24 @@ too hectic → this).
   "Read in full screen" affordance opens `TextLightbox`.
 - The quiz's topic image renders as the large "Portal" frame, not the
   current 112×112 thumbnail.
-- Each per-cat history list row opens the `ReadingQuickView` modal;
-  its "View full reading" action navigates into `/results/[id]`.
+- Each per-cat history list row opens the `ReadingQuickView` modal,
+  fetching its data on open from `GET /api/diagnoses/[id]/quick-view`
+  (not eagerly joined onto the history list's own query); its
+  "View full reading" action navigates into `/results/[id]`.
+- All six of `/results/[id]`, `/results/[id]/diagnosis`,
+  `/results/[id]/treatment`, `/share/[shareSlug]`,
+  `/share/[shareSlug]/diagnosis`, `/share/[shareSlug]/treatment` route
+  through the shared `getOwnedDiagnosis`/`getSharedDiagnosis` loaders —
+  no route re-derives the ownership check or the share route's field
+  allowlist independently.
+- Every `FramedImage` instance passes its own tuned `sizes` (and
+  `width`/`height` or aspect-ratio); every decorative element inside
+  `FramedImage` (corner flourishes, scrim, dashed ring/tick marks) is
+  both `aria-hidden="true"` and `pointer-events-none`, verified by
+  actually tapping/clicking through them onto `Expandable`'s expand
+  button underneath.
+- `design-tokens.json`'s `motion.patterns` includes `fogDrift` and
+  `flameFlicker` entries alongside the retuned `glowPulse`.
 - `FlourishMark`/`ConstellationMark`/new `CrescentMark` components exist
   and are placed per "Decorative gold marks" above; `OrnamentalRule`'s
   usage is extended beyond `PageShell`; the crescent mark before

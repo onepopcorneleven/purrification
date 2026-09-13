@@ -465,6 +465,13 @@ Requested 2026-09-13 as a from-scratch look-and-feel pass (explicitly
 ignoring current implementation), worked out and iterated with the user as
 a published design canvas, then accepted. This document translates that
 accepted design into a technical plan; **nothing below is implemented**.
+A same-day gap review found and closed 7 open implementation questions the
+first pass had left implicit (shared ownership-check loaders for the new
+sub-routes, the public share route's field-selection widening, which name
+field to display, on-demand vs. eager data fetching for the history quick
+view, `FramedImage`'s decorative-layer hit-target safety, per-call-site
+image sizing, and backfilling `design-tokens.json`'s missing motion-pattern
+entries) — see the side doc's "Resolved (gap review, 2026-09-13)" notes.
 - [ ] Split `/results/[id]` and `/share/[shareSlug]` into a three-tier
       structure: an overview (both diagnosis + treatment summarized) plus
       a `/diagnosis` and `/treatment` full-view sub-route each.
