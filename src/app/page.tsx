@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/guard";
 import { PageShell } from "@/components/ui/PageShell";
 import { Button } from "@/components/ui/Button";
+import { Expandable } from "@/components/ui/Expandable";
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -20,14 +21,21 @@ export default async function Home() {
   return (
     <PageShell user={user} wide>
       <div className="hero-fog rounded-lg">
-        <Image
+        <Expandable
+          label="View larger image of the fortune-teller cat"
           src="/images/header-fortune-cat.png"
           alt="A regal black cat, dressed as a fortune teller, seated at a mystical crystal ball and tarot card reading beneath a striped circus tent"
-          width={2048}
-          height={768}
-          priority
-          className="w-full rounded-lg shadow-glow-purple"
-        />
+        >
+          <Image
+            src="/images/header-fortune-cat.png"
+            alt="A regal black cat, dressed as a fortune teller, seated at a mystical crystal ball and tarot card reading beneath a striped circus tent"
+            width={2048}
+            height={768}
+            preload
+            sizes="(min-width: 896px) 896px, 100vw"
+            className="w-full rounded-lg shadow-glow-purple"
+          />
+        </Expandable>
       </div>
       {/* A comfortable reading measure inside the wider hero well — the
           image gets the extra breathing room, the prose doesn't have to

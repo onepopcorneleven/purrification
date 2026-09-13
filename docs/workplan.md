@@ -41,7 +41,8 @@ complicated — that complexity belongs in a side file, not here.
 ## Current status
 
 All of Phases 0–20 are **done and live in production** at
-`purrification.com`. No phase is currently in progress or proposed-pending.
+`purrification.com`. Phase 21 is **proposed, pending approval** — not
+started.
 
 Two follow-ups are flagged but not yet done (see Phase 14 below for
 context): a dedicated tone/content review pass of the Phase 14 content
@@ -49,8 +50,8 @@ bank, and exhaustive multi-path smoke testing across all 12 active
 diagnoses. Neither blocks anything currently planned.
 
 Phase 20's `/allimages` debug gallery is temporary and unlinked — it's
-meant to be deleted once its one-time manual image review is done; it
-isn't part of the product.
+meant to be deleted once its one-time manual image review is done; Phase
+21 (once approved) supersedes and removes it outright.
 
 See `CLAUDE.md`'s "Current state" section for the fuller architectural
 summary of what's shipped.
@@ -325,6 +326,75 @@ review is done — it isn't part of the product.
 - [x] Build the gallery page + lightbox component.
 - [x] Verify via `npm run build`/`npm start` that it renders all current
       images (no headless-browser visual check possible in this sandbox).
+
+## Phase 21 — Image enrichment: responsive previews & click-to-expand — done (partial scope)
+Implemented 2026-09-13. Full details: `docs/workplan/phase-21-image-enrichment.md`
+(**revised 2026-09-13** after a pre-implementation review found the
+original `ClickableImage` design would fight the existing codebase — see
+that doc's "Revision history" section).
+
+Every image on the site today renders at full source resolution (no
+`sizes` prop anywhere, diagnosis PNGs are ~2.2–3.0MB shown as small as
+96px) with no way to view it larger, and only `DiagnosisDef` has any image
+support at all. This phase adds a shared preview-sizing + click-to-expand
+pattern site-wide and extends image support to `Treatment` (as an image
+pool, mirroring `DiagnosisDefImage`) and `QuestionTopic` (a single image).
+Schema/pipeline/UI plumbing only — real image authoring is a deliberate,
+separate follow-up phase, mirroring the Phase 15 → Phase 17 precedent.
+- [x] Add a `TreatmentImage` pool table (mirrors `DiagnosisDefImage`) and
+      a `QuestionTopic.imagePath` scalar column; hand-write the (purely
+      additive) migration. Cross-checked with `prisma migrate diff`
+      (live DB → schema) before applying; applied cleanly.
+- [x] Update the seed pipeline: `image_paths`/`image_path` fields on
+      `treatments.json`/`topics.json`, delete-then-recreate sync for
+      `TreatmentImage`. Reseeded live — clean, only the already-known
+      Phase 13 placeholder-retirement stale-id warnings.
+- [x] Add `sharp` as an explicit dependency (was only an implicit
+      transitive one via `next`).
+- [x] Build a shared `Lightbox` (full-bleed click-to-expand viewer) and
+      `Expandable` (`src/components/ui/`) — `Expandable` is a
+      children-based overlay wrapper, not a props-forwarding `Image`
+      replacement: it renders the host's existing, untouched image markup
+      as `children` and layers a transparent, labeled overlay button on
+      top to open `Lightbox`, so no site's existing `<Image>` props/CSS
+      (e.g. `DiagnosisCard`'s gold double border) had to change.
+- [x] Retrofit every existing image (landing/login/signup/dashboard
+      heroes, `EmptyState`, `DiagnosisCard`): added a real, tuned `sizes`
+      value directly to its existing `<Image>` call, and wrapped its
+      existing markup in `<Expandable>`. `DiagnosisCard`'s CSS module
+      split `.illustration` into `.illustrationFrame` (the new grid-item
+      wrapper — layout/box rules) + `.illustration` (just `object-fit` on
+      the `<Image>` itself), since `object-fit`/grid-item sizing can't
+      live on `Expandable`'s wrapper without knowing the host's box model.
+      The homepage hero's deprecated-in-this-Next.js-version `priority`
+      prop is now `preload`.
+- [ ] **Not done — deferred, not silently dropped.** Wiring the two new
+      content types' images into pages: implementation found that neither
+      `Treatment` nor `QuestionTopic` content is rendered *anywhere* on
+      `results`/`share`/quiz pages today (only the frozen `diagnosisText`/
+      `ritualText` strings are shown) — so there is no existing UI to
+      attach either image to, not just Topic as the phase doc originally
+      flagged. Inventing new visible UI sections for this wasn't part of
+      what was asked, so it was left for a follow-up decision rather than
+      guessed at. Schema/seed-pipeline support for both is fully in place
+      and ships images gracefully (`Treatment.images`/
+      `QuestionTopic.imagePath` both null/empty for every row right now)
+      whenever that follow-up happens.
+- [x] Delete the now-fully-superseded `/allimages` debug page (Phase 20).
+- [x] Update `content-storage-architecture.md`, `design-system.md` for the
+      new fields/components; `CLAUDE.md`'s Current-state summary.
+- [x] Verify: `npm run build`/`npm run lint` clean (scoped lint check —
+      six pre-existing, unrelated stale worktrees under
+      `.claude/worktrees/` with their own uncommitted `.next` build output
+      make a bare `npm run lint` report ~30k unrelated problems; not
+      touched, out of scope for this phase); the optimizer serves visibly
+      reduced byte sizes for small render contexts — measured directly via
+      `/_next/image?...&w=96` against `empty-vessel.png`: 4,866 bytes vs.
+      the 2,282,716-byte raw source, a ~469x reduction; zero-image
+      Treatments/Topics render with no broken image (schema ships
+      null/empty everywhere this phase); `sharp` installs as a direct
+      dependency; migration applied and content reseeded cleanly against
+      the live VPS DB; deployed and verified live.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,

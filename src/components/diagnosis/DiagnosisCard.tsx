@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { Mark } from "@/components/ui/Mark";
+import { Expandable } from "@/components/ui/Expandable";
 import styles from "./DiagnosisCard.module.css";
 
 type DiagnosisCardProps = {
@@ -36,13 +37,21 @@ export function DiagnosisCard({
   return (
     <div className={`${styles.card} animate-fade-in`}>
       {image && (
-        <Image
+        <Expandable
+          label={`View larger illustration for ${catName}'s reading`}
           src={`/images/diagnoses/${image}`}
           alt=""
-          width={896}
-          height={1120}
-          className={styles.illustration}
-        />
+          className={styles.illustrationFrame}
+        >
+          <Image
+            src={`/images/diagnoses/${image}`}
+            alt=""
+            width={896}
+            height={1120}
+            sizes="(min-width: 640px) 220px, 55vw"
+            className={styles.illustration}
+          />
+        </Expandable>
       )}
       {/* eslint-disable-next-line @next/next/no-img-element -- a tiny
           decorative SVG stamp; next/image's optimizer doesn't apply to it. */}

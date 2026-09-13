@@ -123,6 +123,8 @@ original plan:
 | `QuizProgress` + quiz-option button states | `QuizFlow.tsx` |
 | `DiagnosisCard` (the bespoke, shareable hero component) | `results/[id]` and `share/[shareSlug]` — same component, two contexts |
 | `EmptyState` | cats dashboard with zero cats, history with zero attempts |
+| `Lightbox` (Phase 21, full-bleed click-to-expand image viewer) | opened by `Expandable`; not used directly |
+| `Expandable` (Phase 21, children-based click-to-expand overlay — wraps a host's existing, untouched image markup rather than replacing `next/image`) | every image site-wide: landing/login/signup/dashboard heroes, `EmptyState`, `DiagnosisCard` |
 
 **`QuizFlow.tsx`'s interaction model (Phase 18, `docs/workplan.md`):** a
 click selects an option (today's glow-pulse highlight); a second click on

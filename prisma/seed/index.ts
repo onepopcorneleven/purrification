@@ -33,6 +33,9 @@ interface RawTopic {
   id: string;
   name: string;
   sort_order: number;
+  // Phase 21: one illustration per topic. Optional/omitted for every entry
+  // this phase — populated by a later content-authoring follow-up.
+  image_path?: string;
 }
 interface RawAnswer {
   id: string;
@@ -58,6 +61,9 @@ interface RawTreatment {
   material_categories: string[];
   typical_duration: string;
   contraindications: string[];
+  // Phase 21: ordered image pool, mirroring DiagnosisDef's image_paths.
+  // Optional/omitted for every entry this phase.
+  image_paths?: string[];
 }
 interface RawDiagnosisDef {
   id: string;
@@ -326,8 +332,17 @@ async function upsertContent(): Promise<void> {
   for (const t of topics) {
     await prisma.questionTopic.upsert({
       where: { id: t.id },
-      create: { id: t.id, name: t.name, sortOrder: t.sort_order },
-      update: { name: t.name, sortOrder: t.sort_order },
+      create: {
+        id: t.id,
+        name: t.name,
+        sortOrder: t.sort_order,
+        imagePath: t.image_path ?? null,
+      },
+      update: {
+        name: t.name,
+        sortOrder: t.sort_order,
+        imagePath: t.image_path ?? null,
+      },
     });
   }
 
@@ -411,6 +426,22 @@ async function upsertContent(): Promise<void> {
         contraindications: t.contraindications,
       },
     });
+    // TreatmentImage rows have no identity of their own outside this array
+    // (Phase 21, mirroring DiagnosisDefImage above) — delete-then-recreate
+    // per treatmentId rather than a bare upsert loop.
+    await prisma.treatmentImage.deleteMany({
+      where: { treatmentId: t.id },
+    });
+    const treatmentImagePaths = t.image_paths ?? [];
+    if (treatmentImagePaths.length > 0) {
+      await prisma.treatmentImage.createMany({
+        data: treatmentImagePaths.map((path, i) => ({
+          treatmentId: t.id,
+          path,
+          sortOrder: i,
+        })),
+      });
+    }
   }
 
   for (const d of diagnosisDefs) {

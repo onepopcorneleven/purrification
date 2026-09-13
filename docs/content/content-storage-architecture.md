@@ -147,6 +147,7 @@ model QuestionTopic {
   id        String     @id
   name      String
   sortOrder Int
+  imagePath String?    // Phase 21: one illustration per topic, not per-question
   questions Question[]
   createdAt DateTime   @default(now())
 }
@@ -197,8 +198,22 @@ model Treatment {
   isActive           Boolean                 @default(true)
   ritualVariants     Ritual[]
   diagnosisLinks     DiagnosisDefTreatment[]
+  images             TreatmentImage[]        // Phase 21 pool — see below
   results            Diagnosis[]
   createdAt          DateTime                @default(now())
+}
+
+// Phase 21: ordered pool of candidate images for a Treatment, mirroring
+// DiagnosisDefImage above exactly — same "no independent identity outside
+// the array" shape, synced by delete-then-recreate per treatmentId on every
+// seed run. A result's treatment image is picked the same way the diagnosis
+// image is: pickStableImage(images, diagnosis.id).
+model TreatmentImage {
+  treatmentId String
+  treatment   Treatment @relation(fields: [treatmentId], references: [id])
+  path        String
+  sortOrder   Int
+  @@id([treatmentId, sortOrder])
 }
 
 // R-CONTENT-3/4: the rule-based derivation engine's content definitions.
@@ -368,9 +383,9 @@ running app.
   bug during the Phase 16 investigation, on top of the id-collision one
   above). Any future child collection with the same "no independent
   identity, expressed as an array in the parent's JSON" shape (e.g. Phase
-  15's `DiagnosisDefImage` pool, which follows this exact pattern) should
-  follow the same delete-then-recreate-per-parent pattern, not a bare
-  upsert loop.
+  15's `DiagnosisDefImage` pool, and Phase 21's `TreatmentImage` pool,
+  which both follow this exact pattern) should follow the same
+  delete-then-recreate-per-parent pattern, not a bare upsert loop.
 - **New script:** `npm run db:seed-content`, named to match the existing
   `db:migrate`/`db:generate` convention. Kept separate from
   `prisma migrate deploy` (schema DDL, not data) and from `postinstall`'s

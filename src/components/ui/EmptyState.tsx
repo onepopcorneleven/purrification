@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import { Expandable } from "./Expandable";
 
 type EmptyStateProps = {
   title: string;
@@ -23,13 +24,21 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border-hairline px-6 py-12 text-center">
       {illustrated && (
-        <Image
+        <Expandable
+          label="View larger image"
           src="/images/pages/empty-vessel.png"
           alt=""
-          width={200}
-          height={200}
-          className="mb-1 h-24 w-24 rounded-full object-cover shadow-glow-gold-sm"
-        />
+          className="mb-1 h-24 w-24"
+        >
+          <Image
+            src="/images/pages/empty-vessel.png"
+            alt=""
+            width={200}
+            height={200}
+            sizes="96px"
+            className="h-full w-full rounded-full object-cover shadow-glow-gold-sm"
+          />
+        </Expandable>
       )}
       <h3 className="font-heading text-xl text-text-primary">{title}</h3>
       {description && (

@@ -8,7 +8,8 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–18 are all done and live in production at
+`docs/workplan.md` Phases 0–21 are all done (Phase 21 partially — see
+below) and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
 deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
@@ -49,11 +50,30 @@ diagnosis" buttons are gone — triggering a themed "divining" pause
 (`.divining-overlay` in `globals.css`) before the next question appears,
 or a longer, more elaborate "spiritual reception" variant on the last
 question that gates the real diagnosis request underneath it. Back is
-unchanged. A dedicated tone/content review pass and exhaustive multi-path
-smoke testing across all 12 diagnoses are still flagged as follow-up, not
-yet done — see `docs/content/content-storage-architecture.md` for the
-full schema/engine spec, and `workplan.md`'s Phase 14/15/16/18 entries for
-each execution log.
+unchanged. Most recently, an image-enrichment pass (Phase 21) added a
+site-wide click-to-expand + responsive-preview pattern: `Expandable`
+(`src/components/ui/Expandable.tsx`) wraps a host's *existing, untouched*
+image markup with a transparent overlay button that opens a shared
+`Lightbox`, rather than replacing `next/image` itself — every image site
+(landing/login/signup/dashboard heroes, `EmptyState`, `DiagnosisCard`) got
+a real, tuned `sizes` prop plus this treatment. The same phase extended
+image support beyond `DiagnosisDef` to `Treatment` (a `TreatmentImage`
+pool, mirroring `DiagnosisDefImage`) and `QuestionTopic`
+(`imagePath String?`, one illustration per topic) — schema and seed
+pipeline only, zero images seeded yet (mirrors the Phase 15 → Phase 17
+precedent), and wiring either into an actual page was explicitly left
+undone: neither `Treatment` nor `QuestionTopic` content is rendered
+anywhere in the UI today, so there's no existing display to attach an
+image to without inventing new UI, which wasn't part of what was asked.
+`sharp` moved from an implicit transitive dependency (via `next`) to an
+explicit one. The throwaway Phase 20 `/allimages` debug page was deleted,
+fully superseded by `Lightbox`. A dedicated tone/content review pass,
+exhaustive multi-path smoke testing across all 12 diagnoses, and deciding
+where the new Treatment/Topic images actually render are all still
+flagged as follow-up, not yet done — see
+`docs/content/content-storage-architecture.md` for the full schema/engine
+spec, and `workplan.md`'s Phase 14/15/16/18/21 entries for each execution
+log.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
@@ -83,11 +103,11 @@ don't claim a visual check that didn't happen.
 
 **Structure:**
 - `src/app/` — Next.js App Router pages and API routes.
-- `src/components/ui/` — shared design primitives (`PageShell`, `Button`, `Card`, `Field`, `Modal`, `Toast`, `EmptyState`, `QuizProgress`, `TextLink`, `LogoutButton`, `Mark`) — see `docs/design-system.md`. Plain React components wrapping Tailwind utility classes, not a component-library dependency.
+- `src/components/ui/` — shared design primitives (`PageShell`, `Button`, `Card`, `Field`, `Modal`, `Toast`, `EmptyState`, `QuizProgress`, `TextLink`, `LogoutButton`, `Mark`, and Phase 21's `Expandable`/`Lightbox`) — see `docs/design-system.md`. Plain React components wrapping Tailwind utility classes, not a component-library dependency.
 - `src/components/diagnosis/` — `DiagnosisCard`, the one bespoke component (CSS Modules, not Tailwind utilities), shared by the results and share pages.
 - `src/generated/prisma/` — generated Prisma Client output, gitignored, never edit by hand.
 - `src/lib/db/client.ts` — the typed data-access entry point: a singleton `PrismaClient` (via the `@prisma/adapter-pg` driver adapter — Prisma 7's engine-less client requires an explicit driver adapter, not just a `DATABASE_URL`) cached on `globalThis` so Next.js dev-mode hot reload doesn't leak connections. Import `prisma` from here in API routes rather than instantiating `PrismaClient` directly.
-- `prisma/schema.prisma` — the data model, mirroring `docs/architecture.md`'s schema sketch: `User`, `Cat`, `QuizAttempt`, `Diagnosis` (with `shareSlug` and cascade deletes), plus the Phase 13 content model (`Tag`, `QuestionTopic`, `Question`, `AnswerOption`, `AnswerOptionTagEffect`, `Treatment`, `DiagnosisDef`, `DiagnosisDefTreatment`, `Ritual`, and Phase 15's `DiagnosisDefImage`) that `Diagnosis` now has FKs into — see `docs/content/content-storage-architecture.md` §7.
+- `prisma/schema.prisma` — the data model, mirroring `docs/architecture.md`'s schema sketch: `User`, `Cat`, `QuizAttempt`, `Diagnosis` (with `shareSlug` and cascade deletes), plus the Phase 13 content model (`Tag`, `QuestionTopic`, `Question`, `AnswerOption`, `AnswerOptionTagEffect`, `Treatment`, `DiagnosisDef`, `DiagnosisDefTreatment`, `Ritual`, Phase 15's `DiagnosisDefImage`, and Phase 21's `TreatmentImage` + `QuestionTopic.imagePath`) that `Diagnosis` now has FKs into — see `docs/content/content-storage-architecture.md` §7.
 - `prisma/migrations/` — committed migration history; every migration is applied to the real (VPS) database — see above. The Phase 13 migration (`20260908130000_add_content_model`) is a real example of the expand→backfill→contract pattern this project uses for a NOT-NULL column added to a table with existing rows — read its header comment before writing another migration that touches a populated table.
 - `prisma/seed/` — the content authoring pipeline (Phase 13, `docs/content/content-storage-architecture.md` §8): `content/*.json` (one file per content class, holding Phase 14's real content bank, hand-edited for any future content change) and `index.ts` (validates then idempotently upserts them by stable id — run via `npm run db:seed-content`, using `tsx` since it runs outside Next.js).
 - `src/lib/diagnosis/engine.ts` — the DB-access-free derivation logic (tag accumulation, trigger-rule evaluation, severity banding, template rendering), imported by both `getDiagnosis.ts` (the runtime engine) and `prisma/seed/index.ts` (its `extractTemplateSlots` powers seed-time slot validation) — kept dependency-free of Prisma/DB access so both call sites can load their own content and reuse identical rule evaluation. `tsx` resolves the `@/*` path alias outside Next.js the same way `tsconfig.json` defines it, which is what makes this cross-context import work.
