@@ -40,9 +40,11 @@ complicated — that complexity belongs in a side file, not here.
 
 ## Current status
 
-All of Phases 0–20 are **done and live in production** at
-`purrification.com`. Phase 21 is **proposed, pending approval** — not
-started.
+All of Phases 0–22 are **done and live in production** at
+`purrification.com`, including the Phase 22 VPS deploy (verified
+2026-09-13: the live site's git checkout is at commit `4dbe557`, from a
+build produced the same day, and serves the real Treatment/QuestionTopic
+images).
 
 Two follow-ups are flagged but not yet done (see Phase 14 below for
 context): a dedicated tone/content review pass of the Phase 14 content
@@ -447,12 +449,14 @@ on every page).
       image types render with the correct file per page.
 - [x] `npm run build` clean; scoped lint/prettier clean on every changed
       file.
-- [ ] **Not done — outside what this session is permitted to do
-      autonomously.** Merging the PR and running the live VPS deploy
-      (`purrification-deploy` restart): blocked by this harness's own
-      "Production Deploy" safety classifier when attempted from an agent
-      turn, independent of the user's automode instruction. Left for the
-      user to trigger manually.
+- [x] Merging the PR and running the live VPS deploy
+      (`purrification-deploy` restart): left for the user to trigger
+      manually (blocked from an agent turn by this harness's own
+      "Production Deploy" safety classifier) — since done. Verified
+      2026-09-13: the VPS checkout is at commit `4dbe557` with a same-day
+      build, the systemd service is running it, and the live site serves
+      both new image types (confirmed via the quiz page's `topicImage`
+      data and direct `/images/treatments/`, `/images/topics/` fetches).
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
