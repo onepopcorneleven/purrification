@@ -246,12 +246,25 @@ replaces the original `ClickableImage`-wraps-`next/image` design.
 
 ## Cleanup
 
-- Delete `src/app/allimages/` entirely (`page.tsx` + `ImageGallery.tsx`).
+- ~~Delete `src/app/allimages/` entirely (`page.tsx` + `ImageGallery.tsx`).
   Phase 20 already documented this page as "meant to be deleted once the
   manual image review it exists for is done," and the new site-wide
   `Lightbox` fully supersedes its one purpose (spot-checking images
   without a headless browser) — any future ad hoc image review can just
-  use the real click-to-expand affordance on the live pages.
+  use the real click-to-expand affordance on the live pages.~~
+
+  **Correction, 2026-09-13: this was wrong and was reverted.** This plan
+  itself over-read Phase 20's "meant to be deleted" description as
+  authorization to actually delete the page during this phase. The owner
+  never instructed its removal, was never asked, and corrected this
+  explicitly after finding `/allimages` 404ing in production: "meant to be
+  deleted" describes the page's eventual, owner-decided disposition, not a
+  standing green light for an agent to act on unprompted. `Lightbox`
+  superseding the page's *purpose* doesn't make its *removal* authorized.
+  `src/app/allimages/` was restored byte-for-byte and stays in place,
+  unlinked and untouched, until the owner explicitly instructs its
+  removal — see `docs/workplan.md`'s Phase 20 entry for the standing
+  rule.
 
 ## Dependency change
 
@@ -310,7 +323,9 @@ replaces the original `ClickableImage`-wraps-`next/image` design.
 - A fresh `npm ci` installs `sharp` as a direct dependency (visible in
   `package-lock.json`), and the app does not log a "sharp missing, using
   fallback" warning.
-- `/allimages` returns 404.
+- ~~`/allimages` returns 404.~~ **No longer a deliverable of this phase —
+  reverted 2026-09-13, see "Cleanup" above. `/allimages` is expected to
+  keep working indefinitely.**
 - The homepage hero uses `preload`, not the deprecated `priority` prop.
 - Full golden-path smoke test (signup → add cat → quiz → results → share →
   history → delete-cascade) shows no regression — every image (including

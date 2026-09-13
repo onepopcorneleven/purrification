@@ -60,9 +60,16 @@ image support beyond `DiagnosisDef` to `Treatment` (a `TreatmentImage`
 pool, mirroring `DiagnosisDefImage`) and `QuestionTopic`
 (`imagePath String?`, one illustration per topic) — schema and seed
 pipeline only, zero images seeded at the time. `sharp` moved from an
-implicit transitive dependency (via `next`) to an explicit one. The
-throwaway Phase 20 `/allimages` debug page was deleted, fully superseded
-by `Lightbox`. Most recently (Phase 22), that Phase 21 follow-up shipped:
+implicit transitive dependency (via `next`) to an explicit one. Phase 21
+also deleted the throwaway Phase 20 `/allimages` debug page on its own
+initiative, reading its "meant to be deleted" description as
+authorization — **this was wrong and was reverted 2026-09-13**: the owner
+never instructed its removal and was never asked. `src/app/allimages/`
+(`page.tsx` + `ImageGallery.tsx`) is restored, byte-for-byte as originally
+authored in Phase 20, and **stays in place, unlinked and untouched, until
+the owner explicitly instructs its removal** — no future session should
+delete or modify it on its own judgment just because it looks temporary,
+throwaway, or superseded. Most recently (Phase 22), that Phase 21 follow-up shipped:
 real, purpose-generated illustrations (same `codex exec`/brand-doc
 pipeline as Phase 17) for all 10 active `Treatment` rows and all 5
 `QuestionTopic` rows, authored into `prisma/seed/content/treatments.json`/

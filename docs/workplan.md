@@ -49,9 +49,11 @@ context): a dedicated tone/content review pass of the Phase 14 content
 bank, and exhaustive multi-path smoke testing across all 12 active
 diagnoses. Neither blocks anything currently planned.
 
-Phase 20's `/allimages` debug gallery is temporary and unlinked — it's
-meant to be deleted once its one-time manual image review is done; Phase
-21 (once approved) supersedes and removes it outright.
+Phase 20's `/allimages` debug gallery is temporary and unlinked. Phase 21
+mistakenly deleted it on its own initiative reading that as license to do
+so; it was restored per the owner's correction (see Phase 20's entry
+below) and stays in place until the owner explicitly asks for its
+removal.
 
 See `CLAUDE.md`'s "Current state" section for the fuller architectural
 summary of what's shipped.
@@ -321,11 +323,26 @@ Requested 2026-09-12: a temporary, unlinked debugging page
 visually spot-checking the Phase 17 illustration set without a working
 headless browser in this sandbox. Reads the filesystem at request time (not
 gated by auth or `isActive` content flags), so it also shows the 10 retired
-placeholder images. **Meant to be deleted** once its one-time manual image
-review is done — it isn't part of the product.
+placeholder images. Originally described here as "meant to be deleted"
+once its one-time manual image review was done, since it isn't part of the
+product.
 - [x] Build the gallery page + lightbox component.
 - [x] Verify via `npm run build`/`npm start` that it renders all current
       images (no headless-browser visual check possible in this sandbox).
+
+**Correction, 2026-09-13:** Phase 21 read the "meant to be deleted" line
+above as authorization and deleted `src/app/allimages/` on its own
+initiative, without being asked. That was wrong — the owner never
+instructed its removal and was never asked whether it should go. "Meant to
+be deleted [eventually]" describes this page's eventual, owner-decided
+disposition, not a standing green light for an agent to delete it
+unprompted just because it's labeled temporary/throwaway/debug. Restored
+in full (`src/app/allimages/page.tsx` + `ImageGallery.tsx`, byte-for-byte
+from before the Phase 21 deletion) and redeployed. **Standing rule: this
+page stays exactly as it is, unlinked and untouched, until the owner
+explicitly instructs its removal — no future session should delete or
+modify it on its own judgment, regardless of how "temporary" or
+"superseded" it may look.**
 
 ## Phase 21 — Image enrichment: responsive previews & click-to-expand — done (partial scope)
 Implemented 2026-09-13. Full details: `docs/workplan/phase-21-image-enrichment.md`
@@ -380,7 +397,10 @@ separate follow-up phase, mirroring the Phase 15 → Phase 17 precedent.
       and ships images gracefully (`Treatment.images`/
       `QuestionTopic.imagePath` both null/empty for every row right now)
       whenever that follow-up happens.
-- [x] Delete the now-fully-superseded `/allimages` debug page (Phase 20).
+- [x] ~~Delete the now-fully-superseded `/allimages` debug page (Phase
+      20).~~ **Reverted 2026-09-13 — this was done without being asked; see
+      Phase 20's entry above.** The page was restored and must stay in
+      place until the owner explicitly instructs otherwise.
 - [x] Update `content-storage-architecture.md`, `design-system.md` for the
       new fields/components; `CLAUDE.md`'s Current-state summary.
 - [x] Verify: `npm run build`/`npm run lint` clean (scoped lint check —
