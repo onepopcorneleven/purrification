@@ -26,16 +26,30 @@
    text. Below sm (640px) that small centered size is fine (see the base
    rule); at sm and up, .card switches to a two-column grid instead, so the
    portrait image gets its own column at something closer to its natural
-   size rather than fighting the wide text column for a shared width. */
-.illustration {
+   size rather than fighting the wide text column for a shared width.
+
+   Phase 21 split this single class in two: `.illustrationFrame` is now the
+   actual CSS-grid item (`Expandable`'s wrapper div) and owns every
+   layout/box rule (size, aspect-ratio, margin, corner/shadow treatment);
+   `.illustration` stays on the `<Image>` itself and only owns how the
+   image fills that box (`object-fit`). `Expandable` never touches either
+   class's rules — see src/components/ui/Expandable.tsx. */
+.illustrationFrame {
   display: block;
+  overflow: hidden;
   width: 55%;
   max-width: 200px;
   aspect-ratio: 4 / 5;
-  object-fit: cover;
   margin: 0 auto 1.5rem;
   border-radius: calc(var(--radius-lg) - 10px);
   box-shadow: var(--shadow-elevation-1);
+}
+
+.illustration {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 @media (min-width: 640px) {
@@ -65,7 +79,7 @@
      predictable, near-zero one. At width: 100% of a 220px column, 4:5
      needs 220x275, close enough to the source's actual 1122x1402 that
      object-fit: cover barely crops anything. */
-  .illustration {
+  .illustrationFrame {
     width: 100%;
     max-width: none;
     margin: 0;
