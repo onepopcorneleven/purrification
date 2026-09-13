@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { QuizProgress } from "@/components/ui/QuizProgress";
+import { Expandable } from "@/components/ui/Expandable";
 import { useToast } from "@/components/ui/Toast";
 
 // R-CONTENT-1: question content is DB-backed (see prisma/schema.prisma's
@@ -12,6 +14,10 @@ import { useToast } from "@/components/ui/Toast";
 interface QuizQuestion {
   id: string;
   prompt: string;
+  // Phase 22: the question's topic illustration (QuestionTopic.imagePath),
+  // shown above the prompt — purely decorative, never touches the
+  // select/confirm/divine state machine below.
+  topicImage?: string;
   options: { id: string; label: string }[];
 }
 
@@ -139,6 +145,23 @@ export function QuizFlow({
       <QuizProgress step={step} total={questions.length} />
       {transition === "none" ? (
         <div key={question.id} className="flex flex-col gap-3">
+          {question.topicImage && (
+            <Expandable
+              label="View larger illustration for this topic"
+              src={`/images/topics/${question.topicImage}`}
+              alt=""
+              className="mx-auto block h-28 w-28 overflow-hidden rounded-lg border border-border-hairline shadow-glow-gold-sm sm:h-32 sm:w-32"
+            >
+              <Image
+                src={`/images/topics/${question.topicImage}`}
+                alt=""
+                width={224}
+                height={280}
+                sizes="128px"
+                className="h-full w-full object-cover"
+              />
+            </Expandable>
+          )}
           <h2 className="font-heading text-xl">{question.prompt}</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {question.options.map((option) => {
@@ -235,9 +258,7 @@ export function QuizFlow({
               className="divining-seal-preview h-10 w-10"
             />
           )}
-          <p className="font-heading text-lg text-gold-300">
-            {transitionLine}
-          </p>
+          <p className="font-heading text-lg text-gold-300">{transitionLine}</p>
         </div>
       )}
       <div className="flex justify-between">

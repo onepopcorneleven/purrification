@@ -2,26 +2,31 @@
   {
     "id": "topic_territory",
     "name": "Territory & Space",
-    "sort_order": 1
+    "sort_order": 1,
+    "image_path": "territory-space.png"
   },
   {
     "id": "topic_sleep",
     "name": "Sleep & Rhythm",
-    "sort_order": 2
+    "sort_order": 2,
+    "image_path": "sleep-rhythm.png"
   },
   {
     "id": "topic_social",
     "name": "Social Bonds",
-    "sort_order": 3
+    "sort_order": 3,
+    "image_path": "social-bonds.png"
   },
   {
     "id": "topic_objects",
     "name": "Object Relations",
-    "sort_order": 4
+    "sort_order": 4,
+    "image_path": "object-relations.png"
   },
   {
     "id": "topic_vocal",
     "name": "Vocal Behavior",
-    "sort_order": 5
+    "sort_order": 5,
+    "image_path": "vocal-behavior.png"
   }
 ]

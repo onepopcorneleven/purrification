@@ -14,6 +14,13 @@ type DiagnosisCardProps = {
    * (purely typographic, as it always has) if a DiagnosisDef has no images
    * in its pool. */
   image?: string;
+  /** Filename under public/images/treatments/ — picked via
+   * pickStableImage(diagnosis.treatment.images, diagnosis.id) (Phase 22),
+   * mirroring `image` above exactly but for the linked Treatment's own
+   * image pool. Shown as a small illustration beside the ritual text.
+   * Optional so the card still renders unchanged if a Treatment has no
+   * images in its pool. */
+  treatmentImage?: string;
   /** Page-specific actions below the card (e.g. a share link) — the
    * logged-in results page and the public share page pass different
    * children, or none. */
@@ -32,6 +39,7 @@ export function DiagnosisCard({
   diagnosisText,
   ritualText,
   image,
+  treatmentImage,
   children,
 }: DiagnosisCardProps) {
   return (
@@ -71,6 +79,23 @@ export function DiagnosisCard({
         <div className={styles.divider} />
         <h2 className={styles.ritualLabel}>Prescribed ritual</h2>
         <p className={styles.ritualText}>{ritualText}</p>
+        {treatmentImage && (
+          <Expandable
+            label={`View larger illustration for ${catName}'s prescribed ritual`}
+            src={`/images/treatments/${treatmentImage}`}
+            alt=""
+            className={styles.ritualIllustrationFrame}
+          >
+            <Image
+              src={`/images/treatments/${treatmentImage}`}
+              alt=""
+              width={448}
+              height={560}
+              sizes="140px"
+              className={styles.ritualIllustration}
+            />
+          </Expandable>
+        )}
         {children}
       </div>
     </div>

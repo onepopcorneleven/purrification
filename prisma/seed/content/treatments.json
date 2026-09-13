@@ -1,6 +1,7 @@
 [
   {
     "id": "treat_boundary_restoration",
+    "image_paths": ["boundary-restoration.png"],
     "name_mystical": "The Rite of Reclaimed Edges",
     "name_plain": "Boundary Restoration",
     "philosophy": "Give {cat_name} a boundary that is visibly, reliably theirs, so the nervous energy spent defending or watching an ambiguous one has somewhere to stand down. This works by adding certainty, not by removing stimulus.",
@@ -15,6 +16,7 @@
   },
   {
     "id": "treat_gentle_exposure",
+    "image_paths": ["gentle-exposure.png"],
     "name_mystical": "The Slow Return to the Room",
     "name_plain": "Gentle Exposure & Decompression",
     "philosophy": "{cat_name}'s system isn't broken by company, it's flooded by too much of it too fast. This works by shrinking the dose of stimulation until it's tolerable, then lengthening it in controlled steps, rather than by forcing tolerance through repeated exposure.",
@@ -29,6 +31,7 @@
   },
   {
     "id": "treat_secure_departure",
+    "image_paths": ["secure-departure.png"],
     "name_mystical": "The Rite of the Steady Threshold",
     "name_plain": "Secure Departure Conditioning",
     "philosophy": "{cat_name}'s alarm isn't about the door, it's about what the door has come to predict. This works by decoupling the pre-departure cues from the departure itself, so the signal stops carrying the same charge.",
@@ -43,6 +46,7 @@
   },
   {
     "id": "treat_rhythm_anchoring",
+    "image_paths": ["rhythm-anchoring.png"],
     "name_mystical": "The Anchoring of the Hours",
     "name_plain": "Rhythm Anchoring",
     "philosophy": "{cat_name}'s system is built to predict, not to improvise. This works by giving the day a small number of genuinely fixed points, so the body can relax into the gaps between them instead of staying braced for the next unknown.",
@@ -57,6 +61,7 @@
   },
   {
     "id": "treat_object_investiture",
+    "image_paths": ["object-investiture.png"],
     "name_mystical": "The Investiture of the Anchor Object",
     "name_plain": "Comfort-Object Investiture",
     "philosophy": "{cat_name} has already found the mechanism that works — a fixed point to return to under stress. This works by formalizing and protecting that mechanism instead of second-guessing or removing it.",
@@ -71,6 +76,7 @@
   },
   {
     "id": "treat_resource_generosity",
+    "image_paths": ["resource-generosity.png"],
     "name_mystical": "The Rite of Abundant Ground",
     "name_plain": "Resource Generosity",
     "philosophy": "Guarding behavior is a response to scarcity that's felt, even when it isn't real. This works by making resource abundance visible and spatially obvious, so there's nothing left to compete over.",
@@ -85,6 +91,7 @@
   },
   {
     "id": "treat_voice_channeling",
+    "image_paths": ["voice-channeling.png"],
     "name_mystical": "The Channeling of the Voice",
     "name_plain": "Vocal Redirection",
     "philosophy": "The voice isn't the problem, it's the request — usually for attention, food, or engagement that isn't reliably arriving on its own. This works by giving that request a predictable, quieter channel to travel through.",
@@ -99,6 +106,7 @@
   },
   {
     "id": "treat_internal_release",
+    "image_paths": ["internal-release.png"],
     "name_mystical": "The Release of the Held Voice",
     "name_plain": "Internalized Stress Release",
     "philosophy": "{cat_name}'s stress is turning inward instead of outward — quiet instead of loud, groomed instead of expressed. This works by lowering ambient pressure and giving the body something safe to do with that energy besides self-directed grooming.",
@@ -113,6 +121,7 @@
   },
   {
     "id": "treat_enrichment_cascade",
+    "image_paths": ["enrichment-cascade.png"],
     "name_mystical": "The Cascade of Enrichment",
     "name_plain": "Structured Enrichment",
     "philosophy": "{cat_name}'s energy is looking for somewhere to go and is currently finding it in whatever's available — furniture, 3am sprints, shredded items. This works by giving that energy a structured, satisfying outlet before it finds an unstructured one.",
@@ -127,6 +136,7 @@
   },
   {
     "id": "treat_equilibrium_maintenance",
+    "image_paths": ["equilibrium-maintenance.png"],
     "name_mystical": "The Rite of the Ordinary Day",
     "name_plain": "Baseline Equilibrium Maintenance",
     "philosophy": "No sharp imbalance stood out this time, and that itself is worth marking rather than skipping — {cat_name}'s current rhythm is worth reinforcing, not just leaving unattended until something breaks it.",

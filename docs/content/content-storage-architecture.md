@@ -478,6 +478,22 @@ that single `imagePath` FK with the `DiagnosisDefImage` pool above —
 by `sortOrder`) and call `pickStableImage(images, diagnosis.id)` to pick one
 deterministically per result.
 
+**Phase 22: `Treatment`/`QuestionTopic` images, populated and rendered.**
+Phase 21 shipped the `TreatmentImage` pool and `QuestionTopic.imagePath`
+schema/seed-pipeline support with every row empty, and neither type
+rendered anywhere. Phase 22 authored real images for all 10 active
+`Treatment` rows and all 5 `QuestionTopic` rows, and — per an explicit,
+mid-task scope extension from the user — gave both a rendering site:
+`results/[id]`/`share/[shareSlug]` now additionally select
+`treatment.images` and pass `pickStableImage(images, diagnosis.id)` into a
+new `DiagnosisCard` `treatmentImage` prop (a small companion illustration
+beside the ritual text, same picking logic as the diagnosis image, just
+against the linked `Treatment`'s own pool); `quiz/page.tsx` now selects
+each question's `topic.imagePath` and `QuizFlow` renders it above that
+question's prompt. Both are purely additive display code with no effect on
+`getDiagnosis`'s derivation logic or the quiz's confirm/divine interaction
+state.
+
 ## 10. Resolutions to content-framework.md §7's open questions
 
 1. **Canonical tag vocabulary, defined up front, as its own table: yes.**

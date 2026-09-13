@@ -22,6 +22,7 @@ export default async function ResultPage({
     include: {
       quizAttempt: { include: { cat: true } },
       diagnosisDef: { include: { images: { orderBy: { sortOrder: "asc" } } } },
+      treatment: { include: { images: { orderBy: { sortOrder: "asc" } } } },
     },
   });
   if (!diagnosis || diagnosis.quizAttempt.cat.userId !== user.id) {
@@ -37,6 +38,10 @@ export default async function ResultPage({
           ritualText={diagnosis.ritualText}
           image={pickStableImage(
             diagnosis.diagnosisDef.images.map((img) => img.path),
+            diagnosis.id,
+          )}
+          treatmentImage={pickStableImage(
+            diagnosis.treatment.images.map((img) => img.path),
             diagnosis.id,
           )}
         >
