@@ -92,8 +92,11 @@
     },
     "patterns": {
       "fadeIn": "opacity 0 -> 1, translateY(8px) -> 0, duration.slow, easing.dreamy",
-      "glowPulse": "box-shadow oscillates between shadow.glowGoldSm and shadow.glowGoldMd, 2400ms loop, used sparingly on active/focal mystical elements only",
-      "divination": "duration.divination (mid-quiz) / duration.divinationFinal (last question) one-shot themed pause between a confirmed quiz answer and the next question/diagnosis appearing (Phase 18, workplan.md) -- see QuizFlow.tsx and globals.css's .divining-overlay"
+      "glowPulse": "box-shadow oscillates between shadow.glowGoldSm and shadow.glowGoldMd, 4200ms loop (retuned from 2400ms in Phase 23 -- the original pace read too urgent/hectic on a confirmed quiz answer and a primary CTA), used sparingly on active/focal mystical elements only -- a confirmed quiz answer, the results overview's 'Save this Reading' button, the wordmark on first paint",
+      "glowPulseLg": "Phase 23: a larger-radius, dual-tone (gold + burgundy) box-shadow oscillation, same 4200ms loop as glowPulse but sized for a full illustration rather than a button or card -- FramedImage's Portal/Tarot/large-Medallion variants, and the Lightbox's full-screen framed art",
+      "divination": "duration.divination (mid-quiz) / duration.divinationFinal (last question) one-shot themed pause between a confirmed quiz answer and the next question/diagnosis appearing (Phase 18, workplan.md) -- see QuizFlow.tsx and globals.css's .divining-overlay",
+      "fogDrift": "32s loop, background-position drift on two blurred radial-gradient layers -- a soft ambient 'fog' behind one hero moment at a time (never applied ambiently on every page); ships as .hero-fog (the landing hero, and Phase 23's results/share ReadingOverview) and Phase 23's .lightbox-fog (Lightbox/TextLightbox's full-screen background, opacity tuned lower since it sits over an already-dark overlay)",
+      "flameFlicker": "2100ms loop, small rotate/scale wobble on a flame-shaped glyph -- ships as .toast-flame, used by Toast's flame icon and (Phase 23) DiagnosisReveal's candle icon beside the 'Your Diagnosis' ribbon"
     }
   }
 }

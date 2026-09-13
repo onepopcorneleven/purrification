@@ -458,43 +458,86 @@ on every page).
       both new image types (confirmed via the quiz page's `topicImage`
       data and direct `/images/treatments/`, `/images/topics/` fetches).
 
-## Phase 23 — Image & Results Experience Redesign — proposed, pending approval
+## Phase 23 — Image & Results Experience Redesign — done
 Full details: `docs/workplan/phase-23-image-experience-redesign.md`
 
 Requested 2026-09-13 as a from-scratch look-and-feel pass (explicitly
 ignoring current implementation), worked out and iterated with the user as
 a published design canvas, then accepted. This document translates that
-accepted design into a technical plan; **nothing below is implemented**.
-A same-day gap review found and closed 7 open implementation questions the
-first pass had left implicit (shared ownership-check loaders for the new
-sub-routes, the public share route's field-selection widening, which name
-field to display, on-demand vs. eager data fetching for the history quick
-view, `FramedImage`'s decorative-layer hit-target safety, per-call-site
-image sizing, and backfilling `design-tokens.json`'s missing motion-pattern
-entries) — see the side doc's "Resolved (gap review, 2026-09-13)" notes.
-- [ ] Split `/results/[id]` and `/share/[shareSlug]` into a three-tier
+accepted design into a technical plan. A same-day gap review found and
+closed 7 open implementation questions the first pass had left implicit
+(shared ownership-check loaders for the new sub-routes, the public share
+route's field-selection widening, which name field to display, on-demand
+vs. eager data fetching for the history quick view, `FramedImage`'s
+decorative-layer hit-target safety, per-call-site image sizing, and
+backfilling `design-tokens.json`'s missing motion-pattern entries) — see
+the side doc's "Resolved (gap review, 2026-09-13)" notes. Before
+implementation began, a pre-coding review surfaced one further, real gap
+neither prior pass had caught (see "Known follow-up" below) — resolved with
+the user's explicit direction before writing any code.
+- [x] Split `/results/[id]` and `/share/[shareSlug]` into a three-tier
       structure: an overview (both diagnosis + treatment summarized) plus
-      a `/diagnosis` and `/treatment` full-view sub-route each.
-- [ ] Build a shared `FramedImage` primitive (portal / tarot-card /
-      medallion variants) and retire `DiagnosisCard`'s combined rendering
-      in favor of new `ReadingOverview`/`DiagnosisReveal`/
-      `TreatmentReveal` components.
-- [ ] Retrofit the quiz's topic image from a 112×112 thumbnail to the
-      large "Portal" frame treatment.
-- [ ] Give the per-cat history list its own condensed `Modal`-based quick
-      view (combined diagnosis+treatment summary), distinct from the
-      overview, with a "View full reading" link into it.
-- [ ] Fix `Lightbox`'s missing-exit bug (a real, thumb-reachable "Close"
-      bar) and add a new sibling `TextLightbox` for full-screen reading.
-- [ ] Add a small family of decorative gold "chapter mark" glyphs
-      (flourish, constellation, a new crescent-moon mark; extend the
+      a `/diagnosis` and `/treatment` full-view sub-route each, all
+      routing through new shared `getOwnedDiagnosis`/`getSharedDiagnosis`
+      loaders (`src/lib/diagnosis/loadOwnedDiagnosis.ts`/
+      `loadSharedDiagnosis.ts`).
+- [x] Build a shared `FramedImage` primitive (portal / tarot / medallion-sm
+      / medallion-lg variants, `src/components/ui/FramedImage.tsx`) and
+      retire `DiagnosisCard`'s combined rendering (deleted) in favor of new
+      `ReadingOverview`/`DiagnosisReveal`/`TreatmentReveal` components
+      (`src/components/diagnosis/`).
+- [x] Retrofit the quiz's topic image from a 112×112 thumbnail to the
+      large "Portal" frame treatment (`QuizFlow.tsx`).
+- [x] Give the per-cat history list its own condensed `Modal`-based quick
+      view (`ReadingQuickView`, combined diagnosis+treatment summary),
+      distinct from the overview, fetching on demand from the new
+      `GET /api/diagnoses/[id]/quick-view`, with a "View full reading" link
+      into `/results/[id]`.
+- [x] Fix `Lightbox`'s missing-exit bug (a real, thumb-reachable "Close"
+      bar, plus a drag-handle hint and secondary top-right close icon —
+      `OverlayChrome.tsx`, shared with the new sibling `TextLightbox` for
+      full-screen reading).
+- [x] Add a small family of decorative gold "chapter mark" glyphs
+      (`FlourishMark`, `ConstellationMark`, `CrescentMark`; extend the
       already-shipped `OrnamentalRule` beyond `PageShell`) placed across
-      the site, not just the pages this phase touches directly.
-- [ ] Retune the `glow-pulse` motion token from 2400ms to 4200ms, add a
-      new large-image glow variant, and reuse (not duplicate) the existing
-      `fog-drift`/`flame-flicker` patterns on the new surfaces.
-- [ ] No new illustration assets, schema, or content-model changes needed
-      — presentation/routing layer only.
+      the site: the results/share overview's eyebrow, login/signup
+      headlines, `/cats`'s heading and its boundary before "Add a cat",
+      `EmptyState`'s title, the history page's heading boundary, and
+      before the diagnosis/ritual text on the two full views.
+- [x] Retune the `glow-pulse` motion token from 2400ms to 4200ms (applied
+      to a confirmed quiz answer and the overview's new "Save this
+      Reading" button), add a new large-image `glow-pulse-lg` variant
+      (Portal/Tarot/large-Medallion frames, the Lightbox's framed art), and
+      reuse (not duplicate) the existing `fog-drift`/`flame-flicker`
+      patterns on the new surfaces (`.lightbox-fog`; `DiagnosisReveal`'s
+      candle icon). `design-tokens.json`'s `motion.patterns` backfilled
+      with `fogDrift`/`flameFlicker`/`glowPulseLg` entries alongside the
+      retuned `glowPulse`.
+- [x] No new illustration assets, schema, or content-model changes needed
+      — presentation/routing layer only. Confirmed true: this phase touched
+      no `prisma/schema.prisma`, no migration, no seed content.
+
+**Known follow-up, not yet done — deliberately deferred, not silently
+dropped.** Before coding began, cross-checking the plan against the actual
+migration history surfaced a real gap neither the original plan nor its
+gap-review pass had caught: `TreatmentImage` (Phase 21's migration) was
+purely additive with no backfill, unlike `DiagnosisDefImage` (Phase 15),
+which backfilled from a pre-existing single-column `imagePath`. That means
+the ~10 pre-Phase-14 retired placeholder `Treatment` rows — still
+referenced by roughly 22 historical `Diagnosis` records via the
+`onDelete: Restrict` FK — have an empty `TreatmentImage` pool, with nothing
+for `TreatmentReveal`'s hero (or the overview's treatment medallion
+thumbnail) to show for those specific historical results. Asked how to
+handle it, the user chose to ship a decorative fallback now (`FramedImage`
+renders a centered, dimmed `Mark` glyph on the brand's radial-gold
+background instead of a broken image whenever `src` is undefined) rather
+than block this phase on generating real images for retired content, and
+asked for the gap to be documented here for a later session to pick up.
+**Follow-up for a future phase:** generate real illustrations (the same
+`codex exec`/brand-doc pipeline as Phase 17/22) for the ~10 retired
+placeholder `Treatment` rows, and author them into a seed update, so the
+~22 affected historical results get a real image instead of the
+decorative fallback.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,

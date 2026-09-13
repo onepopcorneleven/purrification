@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { QuizProgress } from "@/components/ui/QuizProgress";
-import { Expandable } from "@/components/ui/Expandable";
+import { FramedImage } from "@/components/ui/FramedImage";
 import { useToast } from "@/components/ui/Toast";
 
 // R-CONTENT-1: question content is DB-backed (see prisma/schema.prisma's
@@ -146,21 +145,16 @@ export function QuizFlow({
       {transition === "none" ? (
         <div key={question.id} className="flex flex-col gap-3">
           {question.topicImage && (
-            <Expandable
-              label="View larger illustration for this topic"
+            <FramedImage
+              variant="portal"
               src={`/images/topics/${question.topicImage}`}
               alt=""
-              className="mx-auto block h-28 w-28 overflow-hidden rounded-lg border border-border-hairline shadow-glow-gold-sm sm:h-32 sm:w-32"
-            >
-              <Image
-                src={`/images/topics/${question.topicImage}`}
-                alt=""
-                width={224}
-                height={280}
-                sizes="128px"
-                className="h-full w-full object-cover"
-              />
-            </Expandable>
+              label="View larger illustration for this topic"
+              width={480}
+              height={600}
+              sizes="(min-width: 640px) 480px, 100vw"
+              className="mx-auto w-full max-w-md"
+            />
           )}
           <h2 className="font-heading text-xl">{question.prompt}</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -172,7 +166,7 @@ export function QuizFlow({
                   key={option.id}
                   className={`relative flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-4 py-5 text-center font-ui transition-all duration-300 ease-dreamy has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-500 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bg-base ${
                     isConfirmed
-                      ? "border-gold-500 bg-gold-500 text-text-on-gold shadow-glow-gold-md"
+                      ? "animate-glow-pulse border-gold-500 bg-gold-500 text-text-on-gold"
                       : isSelected
                         ? "animate-glow-pulse border-gold-500 bg-bg-elevated"
                         : "border-border-hairline bg-bg-raised hover:-translate-y-0.5 hover:border-border-hairline-strong hover:shadow-glow-gold-sm"
@@ -250,7 +244,7 @@ export function QuizFlow({
           {transition === "reception" && (
             /* eslint-disable-next-line @next/next/no-img-element -- a tiny
                 decorative SVG preview; next/image's optimizer doesn't apply
-                to it (same reasoning as DiagnosisCard's seal stamp). */
+                to it (same reasoning as ReadingOverview's seal stamp). */
             <img
               src="/icons/seal-of-completion.svg"
               alt=""

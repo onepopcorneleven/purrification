@@ -4,6 +4,8 @@ import { getCurrentUser } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db/client";
 import { PageShell } from "@/components/ui/PageShell";
 import { Expandable } from "@/components/ui/Expandable";
+import { FlourishMark } from "@/components/ui/FlourishMark";
+import { OrnamentalRule } from "@/components/ui/OrnamentalRule";
 import { AddCatForm } from "./AddCatForm";
 import { CatList } from "./CatList";
 
@@ -36,7 +38,10 @@ export default async function CatsPage() {
           />
         </Expandable>
         <div>
-          <h1 className="mb-4 font-heading text-2xl">Your cats</h1>
+          <h1 className="mb-4 flex items-center gap-2 font-heading text-2xl">
+            <FlourishMark size={20} className="text-gold-500" />
+            Your cats
+          </h1>
           <CatList
             cats={cats.map((cat) => ({
               id: cat.id,
@@ -45,6 +50,7 @@ export default async function CatsPage() {
             }))}
           />
         </div>
+        <OrnamentalRule />
         <div>
           <h2 className="mb-4 font-heading text-xl">Add a cat</h2>
           <AddCatForm />
