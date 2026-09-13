@@ -458,6 +458,37 @@ on every page).
       both new image types (confirmed via the quiz page's `topicImage`
       data and direct `/images/treatments/`, `/images/topics/` fetches).
 
+## Phase 23 — Image & Results Experience Redesign — proposed, pending approval
+Full details: `docs/workplan/phase-23-image-experience-redesign.md`
+
+Requested 2026-09-13 as a from-scratch look-and-feel pass (explicitly
+ignoring current implementation), worked out and iterated with the user as
+a published design canvas, then accepted. This document translates that
+accepted design into a technical plan; **nothing below is implemented**.
+- [ ] Split `/results/[id]` and `/share/[shareSlug]` into a three-tier
+      structure: an overview (both diagnosis + treatment summarized) plus
+      a `/diagnosis` and `/treatment` full-view sub-route each.
+- [ ] Build a shared `FramedImage` primitive (portal / tarot-card /
+      medallion variants) and retire `DiagnosisCard`'s combined rendering
+      in favor of new `ReadingOverview`/`DiagnosisReveal`/
+      `TreatmentReveal` components.
+- [ ] Retrofit the quiz's topic image from a 112×112 thumbnail to the
+      large "Portal" frame treatment.
+- [ ] Give the per-cat history list its own condensed `Modal`-based quick
+      view (combined diagnosis+treatment summary), distinct from the
+      overview, with a "View full reading" link into it.
+- [ ] Fix `Lightbox`'s missing-exit bug (a real, thumb-reachable "Close"
+      bar) and add a new sibling `TextLightbox` for full-screen reading.
+- [ ] Add a small family of decorative gold "chapter mark" glyphs
+      (flourish, constellation, a new crescent-moon mark; extend the
+      already-shipped `OrnamentalRule` beyond `PageShell`) placed across
+      the site, not just the pages this phase touches directly.
+- [ ] Retune the `glow-pulse` motion token from 2400ms to 4200ms, add a
+      new large-image glow variant, and reuse (not duplicate) the existing
+      `fog-drift`/`flame-flicker` patterns on the new surfaces.
+- [ ] No new illustration assets, schema, or content-model changes needed
+      — presentation/routing layer only.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.
