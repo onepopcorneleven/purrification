@@ -1,0 +1,243 @@
+# Phase 23 — Image & Results Experience Redesign
+
+Extended notes for `docs/workplan.md`'s Phase 23 entry. **Proposed,
+pending approval — nothing below is implemented yet.** This is a
+translation of a look-and-feel design pass (worked out with the user as a
+Claude Design canvas, seven mobile-first artboards, iterated live over
+several rounds of feedback) into a concrete technical change plan. No code,
+schema, or content changes have been made — this document is the
+instruction for a future implementation session.
+
+## Context
+
+Phase 22 gave `Treatment` and `QuestionTopic` real illustrations and wired
+them into the UI for the first time, but purely as a functional proof —
+"just enough to show the images exist." Three problems came out of using
+that in practice:
+
+1. **The quiz topic image is nearly invisible.** It renders as a
+   112×112px square-cropped thumbnail (`QuizFlow.tsx`) above the question
+   text — a portrait-oriented (4:5, 1122×1402) painterly illustration
+   reduced to a tiny cropped icon, nowhere near the "peek into a hidden
+   layer of reality" feeling the brand doc describes.
+2. **The expanded (lightbox) image view has no way to exit.** `Lightbox`
+   (`src/components/ui/Lightbox.tsx`) relies on tapping outside the image
+   or pressing Escape — on mobile, the image effectively fills the tap
+   target, so there is no discoverable, thumb-reachable way to close it.
+3. **The results page conflates two different things into one scroll.**
+   `DiagnosisCard` shows the diagnosis image + full diagnosis text + the
+   treatment's companion image + full ritual text all in one continuous
+   card, with no way to view either image at a meaningful size without
+   fighting the small inline crop.
+
+The user asked for a from-scratch look-and-feel redesign, explicitly
+ignoring current implementation, staying inside the existing brand
+identity (`docs/design/purrification-brand-guidelines.md` — dark-only,
+jewel-tone-and-gold, "antique fortune-teller machine meets tarot deck
+meets old-style circus"). The result was reviewed and iterated as a
+published design canvas (mobile-first mockups, real brand tokens, real
+illustration assets from the live content bank) and **accepted**. This
+document turns that accepted design into an implementation plan.
+
+## Decisions confirmed during the design review
+
+1. **The results page splits into three tiers**, replacing today's single
+   combined `DiagnosisCard` scroll:
+   - An **overview** showing both the diagnosis and the treatment/ritual
+     as short summaries (small circular "medallion" thumbnail, name,
+     2-line teaser of the frozen `diagnosisText`/`ritualText`, a
+     tap-to-expand affordance).
+   - A **diagnosis full view** (image + full text) reached by tapping the
+     diagnosis summary.
+   - A **treatment full view** (image + full text) reached by tapping the
+     treatment summary.
+2. **Each full view can expand further, into one of two full-screen
+   modes**: a full-screen **image** viewer (replacing the current broken
+   `Lightbox`) or a full-screen **text** reading mode — a new sibling
+   surface, built to the same chrome as the image viewer (same top
+   drag-handle hint, same top-right secondary close icon, same bottom
+   "Close" action bar), just presenting distraction-free, larger-type
+   copy instead of an image.
+3. **Every image gets a shared "framed illustration" treatment** instead
+   of an unadorned `<Image>`: a gold-hairline border, a mirrored
+   corner-flourish motif (small SVG curl-and-dot glyph, reused at all four
+   corners via CSS transform), and a soft ambient glow. Three weights of
+   the same system, matched to context:
+   - **Portal** — large rectangular frame with a bottom gradient scrim
+     dissolving into the page below it. Used for the quiz's topic image.
+   - **Tarot Reveal** — rectangular, ribboned ("Your Diagnosis" tab),
+     double gold border. Used for the diagnosis full view.
+   - **Medallion** — circular, thin gold ring. Used small (as the
+     overview's thumbnails) and large (as the treatment full view's hero
+     image, with an added dashed ring + radial tick marks for a
+     sigil/astrological feel).
+4. **Motion is added in four places**, all as slow, ambient loops (not
+   interaction feedback) — see "Motion changes" below for exact values.
+5. **No new illustration assets are needed.** This phase is
+   presentation-layer and routing only. It reuses the exact
+   `DiagnosisDefImage` / `TreatmentImage` / `QuestionTopic.imagePath` pools
+   Phase 15/21/22 already populated — the redesign changes how those
+   existing images are framed, sized, and laid out, not which images
+   exist. The only new visual assets are small decorative glyphs (corner
+   flourish, a candle-flame glyph, expand/close/chevron icons) and those
+   are inline SVG drawn directly in component markup, the same way
+   `Toast`'s existing flame icon already is — they do not go through the
+   `codex exec` illustration pipeline (`docs/workplan.md` Phase 17/22's
+   process), and nothing needs generating.
+6. **No content-model / schema changes are needed.** The overview's
+   teaser text is a truncated view of the already-stored, already-frozen
+   `Diagnosis.diagnosisText` / `Diagnosis.ritualText` snapshot fields — no
+   new column, no new query beyond what `results/[id]` and
+   `share/[shareSlug]` already fetch.
+
+## Proposed page/route structure
+
+Both `/results/[id]` (authenticated) and `/share/[shareSlug]` (public,
+unauthenticated) need the same three-tier structure — they already share
+`DiagnosisCard` today for exactly this reason (one visual, two data
+sources), and should keep sharing components under this redesign.
+
+Proposed routing (real navigation for the three tiers, not client-only
+view-state toggling — this gives native browser back-button support for
+"back to reading," and each tier a real, linkable URL):
+
+- `/results/[id]` — the new **overview** (today's route, new content).
+- `/results/[id]/diagnosis` — the diagnosis **full view**.
+- `/results/[id]/treatment` — the treatment **full view**.
+- `/share/[shareSlug]` — the same overview, public.
+- `/share/[shareSlug]/diagnosis`, `/share/[shareSlug]/treatment` — same
+  full views, public.
+
+The two **full-screen modes** (image / text) are *not* separate routes —
+they stay client-side overlays opened from a full-view page and dismissed
+via their "Close" affordance, the same architecture `Lightbox` already
+uses today (a boolean `open` state toggled by `Expandable`). This matches
+how the design canvas presents them (a modal-like takeover, not a page
+navigation) and avoids needing shareable URLs for a transient zoomed-in
+state.
+
+**Open question to confirm before implementation**: whether cat-history
+list entries should link straight to `/results/[id]` (the overview) or
+whether a "quick view" is still warranted elsewhere. Not addressed by the
+design canvas — flag and ask rather than assume.
+
+## Component changes
+
+- **Retire** `DiagnosisCard`'s combined rendering of diagnosis + treatment
+  in one card (`src/components/diagnosis/DiagnosisCard.tsx`). Its
+  CSS-module styling (the engraved-seal double border, the seal-of-
+  completion stamp) should be preserved and redistributed into the new
+  components below, not deleted outright — the "seal of completion" stamp
+  in particular has no replacement in the new design and needs a home
+  (the overview page is the natural fit, as today).
+- **New `ReadingOverview` component** (or similar; exact name TBD at
+  implementation time) rendering the two summary rows (medallion + eyebrow
+  label + Cinzel name + 2-line clamped teaser + chevron) plus the existing
+  page-level actions (save/share link). Both rows navigate to their
+  respective full-view route.
+- **New `DiagnosisReveal` component** — the "Tarot Reveal" framed image,
+  full diagnosis name, full diagnosis text, an expand-image affordance,
+  and a "Read in full screen" affordance. A back affordance returns to the
+  overview route.
+- **New `TreatmentReveal` component** — the enlarged "Medallion" framed
+  image (with dashed ring + tick marks), ritual name + duration meta, full
+  ritual text, the same two expand affordances, same back affordance.
+- **New shared `FramedImage` (or similarly named) UI primitive**
+  (`src/components/ui/`) implementing the three frame weights (portal /
+  card / medallion) as one component with a `variant` prop, so the
+  corner-flourish markup, glow class, and border treatment are defined
+  once rather than duplicated at each of the (at least four) call sites.
+  Should wrap `Expandable` internally the same way today's per-page markup
+  does.
+- **Fix `Lightbox`** (`src/components/ui/Lightbox.tsx`): add the
+  persistent bottom action bar with a large (≥52px), labeled "Close"
+  button — the actual bug fix — plus the drag-handle hint, the secondary
+  top-right close icon, a caption label, and the new ambient glow/fog
+  treatment described below. This becomes the "full-screen image" mode.
+- **New `TextLightbox` component**, a sibling to `Lightbox` sharing its
+  chrome (drag handle, top-right close icon, bottom "Close" bar) but
+  rendering a Cinzel heading + larger-than-body-size `EB Garamond` copy
+  instead of an `<Image>`. This becomes the "full-screen text" mode.
+
+## Motion changes (`src/app/globals.css`, `docs/design/design-tokens.json`)
+
+All four values below are the versions the user confirmed as correct
+after several rounds of live iteration in the design canvas (too subtle →
+too hectic → this).
+
+- **Retune the existing `glow-pulse` pattern from 2400ms to 4200ms.**
+  Today's `--animate-glow-pulse: glow-pulse 2400ms ease-in-out infinite;`
+  (`globals.css`) and `design-tokens.json`'s `motion.patterns.glowPulse`
+  description ("2400ms loop") should both change to 4200ms — the existing
+  2400ms read as noticeably more urgent/hectic once applied to a
+  confirmed quiz answer and a primary CTA button in the same session that
+  reviewed this redesign. Apply this new pace to: a confirmed/selected
+  quiz answer option (new; today's confirmed-answer state has a static
+  glow, not a pulse), and the overview page's primary "Save this Reading"
+  button (new).
+- **Add a new, larger-radius glow-pulse variant for large images** — a
+  distinct utility (e.g. `--animate-glow-pulse-lg` / an `.image-glow`
+  class), same 4200ms timing as above but a bigger, dual-tone (gold +
+  burgundy) box-shadow spread, sized for a large illustration rather than
+  a button or a form-sized card. Apply to: the quiz portal image, the
+  diagnosis reveal's Tarot Reveal frame, the treatment reveal's enlarged
+  medallion, and the `Lightbox`/full-screen image's framed art.
+- **Reuse the existing `fog-drift` pattern/keyframe** (`globals.css`'s
+  `.hero-fog`/`.app-atmosphere`, currently a 32s loop) for two new
+  surfaces — the overview page's background and the full-screen
+  image/text viewers' background — rather than defining a near-duplicate
+  keyframe. Tune only the opacity per surface, not the timing or the
+  keyframe shape.
+- **Reuse the existing `flame-flicker` pattern exactly as-is** (2100ms,
+  already shipped on `Toast`'s flame glyph) for a new, small candle-flame
+  icon beside the diagnosis reveal's "Your Diagnosis" ribbon tab. No
+  timing change — this one was correct in the canvas from the first pass.
+- All four keep the project's existing
+  `@media (prefers-reduced-motion: reduce)` discipline — every animated
+  element gets a `reduce`-mode fallback to its static end-state, matching
+  every other animation already in `globals.css`.
+
+## Accessibility notes
+
+- Every new tap target (chevron rows on the overview, back buttons,
+  expand-image icons, "Read in full screen," the `Lightbox`/`TextLightbox`
+  close controls) needs a real `aria-label` — none of them carry visible
+  text alone (the "Close" button does have a visible label; the secondary
+  top-right icon and the corner expand icons do not, and need one).
+- `Lightbox`'s bottom "Close" button must be at least 44px tall (mockup
+  used 52px) — this is the actual fix for the "no exit" bug, not
+  incidental sizing.
+- Corner-flourish and other purely decorative SVGs should be
+  `aria-hidden="true"`, matching the existing `seal-of-completion.svg`
+  pattern in `DiagnosisCard`.
+
+## Explicitly out of scope for this phase
+
+- No changes to `getDiagnosis` or any diagnosis-derivation logic.
+- No changes to the Phase 18/19 quiz confirm/divine interaction timing —
+  the quiz portal image is purely additive to the existing
+  `transition === "none"` branch, same constraint Phase 22 already
+  respected.
+- No new `codex exec` illustration generation (see "Decisions" above).
+- No admin/CMS authoring changes — content editing remains
+  commit-to-`prisma/seed/content/*.json`, unaffected by this phase.
+
+## Definition of done (for whoever implements this)
+
+- `/results/[id]` and `/share/[shareSlug]` show the new overview; tapping
+  either summary navigates to its full view; the full view's back
+  affordance returns to the overview.
+- Both full views' expand-image affordance opens the fixed `Lightbox`
+  (with its persistent, thumb-reachable "Close" button); both full views'
+  "Read in full screen" affordance opens `TextLightbox`.
+- The quiz's topic image renders as the large "Portal" frame, not the
+  current 112×112 thumbnail.
+- All four motion additions are present, timed as specified above, and
+  each has a working `prefers-reduced-motion` fallback.
+- `npm run build` and scoped `lint`/`prettier` pass clean on every changed
+  file.
+- Full golden-path functional smoke test (signup → cat → quiz → overview
+  → diagnosis full view → image full-screen → text full-screen →
+  treatment full view → share link, both authenticated and public) —
+  functional/HTML-content verification only, per this project's standing
+  no-headless-browser limitation (`CLAUDE.md`).

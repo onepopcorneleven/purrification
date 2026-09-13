@@ -40,9 +40,10 @@ complicated — that complexity belongs in a side file, not here.
 
 ## Current status
 
-All of Phases 0–20 are **done and live in production** at
-`purrification.com`. Phase 21 is **proposed, pending approval** — not
-started.
+All of Phases 0–22 are **done and live in production** at
+`purrification.com`. Phase 23 is **proposed, pending approval** — a
+design-only pass (a reviewed and accepted design canvas) has been
+translated into a technical plan, but no code has been written yet.
 
 Two follow-ups are flagged but not yet done (see Phase 14 below for
 context): a dedicated tone/content review pass of the Phase 14 content
@@ -453,6 +454,30 @@ on every page).
       "Production Deploy" safety classifier when attempted from an agent
       turn, independent of the user's automode instruction. Left for the
       user to trigger manually.
+
+## Phase 23 — Image & Results Experience Redesign — proposed, pending approval
+Full details: `docs/workplan/phase-23-image-experience-redesign.md`
+
+Requested 2026-09-13 as a from-scratch look-and-feel pass (explicitly
+ignoring current implementation), worked out and iterated with the user as
+a published design canvas, then accepted. This document translates that
+accepted design into a technical plan; **nothing below is implemented**.
+- [ ] Split `/results/[id]` and `/share/[shareSlug]` into a three-tier
+      structure: an overview (both diagnosis + treatment summarized) plus
+      a `/diagnosis` and `/treatment` full-view sub-route each.
+- [ ] Build a shared `FramedImage` primitive (portal / tarot-card /
+      medallion variants) and retire `DiagnosisCard`'s combined rendering
+      in favor of new `ReadingOverview`/`DiagnosisReveal`/
+      `TreatmentReveal` components.
+- [ ] Retrofit the quiz's topic image from a 112×112 thumbnail to the
+      large "Portal" frame treatment.
+- [ ] Fix `Lightbox`'s missing-exit bug (a real, thumb-reachable "Close"
+      bar) and add a new sibling `TextLightbox` for full-screen reading.
+- [ ] Retune the `glow-pulse` motion token from 2400ms to 4200ms, add a
+      new large-image glow variant, and reuse (not duplicate) the existing
+      `fog-drift`/`flame-flicker` patterns on the new surfaces.
+- [ ] No new illustration assets, schema, or content-model changes needed
+      — presentation/routing layer only.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
