@@ -176,6 +176,81 @@ list as a faster preview.
   its own — a client-side overlay over the history list, the same
   architecture as `Lightbox`/`TextLightbox`.
 
+## Decorative gold marks ("chapter marks")
+
+The design canvas scattered a few small, purely decorative gold glyphs
+around the mockups (e.g. the flourish glyph sitting to the left of the
+Framed Illustration System sheet's closing caption, "One gold hairline
+flourish, mirrored into all four corners…"). The user asked for this
+treated as its own small addon: design a few more of these, in the same
+family, and place them at appropriate spots across the site — not just the
+pages this phase already touches.
+
+**This isn't starting from zero — one of these already exists in
+production.** `OrnamentalRule` (`src/components/ui/OrnamentalRule.tsx`) is
+already exactly this kind of mark (a hairline with a centered gold
+diamond), but is only ever used inside `PageShell`'s header/footer today.
+The mark family for this phase is:
+
+1. **Flourish** (already designed, in the mockups) — a small curl-and-dot
+   glyph, already used mirrored at all four corners of every `FramedImage`
+   variant, and standalone next to a caption. Needs componentizing (e.g.
+   `FlourishMark`) since it currently only exists as inline SVG duplicated
+   across the mockup's `.dc.html` files.
+2. **Constellation** (already designed, in the mockups) — three dots
+   joined by thin lines, used above the "Spiritual Reading" eyebrow on the
+   results overview. Also needs componentizing (e.g. `ConstellationMark`).
+3. **Diamond-on-a-rule** — **already shipped**, reuse `OrnamentalRule`
+   as-is. Its use should simply extend beyond `PageShell`: anywhere a page
+   currently separates two content blocks with a plain `border-t`/
+   `border-b` hairline or nothing at all (candidates to check at
+   implementation time: `/cats`'s boundary between the "add a cat" form
+   and the cat list; between a history list and its per-cat empty state).
+4. **New: Crescent** — a simple thin gold crescent-moon outline, the one
+   genuinely new glyph this phase adds. The brand doc's own logo-direction
+   section (§3) names "a third eye, a crescent moon, a constellation
+   pattern" as the mark's territory — flourish and constellation are
+   already spoken for above, crescent is the one left unused as a
+   decorative accent. This is the glyph proposed for the "beginning of
+   long text" placement below.
+
+All four are small, single-color gold SVGs (stroke-based, matching the
+existing flourish/constellation/diamond style — never filled illustration,
+never emoji), `aria-hidden="true"` like every other purely decorative mark
+in this codebase (`OrnamentalRule`, `DiagnosisCard`'s seal-of-completion
+stamp).
+
+**Proposed placements:**
+- Constellation mark: above the results overview's "Spiritual Reading"
+  eyebrow (per the mockup) — and newly, above the login and signup pages'
+  headline text, which today is plain, unornamented copy despite being a
+  first-impression moment for the brand.
+- Flourish mark: standalone next to a section heading that introduces a
+  content block with no adjacent image to frame — e.g. `/cats`'s "Your
+  cats" heading, and `EmptyState`'s title text.
+- Diamond-on-a-rule (`OrnamentalRule`): as described above, wherever a
+  plain content-block boundary exists outside `PageShell`.
+- **Crescent mark: at the start of a long-form text block** —
+  specifically the diagnosis text on `DiagnosisReveal` and the ritual text
+  on `TreatmentReveal`. This was the user's own example case.
+
+**On the user's motion suggestion for the crescent mark (their words:
+"you decide if that is a good idea")**: yes, but as a one-shot entrance,
+not a continuous loop. Both `DiagnosisReveal` and `TreatmentReveal`
+already carry one continuous ambient animation each (the candle-flicker
+on the diagnosis ribbon, the glow-pulse on the large image) — adding a
+second, independent continuous loop right next to the body text risks
+tipping a page whose whole point is a calm, focused read (it's also the
+gateway into the distraction-free `TextLightbox`) into visual competition
+between two looping things at once, which cuts against this project's own
+"one focal animated element at a time" discipline. Instead: apply the
+project's existing one-shot `fade-in` pattern (`--animate-fade-in` /
+`.animate-fade-in`, already used everywhere — `DiagnosisCard`, `QuizFlow`
+question transitions, `PageShell`'s wordmark) to the crescent mark, so it
+fades and drifts in once when the page/section mounts, then sits still.
+No new keyframe needed — it's the existing entrance treatment applied to
+a new small element, not new motion.
+
 ## Motion changes (`src/app/globals.css`, `docs/design/design-tokens.json`)
 
 All four values below are the versions the user confirmed as correct
@@ -251,6 +326,11 @@ too hectic → this).
   current 112×112 thumbnail.
 - Each per-cat history list row opens the `ReadingQuickView` modal;
   its "View full reading" action navigates into `/results/[id]`.
+- `FlourishMark`/`ConstellationMark`/new `CrescentMark` components exist
+  and are placed per "Decorative gold marks" above; `OrnamentalRule`'s
+  usage is extended beyond `PageShell`; the crescent mark before
+  diagnosis/ritual text uses the existing one-shot `fade-in`, not a new
+  continuous loop.
 - All four motion additions are present, timed as specified above, and
   each has a working `prefers-reduced-motion` fallback.
 - `npm run build` and scoped `lint`/`prettier` pass clean on every changed

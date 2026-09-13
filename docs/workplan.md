@@ -476,6 +476,10 @@ accepted design into a technical plan; **nothing below is implemented**.
       overview, with a "View full reading" link into it.
 - [ ] Fix `Lightbox`'s missing-exit bug (a real, thumb-reachable "Close"
       bar) and add a new sibling `TextLightbox` for full-screen reading.
+- [ ] Add a small family of decorative gold "chapter mark" glyphs
+      (flourish, constellation, a new crescent-moon mark; extend the
+      already-shipped `OrnamentalRule` beyond `PageShell`) placed across
+      the site, not just the pages this phase touches directly.
 - [ ] Retune the `glow-pulse` motion token from 2400ms to 4200ms, add a
       new large-image glow variant, and reuse (not duplicate) the existing
       `fog-drift`/`flame-flicker` patterns on the new surfaces.
