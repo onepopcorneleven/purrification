@@ -8,8 +8,7 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–21 are all done (Phase 21 partially — see
-below) and live in production at
+`docs/workplan.md` Phases 0–22 are all done and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
 deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
@@ -60,20 +59,26 @@ a real, tuned `sizes` prop plus this treatment. The same phase extended
 image support beyond `DiagnosisDef` to `Treatment` (a `TreatmentImage`
 pool, mirroring `DiagnosisDefImage`) and `QuestionTopic`
 (`imagePath String?`, one illustration per topic) — schema and seed
-pipeline only, zero images seeded yet (mirrors the Phase 15 → Phase 17
-precedent), and wiring either into an actual page was explicitly left
-undone: neither `Treatment` nor `QuestionTopic` content is rendered
-anywhere in the UI today, so there's no existing display to attach an
-image to without inventing new UI, which wasn't part of what was asked.
-`sharp` moved from an implicit transitive dependency (via `next`) to an
-explicit one. The throwaway Phase 20 `/allimages` debug page was deleted,
-fully superseded by `Lightbox`. A dedicated tone/content review pass,
-exhaustive multi-path smoke testing across all 12 diagnoses, and deciding
-where the new Treatment/Topic images actually render are all still
-flagged as follow-up, not yet done — see
+pipeline only, zero images seeded at the time. `sharp` moved from an
+implicit transitive dependency (via `next`) to an explicit one. The
+throwaway Phase 20 `/allimages` debug page was deleted, fully superseded
+by `Lightbox`. Most recently (Phase 22), that Phase 21 follow-up shipped:
+real, purpose-generated illustrations (same `codex exec`/brand-doc
+pipeline as Phase 17) for all 10 active `Treatment` rows and all 5
+`QuestionTopic` rows, authored into `prisma/seed/content/treatments.json`/
+`topics.json`. Mid-task, the user explicitly extended the scope beyond
+"images only" to also wire both into the UI — the exact thing Phase 21 had
+deliberately left undone — so `DiagnosisCard` (shared by `/results/[id]`
+and `/share/[shareSlug]`) now shows a small companion illustration for the
+diagnosis's linked `Treatment` beside the ritual text, and `QuizFlow` now
+shows each question's topic illustration above its prompt; both are purely
+additive and don't touch `getDiagnosis`'s derivation logic or the Phase
+18/19 confirm/divine quiz interaction. A dedicated tone/content review
+pass and exhaustive multi-path smoke testing across all 12 diagnoses are
+still flagged as follow-up, not yet done — see
 `docs/content/content-storage-architecture.md` for the full schema/engine
-spec, and `workplan.md`'s Phase 14/15/16/18/21 entries for each execution
-log.
+spec, and `workplan.md`'s Phase 14/15/16/18/21/22 entries for each
+execution log.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the

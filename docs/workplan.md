@@ -396,6 +396,44 @@ separate follow-up phase, mirroring the Phase 15 → Phase 17 precedent.
       dependency; migration applied and content reseeded cleanly against
       the live VPS DB; deployed and verified live.
 
+## Phase 22 — Treatment/Topic image authoring, and UI wiring — done
+Full details: `docs/workplan/phase-22-treatment-topic-image-authoring.md`
+Requested 2026-09-13, in two steps: first scoped to "author image creation
+only" (the Phase 21 → follow-up this project's docs already flagged:
+generate real illustrations for the 10 `Treatment`/5 `QuestionTopic`
+entries Phase 21 shipped with empty image pools), then extended mid-task
+to also design and wire up display UI for both — explicitly authorized by
+the user ("implement a UI wiring afterwords according to your
+preferences... go full automode"), which is what actually makes the new
+images visible anywhere (Phase 21 had left both content types unrendered
+on every page).
+- [x] Generate 10 Treatment + 5 Topic illustrations via `codex exec`, same
+      brand-doc prompt template and 4:5 aspect ratio as every prior
+      illustration pass.
+- [x] Author `image_paths`/`image_path` into
+      `prisma/seed/content/treatments.json`/`topics.json` via clean,
+      targeted per-entry diffs.
+- [x] Reseed against the live VPS DB; verify all 10 Treatments/5 Topics
+      have an image.
+- [x] Add a `treatmentImage` prop to `DiagnosisCard`, wired through
+      `results/[id]` and `share/[shareSlug]`, showing a small companion
+      illustration for the linked `Treatment` beside the ritual text.
+- [x] Add a `topicImage` field to `QuizFlow`'s per-question shape, wired
+      through `quiz/page.tsx`, showing each question's topic illustration
+      above its prompt — purely additive, no changes to the Phase 18/19
+      confirm/divine interaction logic.
+- [x] Full golden-path functional smoke test against a real production
+      build (signup → cat → quiz → results → share), confirming both new
+      image types render with the correct file per page.
+- [x] `npm run build` clean; scoped lint/prettier clean on every changed
+      file.
+- [ ] **Not done — outside what this session is permitted to do
+      autonomously.** Merging the PR and running the live VPS deploy
+      (`purrification-deploy` restart): blocked by this harness's own
+      "Production Deploy" safety classifier when attempted from an agent
+      turn, independent of the user's automode instruction. Left for the
+      user to trigger manually.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.

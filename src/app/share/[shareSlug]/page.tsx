@@ -25,6 +25,11 @@ export default async function SharePage({
           images: { orderBy: { sortOrder: "asc" }, select: { path: true } },
         },
       },
+      treatment: {
+        select: {
+          images: { orderBy: { sortOrder: "asc" }, select: { path: true } },
+        },
+      },
     },
   });
   if (!diagnosis) {
@@ -40,6 +45,10 @@ export default async function SharePage({
           ritualText={diagnosis.ritualText}
           image={pickStableImage(
             diagnosis.diagnosisDef.images.map((img) => img.path),
+            diagnosis.id,
+          )}
+          treatmentImage={pickStableImage(
+            diagnosis.treatment.images.map((img) => img.path),
             diagnosis.id,
           )}
         />

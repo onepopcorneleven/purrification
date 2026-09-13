@@ -32,6 +32,7 @@ export default async function QuizPage({
       id: true,
       promptMystical: true,
       inputType: true,
+      topic: { select: { imagePath: true } },
       answers: {
         orderBy: { sortOrder: "asc" },
         select: { id: true, labelMystical: true },
@@ -41,6 +42,11 @@ export default async function QuizPage({
   const questions = activeQuestions.map((q) => ({
     id: q.id,
     prompt: q.promptMystical,
+    // Phase 22: each topic's illustration (QuestionTopic.imagePath),
+    // carried straight through per-question rather than de-duplicated by
+    // topic change — QuizFlow only ever renders one question at a time, so
+    // there's no "same image twice in a row" to avoid.
+    topicImage: q.topic.imagePath ?? undefined,
     // Phase 19: randomize nominal (non-SCALE) answer order per page load so
     // a fixed screen position doesn't correlate with a specific tag effect
     // for anyone clicking through without reading each option.
