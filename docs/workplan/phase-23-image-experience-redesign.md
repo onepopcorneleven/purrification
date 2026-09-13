@@ -116,10 +116,20 @@ how the design canvas presents them (a modal-like takeover, not a page
 navigation) and avoids needing shareable URLs for a transient zoomed-in
 state.
 
-**Open question to confirm before implementation**: whether cat-history
-list entries should link straight to `/results/[id]` (the overview) or
-whether a "quick view" is still warranted elsewhere. Not addressed by the
-design canvas — flag and ask rather than assume.
+**Resolved**: cat-history list entries (Phase 6's per-cat history view,
+`docs/workplan.md`) get their **own** quick view, distinct from the
+overview — a history list is a scan-many-at-a-glance context, and even the
+overview's two-summary-row layout is a full page navigation away from it.
+Proposed shape: each history row opens the existing `Modal` component
+(`src/components/ui/Modal.tsx`) as an in-place quick view — a single,
+more condensed combined summary (both the diagnosis's and the treatment's
+medallion + name + teaser, not the overview's two full-width rows) — with
+one primary action, "View full reading," linking into `/results/[id]`
+for anyone who wants the complete overview → full-view → full-screen
+experience. The quick view stays a client-side modal with no route of its
+own (consistent with how `Lightbox`/`TextLightbox` are overlays, not
+pages); it does not replace the overview, it sits in front of the history
+list as a faster preview.
 
 ## Component changes
 
@@ -158,6 +168,13 @@ design canvas — flag and ask rather than assume.
   chrome (drag handle, top-right close icon, bottom "Close" bar) but
   rendering a Cinzel heading + larger-than-body-size `EB Garamond` copy
   instead of an `<Image>`. This becomes the "full-screen text" mode.
+- **New `ReadingQuickView` component** (or similar) rendered inside the
+  existing `Modal` primitive, opened from each row of the per-cat history
+  list (Phase 6). A single condensed summary combining both the
+  diagnosis's and the treatment's medallion + name + teaser, plus one
+  "View full reading" action linking into `/results/[id]`. No route of
+  its own — a client-side overlay over the history list, the same
+  architecture as `Lightbox`/`TextLightbox`.
 
 ## Motion changes (`src/app/globals.css`, `docs/design/design-tokens.json`)
 
@@ -232,6 +249,8 @@ too hectic → this).
   "Read in full screen" affordance opens `TextLightbox`.
 - The quiz's topic image renders as the large "Portal" frame, not the
   current 112×112 thumbnail.
+- Each per-cat history list row opens the `ReadingQuickView` modal;
+  its "View full reading" action navigates into `/results/[id]`.
 - All four motion additions are present, timed as specified above, and
   each has a working `prefers-reduced-motion` fallback.
 - `npm run build` and scoped `lint`/`prettier` pass clean on every changed

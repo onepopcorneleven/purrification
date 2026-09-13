@@ -471,6 +471,9 @@ accepted design into a technical plan; **nothing below is implemented**.
       `TreatmentReveal` components.
 - [ ] Retrofit the quiz's topic image from a 112×112 thumbnail to the
       large "Portal" frame treatment.
+- [ ] Give the per-cat history list its own condensed `Modal`-based quick
+      view (combined diagnosis+treatment summary), distinct from the
+      overview, with a "View full reading" link into it.
 - [ ] Fix `Lightbox`'s missing-exit bug (a real, thumb-reachable "Close"
       bar) and add a new sibling `TextLightbox` for full-screen reading.
 - [ ] Retune the `glow-pulse` motion token from 2400ms to 4200ms, add a
