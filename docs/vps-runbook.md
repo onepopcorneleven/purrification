@@ -307,6 +307,27 @@ architecture.md` §8) runs right after `prisma migrate deploy`, in the same
 `.env.production`-sourced subshell — content seeding needs `DATABASE_URL`
 too, and it's idempotent (upsert-by-stable-id), so running it on every
 deploy is safe even when the seed JSON hasn't changed.
+
+**Gotcha (hit 2026-09-13, fixing a leaked `DISABLE_AUTH=true`):** editing
+`~/purrification/.env.production` and restarting the service is **not**
+enough to change a runtime env var on an already-built deploy.
+`next build --output=standalone` bakes a **copy** of whatever `.env*`
+files exist in the project root at build time into
+`.next/standalone/.env.production` — Next.js's own standalone server
+loads that bundled copy at startup, independently of (and in addition to)
+whatever systemd's `EnvironmentFile=` points at. `/proc/<pid>/environ`
+only reflects the exec-time environment systemd injected, so it will
+look correct even when the bundled copy is stale — it doesn't reflect
+env vars Next's own loader adds to `process.env` after the process
+starts. Concretely: editing the source `.env.production` after a build
+has already run, then just restarting, changes nothing live, because the
+repeat-deploy script's asset-copy step (above) only re-copies
+`public/`/`.next/static`, never `.env.production` into
+`.next/standalone/`. Either patch
+`.next/standalone/.env.production` directly and restart, or (the correct
+fix for anything that should persist across the *next* deploy too) fix
+the source `.env.production` and run a fresh `npm run build`, which
+regenerates the bundled copy from the corrected source.
 Requires `deploy` to have passwordless `sudo` scoped to
 `systemctl restart purrification` only (edit via `sudo visudo`):
 ```
