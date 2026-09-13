@@ -1,10 +1,11 @@
 import { redirect, notFound } from "next/navigation";
 import { TextLink } from "@/components/ui/TextLink";
 import { getCurrentUser } from "@/lib/auth/guard";
-import { prisma } from "@/lib/db/client";
-import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard";
+import { getOwnedDiagnosis } from "@/lib/diagnosis/loadOwnedDiagnosis";
+import { ReadingOverview } from "@/components/diagnosis/ReadingOverview";
 import { PageShell } from "@/components/ui/PageShell";
 import { pickStableImage } from "@/lib/diagnosis/engine";
+import { SaveReadingButton } from "./SaveReadingButton";
 
 export default async function ResultPage({
   params,
@@ -17,43 +18,49 @@ export default async function ResultPage({
   }
 
   const { id } = await params;
-  const diagnosis = await prisma.diagnosis.findUnique({
-    where: { id },
-    include: {
-      quizAttempt: { include: { cat: true } },
-      diagnosisDef: { include: { images: { orderBy: { sortOrder: "asc" } } } },
-      treatment: { include: { images: { orderBy: { sortOrder: "asc" } } } },
-    },
-  });
-  if (!diagnosis || diagnosis.quizAttempt.cat.userId !== user.id) {
+  const diagnosis = await getOwnedDiagnosis(id, user.id);
+  if (!diagnosis) {
     notFound();
   }
+
+  const basePath = `/results/${id}`;
 
   return (
     <PageShell user={user}>
       <div className="hero-fog rounded-lg">
-        <DiagnosisCard
+        <ReadingOverview
           catName={diagnosis.quizAttempt.cat.name}
-          diagnosisText={diagnosis.diagnosisText}
-          ritualText={diagnosis.ritualText}
-          image={pickStableImage(
-            diagnosis.diagnosisDef.images.map((img) => img.path),
-            diagnosis.id,
-          )}
-          treatmentImage={pickStableImage(
-            diagnosis.treatment.images.map((img) => img.path),
-            diagnosis.id,
-          )}
-        >
-          <p className="mt-6">
-            <TextLink
-              href={`/share/${diagnosis.shareSlug}`}
-              className="font-ui text-sm text-gold-300 hover:underline"
-            >
-              Share this reading
-            </TextLink>
-          </p>
-        </DiagnosisCard>
+          basePath={basePath}
+          diagnosis={{
+            nameMystical: diagnosis.diagnosisDef.nameMystical,
+            teaser: diagnosis.diagnosisText,
+            image: pickStableImage(
+              diagnosis.diagnosisDef.images.map((img) => img.path),
+              diagnosis.id,
+            ),
+            imageDir: "diagnoses",
+          }}
+          treatment={{
+            nameMystical: diagnosis.treatment.nameMystical,
+            teaser: diagnosis.ritualText,
+            image: pickStableImage(
+              diagnosis.treatment.images.map((img) => img.path),
+              diagnosis.id,
+            ),
+            imageDir: "treatments",
+          }}
+          actions={
+            <>
+              <SaveReadingButton />
+              <TextLink
+                href={`/share/${diagnosis.shareSlug}`}
+                className="font-ui text-sm text-gold-300 hover:underline"
+              >
+                Share this reading
+              </TextLink>
+            </>
+          }
+        />
       </div>
       <p className="mt-6">
         <TextLink

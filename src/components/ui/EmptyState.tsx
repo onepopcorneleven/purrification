@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { Expandable } from "./Expandable";
+import { FlourishMark } from "./FlourishMark";
 
 type EmptyStateProps = {
   title: string;
@@ -40,7 +41,10 @@ export function EmptyState({
           />
         </Expandable>
       )}
-      <h3 className="font-heading text-xl text-text-primary">{title}</h3>
+      <h3 className="flex items-center gap-2 font-heading text-xl text-text-primary">
+        <FlourishMark size={18} className="text-gold-500" />
+        {title}
+      </h3>
       {description && (
         <p className="max-w-prose text-sm text-text-secondary">{description}</p>
       )}

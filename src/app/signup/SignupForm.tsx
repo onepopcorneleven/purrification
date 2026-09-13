@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { TextLink } from "@/components/ui/TextLink";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { ConstellationMark } from "@/components/ui/ConstellationMark";
 import { useToast } from "@/components/ui/Toast";
 
 export function SignupForm() {
@@ -37,6 +38,7 @@ export function SignupForm() {
 
   return (
     <div className="flex flex-col gap-6">
+      <ConstellationMark className="text-gold-500" />
       <h1 className="font-heading text-2xl">Sign up</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field

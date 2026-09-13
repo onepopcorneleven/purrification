@@ -87,6 +87,42 @@ still flagged as follow-up, not yet done — see
 spec, and `workplan.md`'s Phase 14/15/16/18/21/22 entries for each
 execution log.
 
+Most recently (Phase 23), a from-scratch look-and-feel redesign of the
+results/share experience and several image-presentation gaps it surfaced
+(worked out with the user as a Claude Design canvas, then translated into
+`docs/workplan/phase-23-image-experience-redesign.md`'s implementation
+plan) shipped as presentation/routing-only — no schema, migration, or seed
+content changed. `DiagnosisCard`'s single combined scroll is retired
+(deleted) in favor of a three-tier structure shared by `/results/[id]` and
+`/share/[shareSlug]`: a `ReadingOverview` (two tappable summary rows) plus
+`/diagnosis` and `/treatment` full-view sub-routes (`DiagnosisReveal`/
+`TreatmentReveal`), all six routes sharing one ownership check
+(`src/lib/diagnosis/loadOwnedDiagnosis.ts`) or one public field allowlist
+(`loadSharedDiagnosis.ts`) rather than re-deriving either per route. A new
+`FramedImage` primitive (`src/components/ui/FramedImage.tsx`) gives every
+image site a consistent gold-hairline-and-corner-flourish treatment in one
+of three weights (Portal/Tarot/Medallion), replacing the quiz's
+easy-to-miss 112×112 topic thumbnail with a large Portal frame, and
+rendering a decorative fallback glyph (never a broken image) wherever a
+linked `Treatment`'s image pool is empty — see the phase doc's "Known
+follow-up" for why that pool is empty for the ~10 retired placeholder
+`Treatment` rows behind ~22 historical results, and workplan.md's Phase 23
+entry for the real-image backfill this leaves for a later session.
+`Lightbox`'s original no-exit-affordance bug is fixed (a persistent,
+thumb-reachable "Close" bar), and a new sibling `TextLightbox` gives both
+full views a distraction-free full-screen reading mode. The per-cat
+history list now opens a condensed `ReadingQuickView` modal per row
+(fetched on demand from `GET /api/diagnoses/[id]/quick-view`) instead of
+linking straight into the full overview. A small family of decorative gold
+"chapter mark" glyphs (`FlourishMark`, `ConstellationMark`, `CrescentMark`,
+alongside the already-shipped `OrnamentalRule`) is placed across the site,
+not just the pages this phase touches directly. The `glow-pulse` motion
+token is retuned from 2400ms to 4200ms and a new large-image
+`glow-pulse-lg` variant added, both documented in
+`docs/design/design-tokens.json` alongside backfilled `fogDrift`/
+`flameFlicker` entries for two patterns that had shipped in earlier phases
+without ever being added to that doc.
+
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
 binary needs system shared libraries (`libnspr4`, `libnss3`, etc.) that

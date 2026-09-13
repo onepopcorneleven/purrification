@@ -18,6 +18,9 @@ type ExpandableProps = {
   src: string;
   alt: string;
   className?: string;
+  /** Optional caption shown in the Lightbox under the image (Phase 23) —
+   * e.g. a diagnosis's mystical name. */
+  caption?: string;
   children: ReactNode;
 };
 
@@ -36,6 +39,7 @@ export function Expandable({
   src,
   alt,
   className,
+  caption,
   children,
 }: ExpandableProps) {
   const [open, setOpen] = useState(false);
@@ -49,7 +53,13 @@ export function Expandable({
         onClick={() => setOpen(true)}
         className="absolute inset-0 cursor-zoom-in rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
       />
-      <Lightbox open={open} onClose={() => setOpen(false)} src={src} alt={alt} />
+      <Lightbox
+        open={open}
+        onClose={() => setOpen(false)}
+        src={src}
+        alt={alt}
+        caption={caption}
+      />
     </div>
   );
 }
