@@ -16,19 +16,22 @@ interface QuizQuestion {
   prompt: string;
   // Phase 22: the question's topic illustration (QuestionTopic.imagePath),
   // shown above the prompt — purely decorative, never touches the
-  // select/confirm/divine state machine below.
+  // select/confirm/advance state machine below.
   topicImage?: string;
   options: { id: string; label: string }[];
 }
 
-// Phase 18 (workplan.md): mirrors globals.css's --duration-divination/
+// Phase 24 (workplan.md) mirrors globals.css's --duration-question-shift/
 // --duration-divination-final — these drive the JS timers below, the CSS
-// custom properties drive the matching visual pacing; keep both in sync if
-// either changes.
-const DIVINATION_MS = 2000;
-const DIVINATION_FINAL_MS = 5000;
+// durations drive the matching visual pacing; keep both in sync if either
+// changes. QUESTION_SHIFT_MS replaces Phase 18's DIVINATION_MS (2000ms,
+// a full-screen held overlay) with the lighter in-place slide-crossfade's
+// duration; RECEPTION_MS (the last question's longer, more elaborate
+// pause gating the real diagnosis request) is unchanged from Phase 18.
+const QUESTION_SHIFT_MS = 380;
+const RECEPTION_MS = 5000;
 
-const DIVINING_LINES = [
+const WHISPER_LINES = [
   "Reading the signs…",
   "The cards are turning…",
   "Consulting the pattern…",
@@ -44,7 +47,11 @@ function randomOf(pool: string[]): string {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-type Transition = "none" | "divining" | "reception";
+// Phase 24: replaces Phase 18's "none" | "divining" | "reception" — the
+// mid-quiz "divining" overlay is gone, so there are only two moments left
+// that ever block interaction: sliding out of a confirmed non-final
+// answer ("leaving"), and the last question's unchanged "reception" pause.
+type Phase = "answering" | "leaving" | "reception";
 
 export function QuizFlow({
   catId,
@@ -61,13 +68,16 @@ export function QuizFlow({
   // a *second* click of the same, already-selected option — see
   // docs/workplan.md's Phase 18 for the full interaction spec.
   const [confirmed, setConfirmed] = useState(false);
-  const [transition, setTransition] = useState<Transition>("none");
-  const [transitionLine, setTransitionLine] = useState(DIVINING_LINES[0]);
+  const [phase, setPhase] = useState<Phase>("answering");
+  // Shown in the hint line while phase === "leaving", or in the reception
+  // overlay while phase === "reception" — the two are mutually exclusive,
+  // so one piece of state can serve both.
+  const [line, setLine] = useState(WHISPER_LINES[0]);
 
   const question = questions[step];
   const isLastStep = step === questions.length - 1;
   const selected = answers[question.id];
-  const busy = transition !== "none";
+  const busy = phase !== "answering";
 
   function selectOption(optionId: string) {
     if (busy) return;
@@ -88,28 +98,29 @@ export function QuizFlow({
 
   function beginTransition() {
     if (isLastStep) {
-      setTransitionLine(randomOf(RECEPTION_LINES));
-      setTransition("reception");
+      setLine(randomOf(RECEPTION_LINES));
+      setPhase("reception");
       void receiveDiagnosis();
       return;
     }
-    setTransitionLine(randomOf(DIVINING_LINES));
-    setTransition("divining");
+    setLine(randomOf(WHISPER_LINES));
+    setPhase("leaving");
     window.setTimeout(() => {
       setStep((s) => s + 1);
       setConfirmed(false);
-      setTransition("none");
-    }, DIVINATION_MS);
+      setPhase("answering");
+    }, QUESTION_SHIFT_MS);
   }
 
   // The last question's confirm gates the real diagnosis request behind
-  // the same dramatic pause the mid-quiz questions get, just longer and
-  // more elaborate (Phase 18) — navigation waits for whichever finishes
-  // last, the animation's minimum duration or the real fetch, so a slow
-  // request never cuts the moment short and a fast one never feels rushed.
+  // the same themed pause it always has (Phase 18), unchanged by Phase
+  // 24's lighter mid-quiz transition — navigation waits for whichever
+  // finishes last, the animation's minimum duration or the real fetch, so
+  // a slow request never cuts the moment short and a fast one never feels
+  // rushed.
   async function receiveDiagnosis() {
     const minWait = new Promise<void>((resolve) =>
-      window.setTimeout(resolve, DIVINATION_FINAL_MS),
+      window.setTimeout(resolve, RECEPTION_MS),
     );
     try {
       const [res] = await Promise.all([
@@ -128,14 +139,14 @@ export function QuizFlow({
       const data = await res.json();
       if (!res.ok) {
         showToast(data.error ?? "Something went wrong. Try again.", "error");
-        setTransition("none");
+        setPhase("answering");
         setConfirmed(false);
         return;
       }
       router.push(`/results/${data.diagnosis.id}`);
     } catch {
       showToast("Something went wrong. Try again.", "error");
-      setTransition("none");
+      setPhase("answering");
       setConfirmed(false);
     }
   }
@@ -143,8 +154,40 @@ export function QuizFlow({
   return (
     <div className="flex flex-col gap-6">
       <QuizProgress step={step} total={questions.length} />
-      {transition === "none" ? (
-        <div key={question.id} className="flex flex-col gap-3">
+      {phase === "reception" ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="divining-overlay divining-overlay--final animate-fade-in flex min-h-56 flex-col items-center justify-center gap-4 rounded-lg border border-border-hairline bg-bg-raised px-6 py-10 text-center"
+        >
+          <span className="toast-flame divining-flame--final">
+            <svg width={22} height={30} viewBox="0 0 12 16" fill="none">
+              <path
+                d="M6 0C6 0 1.5 5.5 1.5 9.2C1.5 11.9 3.5 14 6 14C8.5 14 10.5 11.9 10.5 9.2C10.5 5.5 6 0 6 0Z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- a tiny
+              decorative SVG preview; next/image's optimizer doesn't apply
+              to it (same reasoning as DiagnosisCard's seal stamp). */}
+          <img
+            src="/icons/seal-of-completion.svg"
+            alt=""
+            aria-hidden="true"
+            className="divining-seal-preview h-10 w-10"
+          />
+          <p className="font-heading text-lg text-gold-300">{line}</p>
+        </div>
+      ) : (
+        <div
+          key={question.id}
+          className={`quiz-question flex flex-col gap-3 ${
+            phase === "leaving"
+              ? "quiz-question--leaving"
+              : "quiz-question--enter"
+          }`}
+        >
           {question.topicImage && (
             <Expandable
               label="View larger illustration for this topic"
@@ -209,7 +252,7 @@ export function QuizFlow({
                     aria-hidden="true"
                     className={`h-2 w-2 rotate-45 border transition-colors duration-300 ${
                       isConfirmed
-                        ? "border-text-on-gold bg-text-on-gold"
+                        ? "mark-confirm-spin border-text-on-gold bg-text-on-gold"
                         : isSelected
                           ? "border-gold-500 bg-gold-500"
                           : "border-gold-500 bg-transparent opacity-50"
@@ -220,45 +263,23 @@ export function QuizFlow({
               );
             })}
           </div>
-          <p className="font-ui text-xs text-text-muted">
-            Tap an answer, then tap it again to confirm.
+          <p className="flex items-center justify-center gap-1.5 font-ui text-xs text-text-muted">
+            {phase === "leaving" ? (
+              <>
+                <span className="toast-flame" aria-hidden="true">
+                  <svg width={10} height={13} viewBox="0 0 12 16" fill="none">
+                    <path
+                      d="M6 0C6 0 1.5 5.5 1.5 9.2C1.5 11.9 3.5 14 6 14C8.5 14 10.5 11.9 10.5 9.2C10.5 5.5 6 0 6 0Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span className="italic text-gold-300">{line}</span>
+              </>
+            ) : (
+              "Tap an answer, then tap it again to confirm."
+            )}
           </p>
-        </div>
-      ) : (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`divining-overlay animate-fade-in flex min-h-56 flex-col items-center justify-center gap-4 rounded-lg border border-border-hairline bg-bg-raised px-6 py-10 text-center ${
-            transition === "reception" ? "divining-overlay--final" : ""
-          }`}
-        >
-          <span
-            className={`toast-flame ${transition === "reception" ? "divining-flame--final" : ""}`}
-          >
-            <svg
-              width={transition === "reception" ? 22 : 14}
-              height={transition === "reception" ? 30 : 18}
-              viewBox="0 0 12 16"
-              fill="none"
-            >
-              <path
-                d="M6 0C6 0 1.5 5.5 1.5 9.2C1.5 11.9 3.5 14 6 14C8.5 14 10.5 11.9 10.5 9.2C10.5 5.5 6 0 6 0Z"
-                fill="currentColor"
-              />
-            </svg>
-          </span>
-          {transition === "reception" && (
-            /* eslint-disable-next-line @next/next/no-img-element -- a tiny
-                decorative SVG preview; next/image's optimizer doesn't apply
-                to it (same reasoning as DiagnosisCard's seal stamp). */
-            <img
-              src="/icons/seal-of-completion.svg"
-              alt=""
-              aria-hidden="true"
-              className="divining-seal-preview h-10 w-10"
-            />
-          )}
-          <p className="font-heading text-lg text-gold-300">{transitionLine}</p>
         </div>
       )}
       <div className="flex justify-between">

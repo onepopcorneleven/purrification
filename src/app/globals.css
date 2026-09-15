@@ -140,14 +140,17 @@
      first paint), never ambient. */
   --animate-glow-pulse: glow-pulse 2400ms ease-in-out infinite;
 
-  /* Phase 18 (workplan.md): the quiz's confirm-and-divine transitions — a
-     one-shot themed pause between a confirmed answer and the next
-     question (divination) or the final diagnosis (divinationFinal, the
-     longer "spiritual reception" moment). QuizFlow.tsx mirrors these same
-     millisecond values into its own DIVINATION_MS/DIVINATION_FINAL_MS
+  /* Phase 18 (workplan.md) shipped a one-shot themed pause between a
+     confirmed quiz answer and the next question or the final diagnosis.
+     Phase 24 replaced the mid-quiz half of that (the old
+     `--duration-divination`, a full-screen held overlay) with
+     `--duration-question-shift`, the lighter in-place slide-crossfade
+     below; `--duration-divination-final` (the last question's longer,
+     more elaborate "spiritual reception" pause) is unchanged. QuizFlow.tsx
+     mirrors both values into its own QUESTION_SHIFT_MS/RECEPTION_MS
      constants (it needs numbers to drive a JS timer, not just a CSS
      duration) — keep both in sync if either changes. */
-  --duration-divination: 2000ms;
+  --duration-question-shift: 380ms;
   --duration-divination-final: 5000ms;
 }
 
@@ -377,14 +380,96 @@
 }
 
 /*
- * Phase 18 (workplan.md) — the quiz's confirm-and-divine transitions.
- * `.divining-overlay` is the one-shot themed pause `QuizFlow.tsx` swaps in
- * for a confirmed answer's mid-quiz "divining" beat; `--final` is the
- * longer, more elaborate variant for the last question's "spiritual
- * reception" moment (a fuller glow plus an early, dimmer preview of the
- * `seal-of-completion.svg` motif that later stamps the actual result). Both
- * reuse `.toast-flame`'s flicker rather than inventing a new flame
- * animation.
+ * Phase 24 (workplan.md) — a lighter question-to-question transition,
+ * replacing Phase 18's full-screen mid-quiz "divining" overlay for every
+ * question except the last. The current question's prompt+options slide
+ * out while the next question's fresh mount slides in from the opposite
+ * side; the hint line beneath the options (`QuizFlow.tsx`) swaps to a
+ * themed flavor line for the outgoing half only, instead of blocking the
+ * whole question behind an overlay.
+ */
+.quiz-question {
+  transition:
+    opacity var(--duration-question-shift) var(--ease-dreamy),
+    transform var(--duration-question-shift) var(--ease-dreamy);
+}
+
+.quiz-question--leaving {
+  opacity: 0;
+  transform: translateX(-18px);
+}
+
+@keyframes question-shift-in {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.quiz-question--enter {
+  animation: question-shift-in var(--duration-question-shift) var(--ease-dreamy)
+    both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-question {
+    transition: none;
+  }
+
+  .quiz-question--leaving {
+    opacity: 1;
+    transform: none;
+  }
+
+  .quiz-question--enter {
+    animation: none;
+  }
+}
+
+/* The confirmed option's diamond mark plays one quick spin+glow at the
+   moment of confirmation — a small nod to a tarot card "turning" without a
+   full card-flip, since the question itself no longer flips/overlays. */
+@keyframes mark-confirm-spin {
+  0% {
+    transform: rotate(45deg) scale(1);
+    filter: none;
+  }
+  50% {
+    transform: rotate(225deg) scale(1.35);
+    filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.7));
+  }
+  100% {
+    transform: rotate(405deg) scale(1);
+    filter: none;
+  }
+}
+
+.mark-confirm-spin {
+  animation: mark-confirm-spin var(--duration-question-shift) var(--ease-dreamy)
+    both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark-confirm-spin {
+    animation: none;
+  }
+}
+
+/*
+ * Phase 18 (workplan.md) — the last question's "spiritual reception"
+ * moment. `.divining-overlay` was originally the one-shot themed pause
+ * `QuizFlow.tsx` swapped in for *every* confirmed answer's mid-quiz
+ * "divining" beat; Phase 24 replaced that mid-quiz usage with the lighter
+ * `.quiz-question`/`--leaving`/`--enter` transition above, so this overlay
+ * (and its `--final` modifier) is now only ever reached for the last
+ * question's longer, more elaborate pause — a fuller glow plus an early,
+ * dimmer preview of the `seal-of-completion.svg` motif that later stamps
+ * the actual result. Reuses `.toast-flame`'s flicker rather than inventing
+ * a new flame animation.
  */
 .divining-overlay {
   position: relative;

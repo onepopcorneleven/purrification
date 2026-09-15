@@ -83,7 +83,7 @@
       "fast": "150ms",
       "base": "300ms",
       "slow": "450ms",
-      "divination": "2000ms",
+      "questionShift": "380ms",
       "divinationFinal": "5000ms"
     },
     "easing": {
@@ -93,7 +93,9 @@
     "patterns": {
       "fadeIn": "opacity 0 -> 1, translateY(8px) -> 0, duration.slow, easing.dreamy",
       "glowPulse": "box-shadow oscillates between shadow.glowGoldSm and shadow.glowGoldMd, 2400ms loop, used sparingly on active/focal mystical elements only",
-      "divination": "duration.divination (mid-quiz) / duration.divinationFinal (last question) one-shot themed pause between a confirmed quiz answer and the next question/diagnosis appearing (Phase 18, workplan.md) -- see QuizFlow.tsx and globals.css's .divining-overlay"
+      "questionShift": "duration.questionShift (380ms), easing.dreamy -- Phase 24: the quiz's confirm-and-advance transition for every question except the last -- the current question slides out (opacity + 18px translateX) while the next slides in from the opposite side, no full-screen overlay; the hint line beneath the options briefly shows a themed flavor line during the outgoing half. Replaced Phase 18's mid-quiz divination pattern below. See QuizFlow.tsx and globals.css's .quiz-question/.quiz-question--leaving/.quiz-question--enter",
+      "markConfirmSpin": "duration.questionShift (380ms), easing.dreamy -- Phase 24: the confirmed quiz option's diamond mark plays one rotate+glow spin at the moment of confirmation, a small nod to a tarot card 'turning' without a full card-flip. See QuizFlow.tsx and globals.css's .mark-confirm-spin",
+      "spiritualReception": "duration.divinationFinal (5000ms), easing.dreamy -- the last quiz question's held, full-screen themed pause before the real diagnosis is shown, gating navigation until both the animation and the request resolve (Phase 18, workplan.md; unchanged by Phase 24). See QuizFlow.tsx and globals.css's .divining-overlay/.divining-overlay--final"
     }
   }
 }
