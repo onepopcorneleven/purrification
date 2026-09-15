@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { QuizProgress } from "@/components/ui/QuizProgress";
-import { Expandable } from "@/components/ui/Expandable";
+import { FramedImage } from "@/components/ui/FramedImage";
 import { useToast } from "@/components/ui/Toast";
 
 // R-CONTENT-1: question content is DB-backed (see prisma/schema.prisma's
@@ -189,21 +188,16 @@ export function QuizFlow({
           }`}
         >
           {question.topicImage && (
-            <Expandable
-              label="View larger illustration for this topic"
+            <FramedImage
+              variant="portal"
               src={`/images/topics/${question.topicImage}`}
               alt=""
-              className="mx-auto block h-28 w-28 overflow-hidden rounded-lg border border-border-hairline shadow-glow-gold-sm sm:h-32 sm:w-32"
-            >
-              <Image
-                src={`/images/topics/${question.topicImage}`}
-                alt=""
-                width={224}
-                height={280}
-                sizes="128px"
-                className="h-full w-full object-cover"
-              />
-            </Expandable>
+              label="View larger illustration for this topic"
+              width={480}
+              height={600}
+              sizes="(min-width: 640px) 480px, 100vw"
+              className="mx-auto w-full max-w-md"
+            />
           )}
           <h2 className="font-heading text-xl">{question.prompt}</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -215,7 +209,7 @@ export function QuizFlow({
                   key={option.id}
                   className={`relative flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-4 py-5 text-center font-ui transition-all duration-300 ease-dreamy has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-500 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bg-base ${
                     isConfirmed
-                      ? "border-gold-500 bg-gold-500 text-text-on-gold shadow-glow-gold-md"
+                      ? "animate-glow-pulse border-gold-500 bg-gold-500 text-text-on-gold"
                       : isSelected
                         ? "animate-glow-pulse border-gold-500 bg-bg-elevated"
                         : "border-border-hairline bg-bg-raised hover:-translate-y-0.5 hover:border-border-hairline-strong hover:shadow-glow-gold-sm"
@@ -280,6 +274,42 @@ export function QuizFlow({
               "Tap an answer, then tap it again to confirm."
             )}
           </p>
+        </div>
+      ) : (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`divining-overlay animate-fade-in flex min-h-56 flex-col items-center justify-center gap-4 rounded-lg border border-border-hairline bg-bg-raised px-6 py-10 text-center ${
+            transition === "reception" ? "divining-overlay--final" : ""
+          }`}
+        >
+          <span
+            className={`toast-flame ${transition === "reception" ? "divining-flame--final" : ""}`}
+          >
+            <svg
+              width={transition === "reception" ? 22 : 14}
+              height={transition === "reception" ? 30 : 18}
+              viewBox="0 0 12 16"
+              fill="none"
+            >
+              <path
+                d="M6 0C6 0 1.5 5.5 1.5 9.2C1.5 11.9 3.5 14 6 14C8.5 14 10.5 11.9 10.5 9.2C10.5 5.5 6 0 6 0Z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          {transition === "reception" && (
+            /* eslint-disable-next-line @next/next/no-img-element -- a tiny
+                decorative SVG preview; next/image's optimizer doesn't apply
+                to it (same reasoning as ReadingOverview's seal stamp). */
+            <img
+              src="/icons/seal-of-completion.svg"
+              alt=""
+              aria-hidden="true"
+              className="divining-seal-preview h-10 w-10"
+            />
+          )}
+          <p className="font-heading text-lg text-gold-300">{transitionLine}</p>
         </div>
       )}
       <div className="flex justify-between">
