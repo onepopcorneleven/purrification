@@ -101,7 +101,13 @@ place to update them.
   `motion.easing.{standard,dreamy}`, and named patterns —
   `fadeIn` (opacity + 8px upward drift, `duration.slow` + `easing.dreamy`),
   `glowPulse` (oscillates between `shadow.glowGoldSm`/`glowGoldMd` on a
-  2400ms loop, reserved for one focal/active element, never ambient),
+  4200ms loop, retuned from 2400ms in Phase 23, reserved for one
+  focal/active element, never ambient), `glowPulseLg` (Phase 23: the same
+  4200ms loop, sized and dual-toned for a full illustration —
+  `FramedImage`'s Portal/Tarot/large-Medallion variants and `Lightbox`),
+  `fogDrift` (Phase 23: a 32s ambient background drift behind one hero
+  moment at a time — `.hero-fog`/`.lightbox-fog`), `flameFlicker` (a
+  2100ms flame-glyph wobble — `Toast`, and Phase 23's `DiagnosisReveal`),
   `questionShift` (Phase 24: `duration.questionShift`, the quiz's
   in-place slide-crossfade between a confirmed non-final answer and the
   next question), `markConfirmSpin` (Phase 24: a confirmed option's

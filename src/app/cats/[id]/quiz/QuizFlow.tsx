@@ -275,42 +275,6 @@ export function QuizFlow({
             )}
           </p>
         </div>
-      ) : (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`divining-overlay animate-fade-in flex min-h-56 flex-col items-center justify-center gap-4 rounded-lg border border-border-hairline bg-bg-raised px-6 py-10 text-center ${
-            transition === "reception" ? "divining-overlay--final" : ""
-          }`}
-        >
-          <span
-            className={`toast-flame ${transition === "reception" ? "divining-flame--final" : ""}`}
-          >
-            <svg
-              width={transition === "reception" ? 22 : 14}
-              height={transition === "reception" ? 30 : 18}
-              viewBox="0 0 12 16"
-              fill="none"
-            >
-              <path
-                d="M6 0C6 0 1.5 5.5 1.5 9.2C1.5 11.9 3.5 14 6 14C8.5 14 10.5 11.9 10.5 9.2C10.5 5.5 6 0 6 0Z"
-                fill="currentColor"
-              />
-            </svg>
-          </span>
-          {transition === "reception" && (
-            /* eslint-disable-next-line @next/next/no-img-element -- a tiny
-                decorative SVG preview; next/image's optimizer doesn't apply
-                to it (same reasoning as ReadingOverview's seal stamp). */
-            <img
-              src="/icons/seal-of-completion.svg"
-              alt=""
-              aria-hidden="true"
-              className="divining-seal-preview h-10 w-10"
-            />
-          )}
-          <p className="font-heading text-lg text-gold-300">{transitionLine}</p>
-        </div>
       )}
       <div className="flex justify-between">
         <Button
