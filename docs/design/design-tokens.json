@@ -83,7 +83,7 @@
       "fast": "150ms",
       "base": "300ms",
       "slow": "450ms",
-      "divination": "2000ms",
+      "questionShift": "380ms",
       "divinationFinal": "5000ms"
     },
     "easing": {

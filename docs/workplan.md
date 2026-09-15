@@ -539,6 +539,39 @@ placeholder `Treatment` rows, and author them into a seed update, so the
 ~22 affected historical results get a real image instead of the
 decorative fallback.
 
+## Phase 24 — Quiz question-shift transition — done
+Full details: `docs/workplan/phase-24-quiz-transition-crossfade.md`
+Requested 2026-09-15 as a from-scratch look at the quiz's
+question-to-question pacing: two directions (a lighter slide-crossfade
+vs. a full tarot card-flip) were designed and compared as an interactive
+Artifact mockup before this phase was written, and the crossfade was
+chosen. Replaces Phase 18's full-screen mid-quiz "divining" overlay (held
+2000ms per question, ~38s total across a 20-question quiz) with a lighter
+in-place transition; the final question's longer "spiritual reception"
+pause is unchanged.
+- [x] Replace the mid-quiz `.divining-overlay` swap with an in-place
+      slide-crossfade (`.quiz-question`/`--leaving`/`--enter` in
+      `globals.css`), ~380ms, `ease-dreamy`.
+- [x] Surface the flavor line inline in the existing hint paragraph
+      during the outgoing half, instead of behind a blocking overlay.
+- [x] Add a one-shot spin+glow on the confirmed option's diamond mark
+      (`.mark-confirm-spin`) as a small tarot-flavored nod.
+- [x] Add `prefers-reduced-motion` handling for all three new animations.
+- [x] Retire the now-unused `--duration-divination` token; add
+      `--duration-question-shift`; leave `--duration-divination-final`
+      (the reception moment) unchanged.
+- [x] Update `design-tokens.json`'s `motion.patterns` and
+      `design-system.md`'s `QuizFlow` description.
+- [x] `npm run build`/`format:check` clean; `eslint` scoped to the
+      changed file clean (bare `npm run lint` is already noisy
+      repo-wide for unrelated reasons, per Phase 21's note).
+- [ ] Merging the PR (#40) and running the live VPS deploy: blocked from
+      an agent turn by this harness's "Merge Without Review" safety
+      classifier (a different, earlier gate than Phase 22's — that one
+      blocked the deploy restart itself; this one blocks merging the PR
+      before the deploy can even start) — left for the user to trigger
+      manually.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.

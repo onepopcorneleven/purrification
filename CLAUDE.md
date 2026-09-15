@@ -49,7 +49,11 @@ diagnosis" buttons are gone — triggering a themed "divining" pause
 (`.divining-overlay` in `globals.css`) before the next question appears,
 or a longer, more elaborate "spiritual reception" variant on the last
 question that gates the real diagnosis request underneath it. Back is
-unchanged. Most recently, an image-enrichment pass (Phase 21) added a
+unchanged. (Phase 24, implemented but not yet merged/deployed as of this
+writing — see `docs/workplan.md`'s Phase 24 entry — replaces that
+mid-quiz overlay with a lighter in-place slide-crossfade; update this
+paragraph once it's confirmed live.) Most recently, an image-enrichment
+pass (Phase 21) added a
 site-wide click-to-expand + responsive-preview pattern: `Expandable`
 (`src/components/ui/Expandable.tsx`) wraps a host's *existing, untouched*
 image markup with a transparent overlay button that opens a shared

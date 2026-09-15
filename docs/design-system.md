@@ -101,10 +101,13 @@ place to update them.
   `motion.easing.{standard,dreamy}`, and named patterns —
   `fadeIn` (opacity + 8px upward drift, `duration.slow` + `easing.dreamy`),
   `glowPulse` (oscillates between `shadow.glowGoldSm`/`glowGoldMd` on a
-  2400ms loop, reserved for one focal/active element, never ambient), and
-  `divination` (Phase 18: `duration.divination`/`duration.divinationFinal`,
-  the quiz's one-shot themed pause between a confirmed answer and the next
-  question/diagnosis — see `QuizFlow.tsx` below).
+  2400ms loop, reserved for one focal/active element, never ambient),
+  `questionShift` (Phase 24: `duration.questionShift`, the quiz's
+  in-place slide-crossfade between a confirmed non-final answer and the
+  next question), `markConfirmSpin` (Phase 24: a confirmed option's
+  diamond mark spinning once), and `spiritualReception` (Phase 18:
+  `duration.divinationFinal`, the last question's longer, held pause
+  before the diagnosis appears — see `QuizFlow.tsx` below).
 
 ## Component inventory
 
@@ -129,13 +132,17 @@ original plan:
 **`QuizFlow.tsx`'s interaction model (Phase 18, `docs/workplan.md`):** a
 click selects an option (today's glow-pulse highlight); a second click on
 that *same*, already-selected option confirms it — a further, more
-emphatic gold-filled look — and is the advance action itself, replacing
-the old separate "Next" button entirely. Confirming triggers a themed
-"divining" pause (`.divining-overlay` in `globals.css`, reusing
-`.toast-flame`'s flicker) before the next question fades in; the last
-question's confirm triggers a longer, more elaborate "spiritual
-reception" variant (`.divining-overlay--final`, with an early, dimmer
-preview of the `seal-of-completion.svg` motif) that gates the real
+emphatic gold-filled look, plus a one-shot spin+glow on its diamond mark
+(`.mark-confirm-spin`, Phase 24) — and is the advance action itself,
+replacing the old separate "Next" button entirely. On a non-final
+question, confirming slides the current question out and the next one in
+(`.quiz-question`/`--leaving`/`--enter` in `globals.css`, Phase 24's
+lighter replacement for Phase 18's full-screen mid-quiz "divining"
+overlay), with a themed flavor line briefly shown inline in place of the
+usual "Tap an answer…" hint. The last question's confirm still triggers
+the longer, more elaborate "spiritual reception" variant
+(`.divining-overlay`/`--final`, unchanged since Phase 18, with an early,
+dimmer preview of the `seal-of-completion.svg` motif) that gates the real
 diagnosis request underneath it, so navigation to the result never comes
 before both the animation's minimum duration and the real fetch have
 resolved. Back is unaffected — still a single, immediate click.
