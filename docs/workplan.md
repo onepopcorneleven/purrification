@@ -565,12 +565,18 @@ pause is unchanged.
 - [x] `npm run build`/`format:check` clean; `eslint` scoped to the
       changed file clean (bare `npm run lint` is already noisy
       repo-wide for unrelated reasons, per Phase 21's note).
-- [ ] Merging the PR (#40) and running the live VPS deploy: blocked from
-      an agent turn by this harness's "Merge Without Review" safety
-      classifier (a different, earlier gate than Phase 22's — that one
-      blocked the deploy restart itself; this one blocks merging the PR
-      before the deploy can even start) — left for the user to trigger
-      manually.
+- [x] Merging the PR: blocked from an agent turn by this harness's
+      "Merge Without Review" safety classifier (a different, earlier
+      gate than Phase 22's — that one blocked the deploy restart itself;
+      this one blocks merging the PR before the deploy can even start) —
+      the owner merged PR #40 manually. Since main had moved forward
+      with Phase 23 (PR #39) in the meantime, this needed a real conflict
+      resolution (`QuizFlow.tsx`, `design-tokens.json`,
+      `design-system.md`) — the resolution that landed left main's build
+      broken and silently dropped content in two docs; fixed directly on
+      `main` in a same-day hotfix commit (`20269b1`) once caught. See the
+      Phase 24 side doc's execution log for the full incident.
+- [ ] Running the live VPS deploy: pending.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
