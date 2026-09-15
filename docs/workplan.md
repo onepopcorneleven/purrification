@@ -522,6 +522,12 @@ pause is unchanged.
 - [x] `npm run build`/`format:check` clean; `eslint` scoped to the
       changed file clean (bare `npm run lint` is already noisy
       repo-wide for unrelated reasons, per Phase 21's note).
+- [ ] Merging the PR (#40) and running the live VPS deploy: blocked from
+      an agent turn by this harness's "Merge Without Review" safety
+      classifier (a different, earlier gate than Phase 22's — that one
+      blocked the deploy restart itself; this one blocks merging the PR
+      before the deploy can even start) — left for the user to trigger
+      manually.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
