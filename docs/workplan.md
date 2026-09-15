@@ -576,7 +576,13 @@ pause is unchanged.
       broken and silently dropped content in two docs; fixed directly on
       `main` in a same-day hotfix commit (`20269b1`) once caught. See the
       Phase 24 side doc's execution log for the full incident.
-- [ ] Running the live VPS deploy: pending.
+- [x] Running the live VPS deploy: done — verified via the service being
+      `active` and `https://purrification.com/` responding.
+- [x] Same-day refinement: split the single shared transition into three
+      independently-staggered blocks (picture/prompt/answers, each its
+      own duration/start delay) after the owner found the deployed
+      version still shifted as one full-page block, unlike the
+      comparison mockup. See the side doc's "Refinement" entry. Deployed.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,

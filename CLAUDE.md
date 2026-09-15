@@ -48,13 +48,19 @@ confirms it and *is* the advance action — the old separate "Next"/"Get
 diagnosis" buttons are gone. Confirming a non-final answer originally
 triggered a themed "divining" pause behind a full-screen overlay before
 the next question appeared; Phase 24 replaced that mid-quiz overlay with
-a lighter in-place slide-crossfade (`.quiz-question`/`--leaving`/`--enter`
-in `globals.css`, ~380ms, `ease-dreamy`) plus a one-shot spin+glow on the
-confirmed option's diamond mark, after the owner compared it against a
-full tarot-card-flip alternative in an interactive Artifact mockup and
-picked the crossfade for pacing across a 20-question quiz. The last
-question still gates the real diagnosis request behind the longer,
-unchanged "spiritual reception" variant (`.divining-overlay--final`).
+a lighter in-place transition, after the owner compared it against a full
+tarot-card-flip alternative in an interactive Artifact mockup and picked
+this direction for pacing across a 20-question quiz. The picture, prompt,
+and answers each move as their own block
+(`.quiz-block`/`--leaving`/`--enter`/`--picture`/`--prompt`/`--answers`
+in `globals.css`) with a slightly different duration and a small start
+delay per block (300/330/360ms, 0/40/80ms delay, `ease-dreamy`) — a
+same-day refinement after the owner noticed the first version shifted
+everything as one full-page block rather than reading as three
+independent ones — plus a one-shot spin+glow on the confirmed option's
+diamond mark. The last question still gates the real diagnosis request
+behind the longer, unchanged "spiritual reception" variant
+(`.divining-overlay--final`).
 Back is unchanged. An image-enrichment
 site-wide click-to-expand + responsive-preview pattern: `Expandable`
 (`src/components/ui/Expandable.tsx`) wraps a host's *existing, untouched*
@@ -130,8 +136,8 @@ token is retuned from 2400ms to 4200ms and a new large-image
 without ever being added to that doc.
 
 Most recently (Phase 24), the quiz's mid-quiz "divining" overlay
-(described above, under Phase 18) was replaced with a lighter in-place
-slide-crossfade — see that paragraph for the current mechanism. Phase 24
+(described above, under Phase 18) was replaced with a lighter, per-block
+in-place transition — see that paragraph for the current mechanism. Phase 24
 was branched before Phase 23 actually landed on `main`, so merging it
 needed a real conflict resolution across `QuizFlow.tsx` and this file's
 shared docs; the resolution that first landed broke `main`'s build and
@@ -141,7 +147,12 @@ incident" note). `docs/design-system.md`'s Component inventory table,
 also stale from that incident, has since been repaired to list Phase 23's
 real components (`FramedImage`/`ReadingOverview`/`DiagnosisReveal`/
 `TreatmentReveal`/`ReadingQuickView`/`TextLightbox`/`OverlayChrome`/the
-chapter-mark family) in place of the deleted `DiagnosisCard`.
+chapter-mark family) in place of the deleted `DiagnosisCard`. The
+per-block staggered version above is a same-day follow-up refinement,
+requested after the owner checked the deployed site and found the
+picture/prompt/answers still shifting together as one block, unlike the
+comparison mockup — also implemented, committed, and deployed the same
+day.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the

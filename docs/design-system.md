@@ -112,8 +112,9 @@ place to update them.
   moment at a time — `.hero-fog`/`.lightbox-fog`), `flameFlicker` (a
   2100ms flame-glyph wobble — `Toast`, and Phase 23's `DiagnosisReveal`),
   `questionShift` (Phase 24: `duration.questionShift`, the quiz's
-  in-place slide-crossfade between a confirmed non-final answer and the
-  next question), `markConfirmSpin` (Phase 24: a confirmed option's
+  in-place transition between a confirmed non-final answer and the next
+  question, as three independently-staggered blocks rather than one
+  shared shift), `markConfirmSpin` (Phase 24: a confirmed option's
   diamond mark spinning once), and `spiritualReception` (Phase 18:
   `duration.divinationFinal`, the last question's longer, held pause
   before the diagnosis appears — see `QuizFlow.tsx` below).
@@ -151,11 +152,14 @@ that *same*, already-selected option confirms it — a further, more
 emphatic gold-filled look, plus a one-shot spin+glow on its diamond mark
 (`.mark-confirm-spin`, Phase 24) — and is the advance action itself,
 replacing the old separate "Next" button entirely. On a non-final
-question, confirming slides the current question out and the next one in
-(`.quiz-question`/`--leaving`/`--enter` in `globals.css`, Phase 24's
-lighter replacement for Phase 18's full-screen mid-quiz "divining"
-overlay), with a themed flavor line briefly shown inline in place of the
-usual "Tap an answer…" hint. The last question's confirm still triggers
+question, confirming slides the picture, prompt, and answers out (and the
+next question's versions of each in) as three separate blocks, each with
+its own slightly different duration and start delay
+(`.quiz-block`/`--leaving`/`--enter`/`--picture`/`--prompt`/`--answers`
+in `globals.css`) rather than one shared shift — Phase 24's lighter
+replacement for Phase 18's full-screen mid-quiz "divining" overlay — with
+a themed flavor line briefly shown inline in place of the usual "Tap an
+answer…" hint. The last question's confirm still triggers
 the longer, more elaborate "spiritual reception" variant
 (`.divining-overlay`/`--final`, unchanged since Phase 18, with an early,
 dimmer preview of the `seal-of-completion.svg` motif) that gates the real

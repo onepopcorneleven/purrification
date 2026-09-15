@@ -154,14 +154,19 @@
   /* Phase 18 (workplan.md) shipped a one-shot themed pause between a
      confirmed quiz answer and the next question or the final diagnosis.
      Phase 24 replaced the mid-quiz half of that (the old
-     `--duration-divination`, a full-screen held overlay) with
-     `--duration-question-shift`, the lighter in-place slide-crossfade
-     below; `--duration-divination-final` (the last question's longer,
-     more elaborate "spiritual reception" pause) is unchanged. QuizFlow.tsx
-     mirrors both values into its own QUESTION_SHIFT_MS/RECEPTION_MS
-     constants (it needs numbers to drive a JS timer, not just a CSS
-     duration) — keep both in sync if either changes. */
-  --duration-question-shift: 380ms;
+     `--duration-divination`, a full-screen held overlay) with a lighter
+     in-place transition; `--duration-divination-final` (the last
+     question's longer, more elaborate "spiritual reception" pause) is
+     unchanged. `--duration-question-shift` is now specifically the
+     picture block's duration/base for that transition — the prompt and
+     answers blocks use their own slightly longer, staggered durations
+     (see globals.css's `.quiz-block--prompt`/`--answers`) so the three
+     blocks read as independent rather than one shared shift. QuizFlow.tsx
+     mirrors this and `--duration-divination-final` into its own
+     QUESTION_SHIFT_MS/RECEPTION_MS constants (it needs numbers to drive a
+     JS timer, not just a CSS duration) — keep both in sync if either
+     changes. */
+  --duration-question-shift: 300ms;
   --duration-divination-final: 5000ms;
 }
 
@@ -442,19 +447,26 @@
 /*
  * Phase 24 (workplan.md) — a lighter question-to-question transition,
  * replacing Phase 18's full-screen mid-quiz "divining" overlay for every
- * question except the last. The current question's prompt+options slide
- * out while the next question's fresh mount slides in from the opposite
- * side; the hint line beneath the options (`QuizFlow.tsx`) swaps to a
- * themed flavor line for the outgoing half only, instead of blocking the
- * whole question behind an overlay.
+ * question except the last.
+ *
+ * Refinement (same day): the picture, prompt, and answers each move as
+ * their own block (`.quiz-block--picture`/`--prompt`/`--answers` in
+ * `QuizFlow.tsx`) rather than one shared wrapper, and each block's
+ * duration and start time are staggered a little (picture first, then
+ * prompt, then answers — the same order a reader's eye actually moves in)
+ * so the quiz reads as three independent blocks shifting rather than one
+ * full-page swap. `.quiz-block--leaving`/`--enter` hold the shared
+ * transform (translateX + opacity); the three named block classes below
+ * only vary duration/delay. `QuizFlow.tsx`'s QUESTION_SHIFT_MS mirrors the
+ * slowest block's total (answers: 80ms delay + 360ms duration = 440ms) —
+ * the step only advances once every block has actually finished leaving.
  */
-.quiz-question {
-  transition:
-    opacity var(--duration-question-shift) var(--ease-dreamy),
-    transform var(--duration-question-shift) var(--ease-dreamy);
+.quiz-block {
+  transition-property: opacity, transform;
+  transition-timing-function: var(--ease-dreamy);
 }
 
-.quiz-question--leaving {
+.quiz-block--leaving {
   opacity: 0;
   transform: translateX(-18px);
 }
@@ -470,23 +482,46 @@
   }
 }
 
-.quiz-question--enter {
-  animation: question-shift-in var(--duration-question-shift) var(--ease-dreamy)
-    both;
+.quiz-block--enter {
+  animation-name: question-shift-in;
+  animation-timing-function: var(--ease-dreamy);
+  animation-fill-mode: both;
+}
+
+/* Picture leads the cascade, using the base duration shared with
+   mark-confirm-spin below — no separate delay needed since it starts the
+   sequence. */
+.quiz-block--picture {
+  transition-duration: var(--duration-question-shift);
+  animation-duration: var(--duration-question-shift);
+}
+
+.quiz-block--prompt {
+  transition-duration: 330ms;
+  transition-delay: 40ms;
+  animation-duration: 330ms;
+  animation-delay: 40ms;
+}
+
+.quiz-block--answers {
+  transition-duration: 360ms;
+  transition-delay: 80ms;
+  animation-duration: 360ms;
+  animation-delay: 80ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .quiz-question {
+  .quiz-block,
+  .quiz-block--picture,
+  .quiz-block--prompt,
+  .quiz-block--answers {
     transition: none;
+    animation: none;
   }
 
-  .quiz-question--leaving {
+  .quiz-block--leaving {
     opacity: 1;
     transform: none;
-  }
-
-  .quiz-question--enter {
-    animation: none;
   }
 }
 
@@ -524,8 +559,8 @@
  * moment. `.divining-overlay` was originally the one-shot themed pause
  * `QuizFlow.tsx` swapped in for *every* confirmed answer's mid-quiz
  * "divining" beat; Phase 24 replaced that mid-quiz usage with the lighter
- * `.quiz-question`/`--leaving`/`--enter` transition above, so this overlay
- * (and its `--final` modifier) is now only ever reached for the last
+ * `.quiz-block`/`--leaving`/`--enter` per-block transition above, so this
+ * overlay (and its `--final` modifier) is now only ever reached for the last
  * question's longer, more elaborate pause — a fuller glow plus an early,
  * dimmer preview of the `seal-of-completion.svg` motif that later stamps
  * the actual result. Reuses `.toast-flame`'s flicker rather than inventing

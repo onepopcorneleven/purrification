@@ -27,7 +27,16 @@ interface QuizQuestion {
 // a full-screen held overlay) with the lighter in-place slide-crossfade's
 // duration; RECEPTION_MS (the last question's longer, more elaborate
 // pause gating the real diagnosis request) is unchanged from Phase 18.
-const QUESTION_SHIFT_MS = 380;
+//
+// Refinement (same day): the picture/prompt/answers blocks below each
+// carry their own slightly different transition-duration and a small
+// staggered start (`.quiz-block--picture/--prompt/--answers` in
+// globals.css), rather than one shared duration on a single wrapper, so
+// the quiz reads as three independent blocks shifting rather than one
+// full-page swap. QUESTION_SHIFT_MS is the worst case across all three
+// (the answers block's 80ms delay + 360ms duration) — the step only
+// advances once every block has actually finished leaving.
+const QUESTION_SHIFT_MS = 440;
 const RECEPTION_MS = 5000;
 
 const WHISPER_LINES = [
@@ -179,101 +188,114 @@ export function QuizFlow({
           <p className="font-heading text-lg text-gold-300">{line}</p>
         </div>
       ) : (
-        <div
-          key={question.id}
-          className={`quiz-question flex flex-col gap-3 ${
-            phase === "leaving"
-              ? "quiz-question--leaving"
-              : "quiz-question--enter"
-          }`}
-        >
+        <div key={question.id} className="flex flex-col gap-3">
           {question.topicImage && (
-            <FramedImage
-              variant="portal"
-              src={`/images/topics/${question.topicImage}`}
-              alt=""
-              label="View larger illustration for this topic"
-              width={480}
-              height={600}
-              sizes="(min-width: 640px) 480px, 100vw"
-              className="mx-auto w-full max-w-md"
-            />
+            <div
+              className={`quiz-block quiz-block--picture ${
+                phase === "leaving"
+                  ? "quiz-block--leaving"
+                  : "quiz-block--enter"
+              }`}
+            >
+              <FramedImage
+                variant="portal"
+                src={`/images/topics/${question.topicImage}`}
+                alt=""
+                label="View larger illustration for this topic"
+                width={480}
+                height={600}
+                sizes="(min-width: 640px) 480px, 100vw"
+                className="mx-auto w-full max-w-md"
+              />
+            </div>
           )}
-          <h2 className="font-heading text-xl">{question.prompt}</h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {question.options.map((option) => {
-              const isSelected = selected === option.id;
-              const isConfirmed = isSelected && confirmed;
-              return (
-                <label
-                  key={option.id}
-                  className={`relative flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-4 py-5 text-center font-ui transition-all duration-300 ease-dreamy has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-500 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bg-base ${
-                    isConfirmed
-                      ? "animate-glow-pulse border-gold-500 bg-gold-500 text-text-on-gold"
-                      : isSelected
-                        ? "animate-glow-pulse border-gold-500 bg-bg-elevated"
-                        : "border-border-hairline bg-bg-raised hover:-translate-y-0.5 hover:border-border-hairline-strong hover:shadow-glow-gold-sm"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={question.id}
-                    checked={isSelected}
-                    // Phase 18: a native radio only fires onChange when its
-                    // checked state actually flips — clicking an
-                    // already-checked radio again fires no change event at
-                    // all, in any browser, so the confirm gesture's second
-                    // click can never reach selectOption through onChange
-                    // alone (the bug this shipped with). onClick, on the
-                    // *input itself*, fires exactly once per real click
-                    // regardless of whether checked changed — verified
-                    // against jsdom's real click/label-activation event
-                    // model, not just reasoned about, since a first attempt
-                    // at this fix (onClick on the wrapping <label>) turned
-                    // out to double-fire per click: a label's default
-                    // click-activation behavior forwards a second, bubbling
-                    // click event to its associated control, so a listener
-                    // on the label itself catches both the original click
-                    // and that forwarded one. onChange is kept alongside as
-                    // a harmless, idempotent second path (see selectOption)
-                    // for any keyboard/assistive-tech flow that changes
-                    // `checked` without synthesizing a click.
-                    onClick={() => selectOption(option.id)}
-                    onChange={() => selectOption(option.id)}
-                    className="sr-only"
-                  />
-                  <span
-                    aria-hidden="true"
-                    className={`h-2 w-2 rotate-45 border transition-colors duration-300 ${
+          <h2
+            className={`quiz-block quiz-block--prompt font-heading text-xl ${
+              phase === "leaving" ? "quiz-block--leaving" : "quiz-block--enter"
+            }`}
+          >
+            {question.prompt}
+          </h2>
+          <div
+            className={`quiz-block quiz-block--answers flex flex-col gap-3 ${
+              phase === "leaving" ? "quiz-block--leaving" : "quiz-block--enter"
+            }`}
+          >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {question.options.map((option) => {
+                const isSelected = selected === option.id;
+                const isConfirmed = isSelected && confirmed;
+                return (
+                  <label
+                    key={option.id}
+                    className={`relative flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-4 py-5 text-center font-ui transition-all duration-300 ease-dreamy has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-500 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bg-base ${
                       isConfirmed
-                        ? "mark-confirm-spin border-text-on-gold bg-text-on-gold"
+                        ? "animate-glow-pulse border-gold-500 bg-gold-500 text-text-on-gold"
                         : isSelected
-                          ? "border-gold-500 bg-gold-500"
-                          : "border-gold-500 bg-transparent opacity-50"
+                          ? "animate-glow-pulse border-gold-500 bg-bg-elevated"
+                          : "border-border-hairline bg-bg-raised hover:-translate-y-0.5 hover:border-border-hairline-strong hover:shadow-glow-gold-sm"
                     }`}
-                  />
-                  <span>{option.label}</span>
-                </label>
-              );
-            })}
-          </div>
-          <p className="flex items-center justify-center gap-1.5 font-ui text-xs text-text-muted">
-            {phase === "leaving" ? (
-              <>
-                <span className="toast-flame" aria-hidden="true">
-                  <svg width={10} height={13} viewBox="0 0 12 16" fill="none">
-                    <path
-                      d="M6 0C6 0 1.5 5.5 1.5 9.2C1.5 11.9 3.5 14 6 14C8.5 14 10.5 11.9 10.5 9.2C10.5 5.5 6 0 6 0Z"
-                      fill="currentColor"
+                  >
+                    <input
+                      type="radio"
+                      name={question.id}
+                      checked={isSelected}
+                      // Phase 18: a native radio only fires onChange when its
+                      // checked state actually flips — clicking an
+                      // already-checked radio again fires no change event at
+                      // all, in any browser, so the confirm gesture's second
+                      // click can never reach selectOption through onChange
+                      // alone (the bug this shipped with). onClick, on the
+                      // *input itself*, fires exactly once per real click
+                      // regardless of whether checked changed — verified
+                      // against jsdom's real click/label-activation event
+                      // model, not just reasoned about, since a first attempt
+                      // at this fix (onClick on the wrapping <label>) turned
+                      // out to double-fire per click: a label's default
+                      // click-activation behavior forwards a second, bubbling
+                      // click event to its associated control, so a listener
+                      // on the label itself catches both the original click
+                      // and that forwarded one. onChange is kept alongside as
+                      // a harmless, idempotent second path (see selectOption)
+                      // for any keyboard/assistive-tech flow that changes
+                      // `checked` without synthesizing a click.
+                      onClick={() => selectOption(option.id)}
+                      onChange={() => selectOption(option.id)}
+                      className="sr-only"
                     />
-                  </svg>
-                </span>
-                <span className="italic text-gold-300">{line}</span>
-              </>
-            ) : (
-              "Tap an answer, then tap it again to confirm."
-            )}
-          </p>
+                    <span
+                      aria-hidden="true"
+                      className={`h-2 w-2 rotate-45 border transition-colors duration-300 ${
+                        isConfirmed
+                          ? "mark-confirm-spin border-text-on-gold bg-text-on-gold"
+                          : isSelected
+                            ? "border-gold-500 bg-gold-500"
+                            : "border-gold-500 bg-transparent opacity-50"
+                      }`}
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="flex items-center justify-center gap-1.5 font-ui text-xs text-text-muted">
+              {phase === "leaving" ? (
+                <>
+                  <span className="toast-flame" aria-hidden="true">
+                    <svg width={10} height={13} viewBox="0 0 12 16" fill="none">
+                      <path
+                        d="M6 0C6 0 1.5 5.5 1.5 9.2C1.5 11.9 3.5 14 6 14C8.5 14 10.5 11.9 10.5 9.2C10.5 5.5 6 0 6 0Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
+                  <span className="italic text-gold-300">{line}</span>
+                </>
+              ) : (
+                "Tap an answer, then tap it again to confirm."
+              )}
+            </p>
+          </div>
         </div>
       )}
       <div className="flex justify-between">

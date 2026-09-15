@@ -177,3 +177,51 @@ non-trivial conflict resolution (by anyone, including the repo owner),
 re-run the build on the merged result before treating a PR as
 deploy-ready. A clean `git status`/no conflict markers is not the same
 as a working build.
+
+### Refinement — 2026-09-15 (same day)
+
+The owner checked the deployed site and found the transition didn't
+match the comparison Artifact mockup: picture, prompt, and answers all
+shifted together as one block, reading as "the full page is shifting"
+rather than three independent pieces. Requested fix: split the three
+into their own blocks, each shifting on a slightly different
+speed/start time so the cascade itself communicates that they're
+independent.
+
+- `QuizFlow.tsx`: the single `.quiz-question` wrapper around
+  picture+prompt+answers is gone. Three separate elements now each carry
+  their own `quiz-block quiz-block--{picture,prompt,answers}` classes
+  plus the shared `quiz-block--leaving`/`quiz-block--enter` modifier —
+  the picture (`FramedImage`, when the question has one), the `<h2>`
+  prompt, and a wrapper around the options grid + hint paragraph.
+- `globals.css`: `.quiz-question` is gone; `.quiz-block` now holds the
+  shared transition/animation properties (opacity + 18px translateX,
+  `ease-dreamy`), `.quiz-block--leaving`/`--enter` hold the shared
+  transform states, and three named modifiers
+  (`--picture`/`--prompt`/`--answers`) each set their own
+  `transition-duration`/`transition-delay` (leaving) and
+  `animation-duration`/`animation-delay` (entering): picture 300ms/0ms,
+  prompt 330ms/40ms, answers 360ms/80ms — picture leads the cascade,
+  then prompt, then answers, the same order a reader's eye moves in, and
+  the same order both leaving and entering so it reads as one consistent
+  rhythm rather than two different ones.
+- `--duration-question-shift` (the `@theme` token) changes meaning
+  slightly: it's now specifically the picture block's duration/base
+  (380ms → 300ms) rather than the single shared duration for the whole
+  transition; the prompt/answers offsets are one-off choreography values
+  (not tokenized), consistent with how `.divining-seal-preview`'s
+  `animation-delay: 300ms` is already handled elsewhere in this file.
+- `QuizFlow.tsx`'s `QUESTION_SHIFT_MS` (the JS timer gating when the step
+  actually advances) moves from 380ms to 440ms — the answers block's
+  worst case (80ms delay + 360ms duration) — so the step never advances
+  before every block has actually finished leaving.
+- `docs/design/design-tokens.json`'s `questionShift` duration/pattern
+  entry and `docs/design-system.md`'s Motion bullet and `QuizFlow.tsx`
+  interaction-model paragraph updated to describe the three-block
+  cascade instead of one shared shift.
+
+Verified with `npm run build` (clean), `eslint` on the changed file
+(clean), and `prettier --check` on every changed file (clean). Deployed
+to the live VPS the same way as the initial Phase 24 deploy (`git pull
+&& npm ci && npm run build` + static copy + migrate/seed + restart) —
+no migration or seed changes needed, presentation-only.
