@@ -8,7 +8,7 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–22 are all done and live in production at
+`docs/workplan.md` Phases 0–24 are all done and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
 deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
@@ -45,15 +45,17 @@ would lose their result-page image if those files went away. Most
 recently, the quiz's answer interaction changed (Phase 18): a click
 selects an option (unchanged), a second click on that same option
 confirms it and *is* the advance action — the old separate "Next"/"Get
-diagnosis" buttons are gone — triggering a themed "divining" pause
-(`.divining-overlay` in `globals.css`) before the next question appears,
-or a longer, more elaborate "spiritual reception" variant on the last
-question that gates the real diagnosis request underneath it. Back is
-unchanged. (Phase 24, implemented but not yet merged/deployed as of this
-writing — see `docs/workplan.md`'s Phase 24 entry — replaces that
-mid-quiz overlay with a lighter in-place slide-crossfade; update this
-paragraph once it's confirmed live.) Most recently, an image-enrichment
-pass (Phase 21) added a
+diagnosis" buttons are gone. Confirming a non-final answer originally
+triggered a themed "divining" pause behind a full-screen overlay before
+the next question appeared; Phase 24 replaced that mid-quiz overlay with
+a lighter in-place slide-crossfade (`.quiz-question`/`--leaving`/`--enter`
+in `globals.css`, ~380ms, `ease-dreamy`) plus a one-shot spin+glow on the
+confirmed option's diamond mark, after the owner compared it against a
+full tarot-card-flip alternative in an interactive Artifact mockup and
+picked the crossfade for pacing across a 20-question quiz. The last
+question still gates the real diagnosis request behind the longer,
+unchanged "spiritual reception" variant (`.divining-overlay--final`).
+Back is unchanged. An image-enrichment
 site-wide click-to-expand + responsive-preview pattern: `Expandable`
 (`src/components/ui/Expandable.tsx`) wraps a host's *existing, untouched*
 image markup with a transparent overlay button that opens a shared
@@ -126,6 +128,18 @@ token is retuned from 2400ms to 4200ms and a new large-image
 `docs/design/design-tokens.json` alongside backfilled `fogDrift`/
 `flameFlicker` entries for two patterns that had shipped in earlier phases
 without ever being added to that doc.
+
+Most recently (Phase 24), the quiz's mid-quiz "divining" overlay
+(described above, under Phase 18) was replaced with a lighter in-place
+slide-crossfade — see that paragraph for the current mechanism. Phase 24
+was branched before Phase 23 actually landed on `main`, so merging it
+needed a real conflict resolution across `QuizFlow.tsx` and this file's
+shared docs; the resolution that first landed broke `main`'s build and
+silently dropped content from two docs (fixed same-day — see
+`docs/workplan/phase-24-quiz-transition-crossfade.md`'s "Post-merge
+incident" note). `docs/design-system.md`'s Component inventory table is
+still stale from that incident (still lists the deleted `DiagnosisCard`,
+missing Phase 23's new components) — a known follow-up, not yet done.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
