@@ -160,11 +160,15 @@ Caught by re-running `npm run build` on the newly-merged `main` before
 attempting the live VPS deploy. Fixed directly on `main` (commit
 `20269b1`) rather than another PR cycle, since another PR would hit the
 same merge-without-review block and `main` was actively broken in the
-meantime. `design-system.md`'s Component inventory table is still stale
-(still lists the deleted `DiagnosisCard`, missing Phase 23's ~10 new
-components) — a real, separate doc-accuracy gap from the same botched
-resolution, left as a follow-up rather than reconstructed under deploy
-pressure.
+meantime. The deploy then ran clean (`npm run build`, `prisma migrate
+deploy`, `db:seed-content`, `systemctl restart` all succeeded on the VPS;
+verified via the service being `active` and `https://purrification.com/`
+responding).
+
+`design-system.md`'s Component inventory table was also stale from the
+same botched resolution (still listed the deleted `DiagnosisCard`,
+missing Phase 23's ~10 new components) — repaired in a follow-up commit
+once the owner asked for it, rather than under deploy-time pressure.
 
 **Lesson for next time:** re-fetch and rebase/merge `origin/main` into a
 feature branch immediately before opening a PR when another phase was

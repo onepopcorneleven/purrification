@@ -66,11 +66,14 @@ short version so this doc doesn't drift out of sync with it:
   classes directly in JSX — no CSS-in-JS.
 - Reusable primitives live in `src/components/ui/` (`PageShell.tsx`,
   `Button.tsx`, `Card.tsx`, `Field.tsx`, `EmptyState.tsx`, `Modal.tsx`,
-  `Toast.tsx`) — plain React components wrapping Tailwind classes, not a
-  separate styling abstraction or component library dependency. The one
-  bespoke component, `DiagnosisCard`, lives in its own
-  `src/components/diagnosis/` folder instead, since it's CSS Modules
-  rather than a Tailwind-utility primitive.
+  `Toast.tsx`, and Phase 23's `FramedImage.tsx`/`OverlayChrome.tsx`) —
+  plain React components wrapping Tailwind classes, not a separate
+  styling abstraction or component library dependency. The genuinely
+  bespoke, CSS-Modules components live in their own
+  `src/components/diagnosis/` folder instead: originally just
+  `DiagnosisCard`, now (Phase 23) `ReadingOverview`/`DiagnosisReveal`/
+  `TreatmentReveal` in its place, plus `ReadingQuickView` (a `Modal`
+  consumer, styled with Tailwind utilities rather than its own module).
 - Branded favicon/icon assets go in `public/icons/`, separate from
   `public/images/`'s existing photographic/illustration assets. Working
   design-process artifacts (the brand doc, its tokens/config snippet,
@@ -127,13 +130,20 @@ original plan:
 | `Button` (primary / secondary / danger variants) | forms, quiz nav, delete action |
 | `Card` | cats dashboard grid, history list items |
 | `Field` (label + input + error text) | signup, login, `AddCatForm` |
-| `Modal` (raised surface, soft glow shadow, generous padding — brand doc §9) | cat-deletion confirmation (replaces the current bare `window.confirm`) |
+| `Modal` (raised surface, soft glow shadow, generous padding — brand doc §9) | cat-deletion confirmation (replaces the current bare `window.confirm`), and (Phase 23) hosts `ReadingQuickView` |
 | `Toast` (brand doc §9 suggests a "glowing candle" motif rather than a generic bar) | signup/login/quiz-submission errors and successes (replaces ad hoc inline error text) |
 | `QuizProgress` + quiz-option button states | `QuizFlow.tsx` |
-| `DiagnosisCard` (the bespoke, shareable hero component) | `results/[id]` and `share/[shareSlug]` — same component, two contexts |
 | `EmptyState` | cats dashboard with zero cats, history with zero attempts |
-| `Lightbox` (Phase 21, full-bleed click-to-expand image viewer) | opened by `Expandable`; not used directly |
-| `Expandable` (Phase 21, children-based click-to-expand overlay — wraps a host's existing, untouched image markup rather than replacing `next/image`) | every image site-wide: landing/login/signup/dashboard heroes, `EmptyState`, `DiagnosisCard` |
+| `Expandable` (Phase 21, children-based click-to-expand overlay — wraps a host's existing, untouched image markup rather than replacing `next/image`) | every image site-wide — directly on login/signup/dashboard heroes and `EmptyState`, and (Phase 23) internally within `FramedImage` |
+| `FramedImage` (Phase 23, one shared primitive for the three frame weights — `portal`/`tarot`/`medallion-sm`/`medallion-lg` — wrapping `Expandable`; renders a decorative fallback glyph, never a broken image, when the linked content's image pool is empty) | the quiz's topic image (`portal`), `DiagnosisReveal`/`TreatmentReveal`'s hero images (`tarot`/`medallion-lg`), `ReadingOverview`/`ReadingQuickView`'s summary-row thumbnails (`medallion-sm`) |
+| `ReadingOverview` (Phase 23, replaces `DiagnosisCard`'s single combined scroll — two tappable summary rows: medallion + eyebrow + name + teaser + chevron) | `/results/[id]` and `/share/[shareSlug]` — each row links into the full-view sub-routes below |
+| `DiagnosisReveal` (Phase 23, the "Tarot Reveal" full diagnosis view — framed hero image, full text, expand-image and read-in-full-screen affordances) | `/results/[id]/diagnosis` and `/share/[shareSlug]/diagnosis` |
+| `TreatmentReveal` (Phase 23, the enlarged "Medallion" full treatment/ritual view, same affordances as `DiagnosisReveal`) | `/results/[id]/treatment` and `/share/[shareSlug]/treatment` |
+| `ReadingQuickView` (Phase 23, a condensed diagnosis+treatment summary rendered inside `Modal`, fetched on demand from `GET /api/diagnoses/[id]/quick-view`) | the per-cat history list, opened per row in place of linking straight into the full overview |
+| `Lightbox` (Phase 21, full-bleed click-to-expand image viewer; Phase 23 fixed its original no-discoverable-exit bug via the new shared `OverlayChrome`) | opened by `Expandable`/`FramedImage`; also reached from `DiagnosisReveal`/`TreatmentReveal`'s expand-image affordance |
+| `TextLightbox` (Phase 23, `Lightbox`'s sibling — same `OverlayChrome`, a Cinzel heading + larger-than-body `EB Garamond` copy instead of an image) | `DiagnosisReveal`/`TreatmentReveal`'s "Read in full screen" affordance |
+| `OverlayChrome` (Phase 23, the drag-handle hint, top-right close icon, and persistent labeled bottom "Close" bar shared by both full-screen overlay modes) | internal to `Lightbox`/`TextLightbox`, not used directly by pages |
+| `ConstellationMark` / `CrescentMark` / `FlourishMark` (Phase 23's decorative gold "chapter mark" glyph family, alongside the already-shipped `OrnamentalRule`) | `ConstellationMark` above eyebrows/headlines, `CrescentMark` at the start of `DiagnosisReveal`/`TreatmentReveal`'s long-form text, `FlourishMark` at `FramedImage`'s corners and beside standalone section headings |
 
 **`QuizFlow.tsx`'s interaction model (Phase 18, `docs/workplan.md`):** a
 click selects an option (today's glow-pulse highlight); a second click on
@@ -213,11 +223,11 @@ Phase 10 is complete and deployed (see `workplan.md`) — the logo/mark and
 the palette/type decisions that were open when this doc was first written
 are resolved. What's still genuinely open, for whoever picks this up next:
 
-- `DiagnosisCard` shipped purely typographic (no illustration/icon beyond
-  the mark in its eyebrow label) — a deliberate choice during
-  implementation, not an oversight, but revisitable. If it ever gains
-  illustration, that image must follow the brand doc's reusable prompt
-  template (§6), not be generated ad hoc.
+- `DiagnosisCard` originally shipped purely typographic; this is now moot
+  — it's retired (Phase 23), and its `ReadingOverview`/`DiagnosisReveal`/
+  `TreatmentReveal` replacements all carry real, illustration-driven
+  `FramedImage`s (Phase 15/17/21/22's diagnosis/treatment image pools),
+  following the brand doc's reusable prompt template (§6).
 - The brand doc's `Table` component (§9, v1 scope) was never built —
   nothing in the current app needs tabular data. Build it if/when a future
   feature (e.g. the "behavior-analysis data" the brand doc anticipates)

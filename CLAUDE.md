@@ -137,9 +137,11 @@ needed a real conflict resolution across `QuizFlow.tsx` and this file's
 shared docs; the resolution that first landed broke `main`'s build and
 silently dropped content from two docs (fixed same-day — see
 `docs/workplan/phase-24-quiz-transition-crossfade.md`'s "Post-merge
-incident" note). `docs/design-system.md`'s Component inventory table is
-still stale from that incident (still lists the deleted `DiagnosisCard`,
-missing Phase 23's new components) — a known follow-up, not yet done.
+incident" note). `docs/design-system.md`'s Component inventory table,
+also stale from that incident, has since been repaired to list Phase 23's
+real components (`FramedImage`/`ReadingOverview`/`DiagnosisReveal`/
+`TreatmentReveal`/`ReadingQuickView`/`TextLightbox`/`OverlayChrome`/the
+chapter-mark family) in place of the deleted `DiagnosisCard`.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
