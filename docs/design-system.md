@@ -220,6 +220,16 @@ just missing polish:
   background, since `--color-text-primary` on the base `--color-error`
   only reaches 4.2:1 there. `--color-error` itself is unchanged and still
   used for borders/backgrounds/decorative dots.
+- Every custom clickable control that wraps meaningful visible text and
+  isn't a plain `<button>` (an `<a>`/`<Link>`, or the quiz's `<label>`)
+  gets `globals.css`'s `.no-text-select` (Phase 25) — a native `<button>`
+  gets `user-select: none` for free from the browser, those don't, and a
+  rapid double-click/tap on one otherwise reads as "select this word"
+  instead of a click, surfacing the browser's selection toolbar or iOS's
+  long-press callout menu. `Button`, `TextLink`, `ReadingOverview`'s row
+  link, `DiagnosisReveal`/`TreatmentReveal`'s back links, and the quiz
+  answer `<label>` all carry it; a plain `<button>` with only an icon or
+  short label doesn't need it.
 
 ## Open items
 

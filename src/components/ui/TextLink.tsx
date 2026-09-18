@@ -11,7 +11,7 @@ type TextLinkProps = ComponentProps<typeof NextLink>;
 export function TextLink({ className, ...props }: TextLinkProps) {
   return (
     <NextLink
-      className={`rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base ${className ?? ""}`.trim()}
+      className={`no-text-select rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base ${className ?? ""}`.trim()}
       {...props}
     />
   );

@@ -41,7 +41,7 @@ export function TreatmentReveal({
     <div className={`${styles.wrap} animate-fade-in`}>
       <Link
         href={backHref}
-        className="w-fit font-ui text-sm text-gold-300 hover:underline"
+        className="no-text-select w-fit font-ui text-sm text-gold-300 hover:underline"
       >
         ← Back to {catName}&apos;s reading
       </Link>

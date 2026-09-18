@@ -592,6 +592,33 @@ pause is unchanged.
       by-design behavior, not a bug. See the side doc's "Bugfix",
       "Mobile debug readout", and "Debug cleanup" entries. Deployed.
 
+## Phase 25 — Clickable-text selection fix — done
+Full details: `docs/workplan/phase-25-clickable-text-select-fix.md`
+Requested 2026-09-18 after the owner found that confirming a quiz answer
+(the Phase 18 two-click gesture) could select the answer's text like a
+word and pop the browser's native selection toolbar / iOS callout menu
+instead of registering the click — a native `<button>` gets
+`user-select: none` for free from the browser, but the quiz's answer
+`<label>` (and any `<a>`/`<Link>`-based control) does not. Treated as a
+general rule per the owner's request: a research pass mapped every
+custom clickable control in the app, found five real spots (the quiz's
+`<label>`, `Button`'s `<Link>` branch, `TextLink`, `ReadingOverview`'s
+row link, and `DiagnosisReveal`/`TreatmentReveal`'s raw back links), and
+confirmed everything else (icon-only overlay buttons, plain `<button>`s,
+a non-interactive form-field `<label>`) was already safe.
+- [x] Add a shared `.no-text-select` class (`user-select: none` +
+      `-webkit-touch-callout: none` for iOS) to `globals.css`.
+- [x] Apply it to `Button.tsx`'s shared base class (covers both its
+      `<button>` and `<Link>` output app-wide in one change).
+- [x] Apply it to `TextLink.tsx` (covers every inline text link
+      app-wide in one change).
+- [x] Apply it to `ReadingOverview`'s row link and
+      `DiagnosisReveal`/`TreatmentReveal`'s raw back links.
+- [x] Apply it to the quiz answer `<label>` — the originally-reported
+      bug.
+- [x] `npm run build`/`eslint`/`prettier --check` clean on every
+      changed file.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.

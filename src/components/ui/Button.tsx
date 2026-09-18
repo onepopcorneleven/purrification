@@ -8,7 +8,7 @@ const base =
   "font-ui font-medium text-sm transition-shadow duration-300 ease-dreamy " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 " +
   "focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base " +
-  "disabled:opacity-50 disabled:pointer-events-none";
+  "disabled:opacity-50 disabled:pointer-events-none no-text-select";
 
 const variants: Record<Variant, string> = {
   primary:

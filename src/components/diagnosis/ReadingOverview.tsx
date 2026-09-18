@@ -61,7 +61,7 @@ function ReadingRow({
   summary: ReadingSummary;
 }) {
   return (
-    <Link href={href} className={styles.row}>
+    <Link href={href} className={`no-text-select ${styles.row}`}>
       <FramedImage
         variant="medallion-sm"
         src={

@@ -256,7 +256,7 @@ export function QuizFlow({
                 return (
                   <label
                     key={option.id}
-                    className={`relative flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-4 py-5 text-center font-ui transition-all duration-300 ease-dreamy has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-500 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bg-base ${
+                    className={`no-text-select relative flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-4 py-5 text-center font-ui transition-all duration-300 ease-dreamy has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-500 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-bg-base ${
                       isConfirmed
                         ? "animate-glow-pulse border-gold-500 bg-gold-500 text-text-on-gold"
                         : isSelected

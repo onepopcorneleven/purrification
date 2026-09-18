@@ -445,6 +445,30 @@
 }
 
 /*
+ * Phase 25 (workplan.md) — a native <button> gets `user-select: none`
+ * for free from every browser's default stylesheet; an `<a>`/`<Link>` or
+ * a `<label>` used as a custom clickable control does not. Wherever this
+ * project has one of those wrapping meaningful visible text, a rapid
+ * double-click/double-tap on it — a common way to interact with *any*
+ * button, and literally the intended gesture for the quiz's
+ * confirm-by-second-click answers — gets read by the browser as "select
+ * this word" instead of two separate clicks, surfacing the native
+ * selection toolbar (Copy/Search/Select all) or, on iOS,
+ * `-webkit-touch-callout`'s long-press menu, instead of registering the
+ * click. Applied to `Button`, `TextLink`, the quiz's answer `<label>`,
+ * and the two other raw `<Link>`s that aren't wrapped in either shared
+ * component (`ReadingOverview`'s row link,
+ * `DiagnosisReveal`/`TreatmentReveal`'s back links) — not needed on a
+ * plain `<button>` whose only content is an icon or short label with no
+ * meaningful text to select (e.g. `Expandable`'s overlay trigger).
+ */
+.no-text-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/*
  * Phase 24 (workplan.md) — a lighter question-to-question transition,
  * replacing Phase 18's full-screen mid-quiz "divining" overlay for every
  * question except the last.
