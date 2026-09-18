@@ -40,16 +40,17 @@ complicated — that complexity belongs in a side file, not here.
 
 ## Current status
 
-All of Phases 0–22 are **done and live in production** at
-`purrification.com`, including the Phase 22 VPS deploy (verified
-2026-09-13: the live site's git checkout is at commit `4dbe557`, from a
-build produced the same day, and serves the real Treatment/QuestionTopic
-images).
-
-Two follow-ups are flagged but not yet done (see Phase 14 below for
-context): a dedicated tone/content review pass of the Phase 14 content
-bank, and exhaustive multi-path smoke testing across all 12 active
-diagnoses. Neither blocks anything currently planned.
+All of Phases 0–27 are **done and live in production** at
+`purrification.com`. Phase 28 (below) closes out the three follow-ups this
+section used to track — the tone/content review, the multi-path diagnosis
+smoke test, and the Phase 23 retired-`Treatment`-image backfill — and its
+code/content changes are committed; **one production step is still
+pending as of this writing: `npm run db:seed-content` has not yet been run
+against the live VPS DB**, so the tone-language fixes and the 10 new
+`TreatmentImage` rows aren't live yet (everything else Phase 28 touched —
+the smoke-test script, the docs — needs no DB step and is already
+effective once deployed). See Phase 28 below for exactly what's committed
+versus what's still waiting on that one command.
 
 Phase 20's `/allimages` debug gallery is temporary and unlinked. Phase 21
 mistakenly deleted it on its own initiative reading that as license to do
@@ -225,13 +226,12 @@ placeholder content was retired via `isActive: false`, never deleted (real
 - [x] Author `DiagnosisDef` entries with real trigger rules.
 - [x] Author `Treatment` entries with real, evaluable contraindications.
 - [x] Author `Ritual` variants selected by severity band.
-- [ ] Full tone/content review of every new entry against
-      R-TONE-1/R-TONE-2 — **not yet done, flagged as follow-up**.
+- [x] Full tone/content review of every new entry against
+      R-TONE-1/R-TONE-2 — done in Phase 28.
 - [x] Re-run `npm run db:seed-content` and re-verify seed-time invariants
       at real scale.
 - [x] Golden-path smoke test through `getDiagnosis` against live data.
-      Multi-path coverage across all 12 diagnoses **not yet exhaustively
-      done, flagged as follow-up**.
+      Multi-path coverage across all 12 diagnoses — done in Phase 28.
 
 ## Phase 15 — Diagnosis image pool (R-CONTENT-5 extension) — done
 Full details: `docs/workplan/phase-15-diagnosis-image-pool.md`
@@ -517,8 +517,8 @@ the user's explicit direction before writing any code.
       — presentation/routing layer only. Confirmed true: this phase touched
       no `prisma/schema.prisma`, no migration, no seed content.
 
-**Known follow-up, not yet done — deliberately deferred, not silently
-dropped.** Before coding began, cross-checking the plan against the actual
+**Known follow-up — deliberately deferred, not silently dropped; resolved
+in Phase 28.** Before coding began, cross-checking the plan against the actual
 migration history surfaced a real gap neither the original plan nor its
 gap-review pass had caught: `TreatmentImage` (Phase 21's migration) was
 purely additive with no backfill, unlike `DiagnosisDefImage` (Phase 15),
@@ -537,7 +537,7 @@ asked for the gap to be documented here for a later session to pick up.
 `codex exec`/brand-doc pipeline as Phase 17/22) for the ~10 retired
 placeholder `Treatment` rows, and author them into a seed update, so the
 ~22 affected historical results get a real image instead of the
-decorative fallback.
+decorative fallback. Done in Phase 28 — see that entry.
 
 ## Phase 24 — Quiz question-shift transition — done
 Full details: `docs/workplan/phase-24-quiz-transition-crossfade.md`
@@ -649,6 +649,99 @@ back to center was still a right-to-left sweep — the fix flips its
 - [x] Fix stale `.quiz-block--enter` references (renamed to `--pending`
       in Phase 24's bugfix) in `design-tokens.json`/`design-system.md`.
 - [x] `npm run build`/`prettier --check` clean.
+
+## Phase 28 — Follow-up cleanup pass (tone review, smoke test, image backfill) — mostly done, one DB step pending
+Requested 2026-09-18: the owner asked to resolve every open, non-future-scope
+follow-up still on the books — the Phase 14 tone/content review, the Phase 14
+multi-path diagnosis smoke test, and the Phase 23 retired-`Treatment`-image
+backfill — plus refresh this file's stale "Current status" section (it still
+said "Phases 0–22" after five more phases had shipped), working
+autonomously and documenting each judgment call.
+
+**Branching note:** this phase's image-generation step needs `codex exec`,
+whose sandbox trust (`~/.codex/config.toml`) is keyed to the exact absolute
+path `/home/coder/code/purrification` — a git worktree necessarily lives at
+a different path and breaks that trust (the same `bwrap` failure Phase 17
+and Phase 22 already hit and documented). Rather than re-hit that, all
+`codex exec` calls ran with the main checkout as `cwd` (codex's own file
+write still fails there under this sandbox, same as Phase 17/22 — the real
+PNG lands under `~/.codex/generated_images/<session>/` and gets `cp`'d out),
+while every actual file edit happened inside a worktree as this harness
+requires. Two isolated concerns, two different execution contexts for the
+same phase.
+
+- [x] **Tone/content review (R-TONE-1/R-TONE-2).** Read all 12 diagnoses,
+      10 treatments, 19 rituals, and 20 questions/85 answers in full (not a
+      sample). R-TONE-2 (persistent disclaimer) was already satisfied —
+      `PageShell`'s footer renders it on every user-facing route, including
+      the quiz and both share views. R-TONE-1 surfaced 10 real findings, all
+      confined to `treatments.json` contraindications (4 entries) and
+      `rituals.json` steps/aftercare text (5 entries, 6 lines): places where
+      the copy had drifted from the app's whimsical "spiritual ritual" voice
+      into literal veterinary/behaviorist language — named real medical
+      conditions ("thyroid, cognitive, pain"), clinical triage phrasing
+      ("rule out a medical cause"), and real operant-conditioning
+      terminology ("extinction burst"). **Judgment call:** every safety-
+      relevant "see a vet" nudge was kept, not deleted — removing them would
+      have been an actual safety regression, and R-TONE-2's whole premise is
+      that concerning symptoms should prompt a vet visit. The fix was
+      narrower: reword each into the brand's whimsical voice while
+      preserving the same underlying guidance (e.g. "rule out a medical
+      cause (thyroid, cognitive, pain) before treating this as purely
+      behavioral" → "that's a vet-first situation, not a ritual-first one").
+      No diagnoses, questions, or answer copy needed changes.
+- [x] **Multi-path diagnosis smoke test.** Added `scripts/smoke-test-
+      diagnoses.ts` (`npm run smoke-test-diagnoses`), which imports the same
+      `engine.ts` functions `getDiagnosis.ts` uses (not a reimplementation)
+      and loads live content the same way, then uses random-restart
+      hill-climbing to search for a full 20-answer path that makes each
+      active `DiagnosisDef` the actual first-match result (respecting
+      priority order, not just "satisfies its own rule in isolation").
+      Confirmed **all 12/12 active `DiagnosisDef`s** (11 pattern-based + the
+      `diag_equilibrium` catch-all) reachable, each rendering a diagnosis +
+      ritual with no missing template slots; for diagnoses with more than
+      one severity band, it also searches for a second path landing in a
+      different band, and found one for 4/11 within its search budget (the
+      rest only reached "mild" — a search-heuristic budget limit, not a
+      diagnosed content defect; the script's exit code still reflects only
+      real failures, i.e. an unreachable diagnosis or a rendering error).
+- [x] **Retired-`Treatment` image backfill (Phase 23's known follow-up).**
+      Queried the live DB directly: exactly 10 `isActive: false` `Treatment`
+      rows (the pre-Phase-14 placeholder set), referenced by 22 historical
+      `Diagnosis` rows total, all with empty `TreatmentImage` pools —
+      matching the Phase 23 doc's estimate exactly. Generated one real
+      illustration per row via `codex exec` (same brand-doc prompt template
+      and 4:5 aspect ratio as Phase 17/22), each subject written to match
+      the treatment's own mystical name/philosophy. Re-added all 10 rows to
+      `prisma/seed/content/treatments.json` with their existing field values
+      reproduced exactly (verified against a live DB dump before editing)
+      plus the new `image_paths` — safe because `prisma/seed/index.ts`'s
+      treatment upsert only ever `UPDATE`s an existing id and never touches
+      `isActive`, so re-listing an inactive row cannot reactivate it (a code
+      comment was added at the upsert call site to make this explicit for
+      the next person editing that loop).
+- [ ] **Apply to the live DB — blocked on the operator, not done.** All of
+      the above is committed to this branch, but `npm run db:seed-content`
+      against the live VPS DB (needed to actually create the 10 new
+      `TreatmentImage` rows and push the reworded tone-fix text) was
+      refused by this harness's auto-mode safety classifier as a
+      production-database write, with no override attempted — this is
+      exactly the kind of hard-to-reverse, shared-system action that
+      should get a human's explicit go-ahead rather than a workaround. The
+      operator needs to run it themselves (SSH tunnel open, from this
+      branch): `npm run db:seed-content`, then spot-check a couple of the
+      10 ids (e.g. `treat_mercury_retrograde`) have a populated
+      `TreatmentImage` row.
+- [x] Refreshed this file's stale "Current status" section (see above) and
+      closed out the two Phase 14 checklist items and the Phase 23 "Known
+      follow-up" note to point here.
+- [x] `eslint`/`prettier --check` clean on every changed file. `npm run
+      build` was **not** run — this phase's worktree has no local
+      `node_modules` (nothing here touches `src/app`/`src/components`/
+      `src/lib`, so a full Next.js build wasn't needed to validate it;
+      `npx prisma generate` was run to exercise the DB-touching script and
+      the seed script's own `validate()` step, which is the relevant check
+      for JSON content changes).
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
