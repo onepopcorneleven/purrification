@@ -8,7 +8,7 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–24 are all done and live in production at
+`docs/workplan.md` Phases 0–25 are all done and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
 deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
@@ -162,6 +162,24 @@ Confirmed fixed across desktop Firefox and one Android phone; a second
 Android phone shows no animation in either direction, but that's
 `prefers-reduced-motion: reduce` being on for that device — correct,
 by-design behavior, not a bug.
+
+Most recently (Phase 25), a real GUI bug found while using the quiz was
+fixed: confirming an answer (the two-click gesture) could select the
+answer's text like a word and pop the browser's native selection toolbar
+or, on iOS, the long-press callout menu, instead of registering the
+click — a native `<button>` gets `user-select: none` for free from the
+browser, but the quiz's answer `<label>` (and any `<a>`/`<Link>`-based
+control) does not. Per the owner's request to treat this as a general
+rule, `globals.css`'s new `.no-text-select` class
+(`user-select: none` + `-webkit-touch-callout: none`) is applied
+everywhere a custom clickable control wraps meaningful text and isn't a
+plain `<button>`: `Button.tsx`'s shared base class (covers both its
+`<button>` and `<Link>` output app-wide), `TextLink.tsx` (covers every
+inline text link app-wide), `ReadingOverview`'s row link,
+`DiagnosisReveal`/`TreatmentReveal`'s raw back links, and the quiz
+answer `<label>` itself — a research pass confirmed everything else
+(icon-only overlay buttons, plain `<button>`s, a non-interactive
+form-field `<label>`) was already safe.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
