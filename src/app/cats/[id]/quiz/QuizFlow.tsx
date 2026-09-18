@@ -36,7 +36,13 @@ interface QuizQuestion {
 // full-page swap. QUESTION_SHIFT_MS is the worst case across all three
 // (the answers block's 80ms delay + 360ms duration) — the step only
 // advances once every block has actually finished leaving.
-const QUESTION_SHIFT_MS = 440;
+//
+// DEBUG (temporary): 2800ms instead of the real 440ms, matching
+// globals.css's exaggerated per-block durations/delays (1000ms delay +
+// 1800ms duration for the answers block) so the cascade is visible to the
+// eye. Revert to 440ms once confirmed — see the phase doc's "Debug
+// visibility pass" note.
+const QUESTION_SHIFT_MS = 2800;
 const RECEPTION_MS = 5000;
 
 const WHISPER_LINES = [

@@ -225,3 +225,19 @@ Verified with `npm run build` (clean), `eslint` on the changed file
 to the live VPS the same way as the initial Phase 24 deploy (`git pull
 && npm ci && npm run build` + static copy + migrate/seed + restart) —
 no migration or seed changes needed, presentation-only.
+
+### Debug visibility pass — 2026-09-18
+
+The owner asked to confirm the delays apply to both fade-in and
+fade-out (they do — each block sets both `transition-delay`, used by
+`.quiz-block--leaving`, and `animation-delay`, used by
+`.quiz-block--enter`, to the same value), then asked for the real
+timings to be temporarily scaled up ~5x since at 40-80ms the stagger is
+close to imperceptible. `globals.css`'s `.quiz-block--prompt`/
+`--answers` and `--duration-question-shift`, and `QuizFlow.tsx`'s
+`QUESTION_SHIFT_MS`, are currently exaggerated (picture 1200ms/0ms,
+prompt 1500ms/500ms delay, answers 1800ms/1000ms delay; JS timer
+2800ms) — clearly marked `DEBUG (temporary)` at each change site.
+**Revert to the real values (300/330/360ms, 0/40/80ms delay, 440ms JS
+timer) once the owner has confirmed the cascade looks right**, rather
+than shipping the exaggerated timing.
