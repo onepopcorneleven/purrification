@@ -152,7 +152,16 @@ per-block staggered version above is a same-day follow-up refinement,
 requested after the owner checked the deployed site and found the
 picture/prompt/answers still shifting together as one block, unlike the
 comparison mockup — also implemented, committed, and deployed the same
-day.
+day. That refinement shipped with its own same-day bug, also found and
+fixed: the exit direction wasn't actually animating (a `@keyframes`
+entrance with `animation-fill-mode: both` was fighting the exit's plain
+CSS `transition` on the same element — browsers don't reliably start a
+transition away from a value a CSS animation is still holding), fixed by
+using a plain transition symmetrically for both directions instead.
+Confirmed fixed across desktop Firefox and one Android phone; a second
+Android phone shows no animation in either direction, but that's
+`prefers-reduced-motion: reduce` being on for that device — correct,
+by-design behavior, not a bug.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the

@@ -165,10 +165,8 @@
      mirrors this and `--duration-divination-final` into its own
      QUESTION_SHIFT_MS/RECEPTION_MS constants (it needs numbers to drive a
      JS timer, not just a CSS duration) — keep both in sync if either
-     changes. DEBUG (temporary): 1200ms instead of the real 300ms, to
-     make the per-block cascade visible — also slows mark-confirm-spin
-     below since it shares this token. Revert to 300ms once confirmed. */
-  --duration-question-shift: 1200ms;
+     changes. */
+  --duration-question-shift: 300ms;
   --duration-divination-final: 5000ms;
 }
 
@@ -490,11 +488,6 @@
   transform: translateX(18px);
 }
 
-/* DEBUG (temporary): durations/delays below are exaggerated ~5x their
-   real values so the per-block cascade is visible to the eye — see
-   docs/workplan/phase-24-quiz-transition-crossfade.md's "Debug visibility
-   pass" note. Revert to 300/330/360ms + 0/40/80ms once confirmed. */
-
 /* Picture leads the cascade, using the base duration shared with
    mark-confirm-spin below — no separate delay needed since it starts the
    sequence. */
@@ -503,13 +496,13 @@
 }
 
 .quiz-block--prompt {
-  transition-duration: 1500ms;
-  transition-delay: 500ms;
+  transition-duration: 330ms;
+  transition-delay: 40ms;
 }
 
 .quiz-block--answers {
-  transition-duration: 1800ms;
-  transition-delay: 1000ms;
+  transition-duration: 360ms;
+  transition-delay: 80ms;
 }
 
 @media (prefers-reduced-motion: reduce) {

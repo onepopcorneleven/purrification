@@ -583,6 +583,14 @@ pause is unchanged.
       own duration/start delay) after the owner found the deployed
       version still shifted as one full-page block, unlike the
       comparison mockup. See the side doc's "Refinement" entry. Deployed.
+- [x] Same-day bugfix: the exit direction wasn't animating at all (an
+      `animation-fill-mode: both` entrance fighting a `transition`-based
+      exit on the same element) — fixed by using a plain CSS transition
+      symmetrically for both directions. Confirmed across desktop
+      Firefox and two Android phones; the one phone with no animation
+      has `prefers-reduced-motion: reduce` on, which is correct,
+      by-design behavior, not a bug. See the side doc's "Bugfix",
+      "Mobile debug readout", and "Debug cleanup" entries. Deployed.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,

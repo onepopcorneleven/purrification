@@ -36,13 +36,7 @@ interface QuizQuestion {
 // full-page swap. QUESTION_SHIFT_MS is the worst case across all three
 // (the answers block's 80ms delay + 360ms duration) — the step only
 // advances once every block has actually finished leaving.
-//
-// DEBUG (temporary): 2800ms instead of the real 440ms, matching
-// globals.css's exaggerated per-block durations/delays (1000ms delay +
-// 1800ms duration for the answers block) so the cascade is visible to the
-// eye. Revert to 440ms once confirmed — see the phase doc's "Debug
-// visibility pass" note.
-const QUESTION_SHIFT_MS = 2800;
+const QUESTION_SHIFT_MS = 440;
 const RECEPTION_MS = 5000;
 
 const WHISPER_LINES = [
@@ -119,26 +113,6 @@ export function QuizFlow({
       if (raf2) cancelAnimationFrame(raf2);
     };
   }, [pending]);
-
-  // DEBUG (temporary): a visible on-page readout of prefers-reduced-motion,
-  // added specifically because the mobile device reporting the still-broken
-  // transition has no devtools console available to run
-  // `matchMedia(...).matches` directly. Remove once diagnosed — see
-  // docs/workplan/phase-24-quiz-transition-crossfade.md's "Mobile debug
-  // readout" note.
-  const [reducedMotionDebug, setReducedMotionDebug] = useState<string | null>(
-    null,
-  );
-  useEffect(() => {
-    // A one-time read of a browser-only API (matchMedia) on mount, the
-    // standard SSR-safe way to bridge external browser state into React
-    // state; this whole debug readout is deleted once diagnosed, not
-    // worth a useSyncExternalStore rewrite for something this temporary.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setReducedMotionDebug(
-      String(window.matchMedia("(prefers-reduced-motion: reduce)").matches),
-    );
-  }, []);
 
   const question = questions[step];
   const isLastStep = step === questions.length - 1;
@@ -225,11 +199,6 @@ export function QuizFlow({
 
   return (
     <div className="flex flex-col gap-6">
-      {reducedMotionDebug !== null && (
-        <p className="rounded bg-yellow-300 px-3 py-2 text-center font-mono text-sm font-bold text-black">
-          DEBUG: prefers-reduced-motion = {reducedMotionDebug}
-        </p>
-      )}
       <QuizProgress step={step} total={questions.length} />
       {phase === "reception" ? (
         <div

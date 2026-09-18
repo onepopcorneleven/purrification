@@ -313,3 +313,31 @@ suppressed inline with a comment explaining why, rather than rewriting
 this temporary, soon-deleted banner with `useSyncExternalStore`). **This
 banner must be removed** once the mobile diagnosis is complete — it's
 debug-only, not a real feature.
+
+**Diagnosis result:** a three-way test matrix (desktop Firefox/Ubuntu,
+and two Android phones via Firefox) confirmed the hypothesis exactly —
+`false` + working fade on both the desktop and the first phone, `true` +
+no fade at all on the second phone. The second phone's lack of animation
+is `prefers-reduced-motion: reduce` doing its job correctly (a real OS/
+browser accessibility setting on that device, not a bug) — nothing to
+fix there; that device simply won't show any of this motion by design,
+same as it wouldn't for any other animation on the site.
+
+### Debug cleanup — 2026-09-18 (same day)
+
+With the fix confirmed on every environment where reduced-motion is
+off, reverted everything marked `DEBUG (temporary)`:
+
+- `globals.css`: `--duration-question-shift` back to 300ms;
+  `.quiz-block--prompt`/`--answers` back to 330ms/40ms delay and
+  360ms/80ms delay respectively.
+- `QuizFlow.tsx`: `QUESTION_SHIFT_MS` back to 440ms; the temporary
+  `reducedMotionDebug` state, its `useEffect`, and the yellow debug
+  banner are all removed.
+
+Verified with `npm run build` (clean), `eslint` (clean), and
+`prettier --check` (clean) — no `DEBUG` markers remain in either file.
+This closes out the transition-vs-animation bugfix and the timing
+tuning: the shipped behavior is the three-block staggered cascade at
+300/330/360ms duration with 0/40/80ms delay, symmetric fade in both
+directions, correctly inert under `prefers-reduced-motion: reduce`.
