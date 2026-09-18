@@ -494,11 +494,18 @@
  * snapped instead of fading, no matter how long its transition-duration
  * was. Fixed by using a plain CSS transition symmetrically for *both*
  * directions instead of animation-for-enter + transition-for-leave:
- * `.quiz-block--pending` holds the pre-entrance offset (opposite side from
- * `--leaving`); `QuizFlow.tsx` applies it on mount, then removes it a
- * double-`requestAnimationFrame` later so the transition to the resting
- * (no-modifier-class) state actually fires, exactly mirroring how
- * `--leaving` transitions away from resting.
+ * `.quiz-block--pending` holds the pre-entrance offset; `QuizFlow.tsx`
+ * applies it on mount, then removes it a double-`requestAnimationFrame`
+ * later so the transition to the resting (no-modifier-class) state
+ * actually fires, exactly mirroring how `--leaving` transitions away
+ * from resting.
+ *
+ * Direction (Phase 27): `--leaving` sweeps right-to-left (translateX 0 ->
+ * -18px, exiting toward the left). `--pending` was originally the mirror
+ * *position* of that (starting at +18px, i.e. to the right) but animating
+ * back to 0 is still a right-to-left sweep — so entrance moved the same
+ * visual direction as exit instead of the opposite one. Flipped to start
+ * at -18px so entrance sweeps left-to-right instead, opposite of exit.
  */
 .quiz-block {
   transition-property: opacity, transform;
@@ -512,7 +519,7 @@
 
 .quiz-block--pending {
   opacity: 0;
-  transform: translateX(18px);
+  transform: translateX(-18px);
 }
 
 /* Picture leads the cascade, using the base duration shared with

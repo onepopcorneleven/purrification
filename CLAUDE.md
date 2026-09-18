@@ -193,6 +193,14 @@ timer gating the step advance) from 440ms to 670ms to match. Purely a
 timing/pacing change — no structural change to the three-block
 mechanism itself.
 
+Most recently (Phase 27), the owner noticed exit and entrance swept the
+same visual direction (both right-to-left) instead of opposite ones —
+`.quiz-block--pending`'s pre-entrance offset was on the opposite *side*
+from `--leaving`'s end state, but animating from there back to center
+was still a right-to-left sweep. Fixed by flipping its `translateX`
+sign (`18px` → `-18px`), so entrance now genuinely sweeps left-to-right,
+opposite exit. One CSS value, no JS change.
+
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
 binary needs system shared libraries (`libnspr4`, `libnss3`, etc.) that

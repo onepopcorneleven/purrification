@@ -636,6 +636,20 @@ Pacing only — no change to the three-block mechanism, the
 - [x] `npm run build`/`eslint`/`prettier --check` clean on every
       changed file.
 
+## Phase 27 — Quiz transition entrance-direction fix — done
+Full details: `docs/workplan/phase-27-quiz-transition-direction-fix.md`
+Requested 2026-09-18: the owner noticed exit and entrance swept the same
+visual direction (both right-to-left) instead of opposite directions.
+Root cause: `.quiz-block--pending`'s pre-entrance offset was on the
+opposite *side* from `--leaving`'s end state, but animating from there
+back to center was still a right-to-left sweep — the fix flips its
+`translateX` sign so entrance genuinely sweeps left-to-right instead.
+- [x] Flip `.quiz-block--pending`'s `transform` from `translateX(18px)`
+      to `translateX(-18px)` — one rule, applies to all three blocks.
+- [x] Fix stale `.quiz-block--enter` references (renamed to `--pending`
+      in Phase 24's bugfix) in `design-tokens.json`/`design-system.md`.
+- [x] `npm run build`/`prettier --check` clean.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.

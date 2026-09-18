@@ -152,10 +152,11 @@ that *same*, already-selected option confirms it — a further, more
 emphatic gold-filled look, plus a one-shot spin+glow on its diamond mark
 (`.mark-confirm-spin`, Phase 24) — and is the advance action itself,
 replacing the old separate "Next" button entirely. On a non-final
-question, confirming slides the picture, prompt, and answers out (and the
-next question's versions of each in) as three separate blocks, each with
-its own slightly different duration and start delay
-(`.quiz-block`/`--leaving`/`--enter`/`--picture`/`--prompt`/`--answers`
+question, confirming slides the picture, prompt, and answers out
+right-to-left (and the next question's versions of each in left-to-right
+— the opposite sweep direction, Phase 27) as three separate blocks, each
+with its own slightly different duration and start delay
+(`.quiz-block`/`--leaving`/`--pending`/`--picture`/`--prompt`/`--answers`
 in `globals.css`) rather than one shared shift — Phase 24's lighter
 replacement for Phase 18's full-screen mid-quiz "divining" overlay — with
 a themed flavor line briefly shown inline in place of the usual "Tap an
