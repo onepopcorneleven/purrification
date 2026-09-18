@@ -120,6 +120,26 @@ export function QuizFlow({
     };
   }, [pending]);
 
+  // DEBUG (temporary): a visible on-page readout of prefers-reduced-motion,
+  // added specifically because the mobile device reporting the still-broken
+  // transition has no devtools console available to run
+  // `matchMedia(...).matches` directly. Remove once diagnosed — see
+  // docs/workplan/phase-24-quiz-transition-crossfade.md's "Mobile debug
+  // readout" note.
+  const [reducedMotionDebug, setReducedMotionDebug] = useState<string | null>(
+    null,
+  );
+  useEffect(() => {
+    // A one-time read of a browser-only API (matchMedia) on mount, the
+    // standard SSR-safe way to bridge external browser state into React
+    // state; this whole debug readout is deleted once diagnosed, not
+    // worth a useSyncExternalStore rewrite for something this temporary.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setReducedMotionDebug(
+      String(window.matchMedia("(prefers-reduced-motion: reduce)").matches),
+    );
+  }, []);
+
   const question = questions[step];
   const isLastStep = step === questions.length - 1;
   const selected = answers[question.id];
@@ -205,6 +225,11 @@ export function QuizFlow({
 
   return (
     <div className="flex flex-col gap-6">
+      {reducedMotionDebug !== null && (
+        <p className="rounded bg-yellow-300 px-3 py-2 text-center font-mono text-sm font-bold text-black">
+          DEBUG: prefers-reduced-motion = {reducedMotionDebug}
+        </p>
+      )}
       <QuizProgress step={step} total={questions.length} />
       {phase === "reception" ? (
         <div

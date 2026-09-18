@@ -285,3 +285,31 @@ Verified with `npm run build` (clean) and `eslint` on the changed file
 specifically had to satisfy). Still running with the Debug visibility
 pass's exaggerated timing above — the owner hasn't yet confirmed the
 fixed cascade looks right, so the real values are still pending revert.
+
+### Mobile debug readout — 2026-09-18 (same day)
+
+The desktop Firefox/Ubuntu retest confirmed the bugfix above — entrance
+and exit now fade symmetrically. But Firefox/Android (the case with no
+devtools available) still shows the pre-fix symptom on *both* directions:
+the confirmed option turns gold, a ~3s freeze, then the next question's
+content appears instantly with no fade either way. That "instant both
+ways, no asymmetry" signature is what `prefers-reduced-motion: reduce`
+being true would produce (`globals.css`'s `.quiz-block` reduced-motion
+override disables all of this on purpose) — distinct from the
+asymmetric bug just fixed above, and plausible on a phone that may have
+an OS-level "remove animations" accessibility setting enabled. Firefox
+for Android uses the same Gecko engine as desktop Firefox (where the fix
+is confirmed working), which argues against an engine-specific
+regression and for an environment-level setting instead.
+
+Since that device has no devtools to run
+`matchMedia('(prefers-reduced-motion: reduce)').matches` directly, added
+a temporary on-page debug readout: `QuizFlow.tsx` renders a yellow
+`DEBUG: prefers-reduced-motion = <true/false>` banner above the quiz
+progress dots, computed via `window.matchMedia` in a `useEffect` (the
+standard SSR-safe pattern for reading a browser-only API into React
+state — the `react-hooks/set-state-in-effect` lint warning this trips is
+suppressed inline with a comment explaining why, rather than rewriting
+this temporary, soon-deleted banner with `useSyncExternalStore`). **This
+banner must be removed** once the mobile diagnosis is complete — it's
+debug-only, not a real feature.
