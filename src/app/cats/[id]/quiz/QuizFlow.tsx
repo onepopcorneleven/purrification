@@ -28,15 +28,16 @@ interface QuizQuestion {
 // duration; RECEPTION_MS (the last question's longer, more elaborate
 // pause gating the real diagnosis request) is unchanged from Phase 18.
 //
-// Refinement (same day): the picture/prompt/answers blocks below each
-// carry their own slightly different transition-duration and a small
-// staggered start (`.quiz-block--picture/--prompt/--answers` in
-// globals.css), rather than one shared duration on a single wrapper, so
-// the quiz reads as three independent blocks shifting rather than one
-// full-page swap. QUESTION_SHIFT_MS is the worst case across all three
-// (the answers block's 80ms delay + 360ms duration) — the step only
+// Refinement: the picture/prompt/answers blocks below each carry their
+// own slightly different transition-duration and a small staggered start
+// (`.quiz-block--picture/--prompt/--answers` in globals.css), rather than
+// one shared duration on a single wrapper, so the quiz reads as three
+// independent blocks shifting rather than one full-page swap.
+// QUESTION_SHIFT_MS is the worst case across all three (the answers
+// block's 120ms delay + 550ms duration — Phase 26 strengthened both the
+// duration and the stagger from the original 80ms/360ms) — the step only
 // advances once every block has actually finished leaving.
-const QUESTION_SHIFT_MS = 440;
+const QUESTION_SHIFT_MS = 670;
 const RECEPTION_MS = 5000;
 
 const WHISPER_LINES = [

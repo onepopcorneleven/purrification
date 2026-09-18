@@ -619,6 +619,23 @@ a non-interactive form-field `<label>`) was already safe.
 - [x] `npm run build`/`eslint`/`prettier --check` clean on every
       changed file.
 
+## Phase 26 — Quiz transition timing boost — done
+Full details: `docs/workplan/phase-26-quiz-transition-timing-boost.md`
+Requested 2026-09-18 as a same-family follow-up to Phase 24's per-block
+cascade: the mechanism was confirmed correct (Phase 24's bugfix/debug
+history), but the owner asked for longer fades and a wider gap between
+when each block starts moving, to make the cascade read more strongly.
+Pacing only — no change to the three-block mechanism, the
+`--leaving`/`--pending` transition approach, or Phase 25's fix.
+- [x] `--duration-question-shift` (picture block base) 300ms → 450ms.
+- [x] `.quiz-block--prompt` 330ms/40ms delay → 500ms/60ms delay.
+- [x] `.quiz-block--answers` 360ms/80ms delay → 550ms/120ms delay.
+- [x] `QuizFlow.tsx`'s `QUESTION_SHIFT_MS` 440ms → 670ms to match.
+- [x] Update `design-tokens.json`'s `questionShift` duration/patterns
+      and `CLAUDE.md`'s Phase 24 paragraph with the new numbers.
+- [x] `npm run build`/`eslint`/`prettier --check` clean on every
+      changed file.
+
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,
 physical fulfillment, social sharing integrations, admin CMS.

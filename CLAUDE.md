@@ -54,9 +54,11 @@ this direction for pacing across a 20-question quiz. The picture, prompt,
 and answers each move as their own block
 (`.quiz-block`/`--leaving`/`--enter`/`--picture`/`--prompt`/`--answers`
 in `globals.css`) with a slightly different duration and a small start
-delay per block (300/330/360ms, 0/40/80ms delay, `ease-dreamy`) — a
-same-day refinement after the owner noticed the first version shifted
-everything as one full-page block rather than reading as three
+delay per block (450/500/550ms, 0/60/120ms delay as of Phase 26 —
+strengthened from Phase 24's original 300/330/360ms, 0/40/80ms at the
+owner's request, `ease-dreamy`) — a same-day refinement after the owner
+noticed the first version shifted everything as one full-page block
+rather than reading as three
 independent ones — plus a one-shot spin+glow on the confirmed option's
 diamond mark. The last question still gates the real diagnosis request
 behind the longer, unchanged "spiritual reception" variant
@@ -180,6 +182,16 @@ inline text link app-wide), `ReadingOverview`'s row link,
 answer `<label>` itself — a research pass confirmed everything else
 (icon-only overlay buttons, plain `<button>`s, a non-interactive
 form-field `<label>`) was already safe.
+
+Most recently (Phase 26), the owner asked to strengthen the Phase 24
+per-block cascade further — longer fades and a bigger gap between when
+each block starts moving. `--duration-question-shift` (the picture
+block's base) goes from 300ms to 450ms; the prompt block from
+330ms/40ms delay to 500ms/60ms delay; the answers block from 360ms/80ms
+delay to 550ms/120ms delay; `QuizFlow.tsx`'s `QUESTION_SHIFT_MS` (the JS
+timer gating the step advance) from 440ms to 670ms to match. Purely a
+timing/pacing change — no structural change to the three-block
+mechanism itself.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the

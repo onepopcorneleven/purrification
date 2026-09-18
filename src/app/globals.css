@@ -165,8 +165,11 @@
      mirrors this and `--duration-divination-final` into its own
      QUESTION_SHIFT_MS/RECEPTION_MS constants (it needs numbers to drive a
      JS timer, not just a CSS duration) — keep both in sync if either
-     changes. */
-  --duration-question-shift: 300ms;
+     changes. Phase 26 strengthened this and the prompt/answers blocks'
+     durations/delays (see `.quiz-block--prompt`/`--answers`) — longer
+     and more spread out, at the owner's request, than Phase 24's
+     original 300ms base. */
+  --duration-question-shift: 450ms;
   --duration-divination-final: 5000ms;
 }
 
@@ -520,13 +523,13 @@
 }
 
 .quiz-block--prompt {
-  transition-duration: 330ms;
-  transition-delay: 40ms;
+  transition-duration: 500ms;
+  transition-delay: 60ms;
 }
 
 .quiz-block--answers {
-  transition-duration: 360ms;
-  transition-delay: 80ms;
+  transition-duration: 550ms;
+  transition-delay: 120ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
