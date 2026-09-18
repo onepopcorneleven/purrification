@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { QuizProgress } from "@/components/ui/QuizProgress";
@@ -87,11 +87,49 @@ export function QuizFlow({
   // overlay while phase === "reception" — the two are mutually exclusive,
   // so one piece of state can serve both.
   const [line, setLine] = useState(WHISPER_LINES[0]);
+  // Bugfix (same day): the entering blocks start in their pre-entrance
+  // offset position (`.quiz-block--pending`) and this flips to false a
+  // double-`requestAnimationFrame` after each question mounts, so the
+  // browser commits the offset as a real paint before the change back to
+  // resting — otherwise the two states can collapse into one frame and
+  // skip the transition entirely. See globals.css's `.quiz-block` comment
+  // for why this uses a transition (two states + a JS-driven flip) rather
+  // than the `@keyframes` animation this originally shipped with.
+  const [pending, setPending] = useState(true);
+  // Resets `pending` to true whenever `step` changes, using React's
+  // documented "adjust state during render" pattern (not an effect) —
+  // https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  // — since the effect below must only ever *read* `pending`, not also
+  // set it synchronously, to avoid the extra cascading render that'd
+  // trigger (and the react-hooks/set-state-in-effect lint rule flags).
+  const [prevStep, setPrevStep] = useState(step);
+  if (step !== prevStep) {
+    setPrevStep(step);
+    setPending(true);
+  }
+
+  useEffect(() => {
+    if (!pending) return;
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => setPending(false));
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
+    };
+  }, [pending]);
 
   const question = questions[step];
   const isLastStep = step === questions.length - 1;
   const selected = answers[question.id];
   const busy = phase !== "answering";
+  const blockModifier =
+    phase === "leaving"
+      ? "quiz-block--leaving"
+      : pending
+        ? "quiz-block--pending"
+        : "";
 
   function selectOption(optionId: string) {
     if (busy) return;
@@ -196,13 +234,7 @@ export function QuizFlow({
       ) : (
         <div key={question.id} className="flex flex-col gap-3">
           {question.topicImage && (
-            <div
-              className={`quiz-block quiz-block--picture ${
-                phase === "leaving"
-                  ? "quiz-block--leaving"
-                  : "quiz-block--enter"
-              }`}
-            >
+            <div className={`quiz-block quiz-block--picture ${blockModifier}`}>
               <FramedImage
                 variant="portal"
                 src={`/images/topics/${question.topicImage}`}
@@ -216,16 +248,12 @@ export function QuizFlow({
             </div>
           )}
           <h2
-            className={`quiz-block quiz-block--prompt font-heading text-xl ${
-              phase === "leaving" ? "quiz-block--leaving" : "quiz-block--enter"
-            }`}
+            className={`quiz-block quiz-block--prompt font-heading text-xl ${blockModifier}`}
           >
             {question.prompt}
           </h2>
           <div
-            className={`quiz-block quiz-block--answers flex flex-col gap-3 ${
-              phase === "leaving" ? "quiz-block--leaving" : "quiz-block--enter"
-            }`}
+            className={`quiz-block quiz-block--answers flex flex-col gap-3 ${blockModifier}`}
           >
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {question.options.map((option) => {

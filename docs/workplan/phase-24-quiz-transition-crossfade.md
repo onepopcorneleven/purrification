@@ -241,3 +241,47 @@ prompt 1500ms/500ms delay, answers 1800ms/1000ms delay; JS timer
 **Revert to the real values (300/330/360ms, 0/40/80ms delay, 440ms JS
 timer) once the owner has confirmed the cascade looks right**, rather
 than shipping the exaggerated timing.
+
+### Bugfix — 2026-09-18 (same day)
+
+With the exaggerated debug timing actually visible, the owner reported
+the real bug the short real timings had been masking: on Firefox/Android
+(no devtools available there) and Firefox/Ubuntu desktop
+(`matchMedia('(prefers-reduced-motion: reduce)').matches` confirmed
+`false`, ruling out the reduced-motion path), confirming an answer made
+all three blocks turn instantly black (i.e. snap to invisible with no
+transition), then — after the JS pause — fade back in at their three
+different speeds correctly. So entrance worked; exit didn't, on both
+platforms, regardless of reduced-motion.
+
+**Root cause:** entrance used a `@keyframes` animation
+(`question-shift-in`) with `animation-fill-mode: both`, which keeps
+"holding" the element's opacity/transform indefinitely once the
+animation finishes. When that same long-lived element later needs to
+leave, browsers don't reliably start a CSS *transition* away from a
+value a CSS *animation* is still holding — the animation's held value
+gets replaced instantly instead of interpolated. Entrance never hit this
+because each entering block is a freshly-mounted element (React's
+`key={question.id}` remount) playing a clean one-shot animation with
+nothing to conflict with; exit hit it every time, because it's the same
+long-lived node transitioning away from that animation-held state.
+
+**Fix:** stopped mixing animation-for-enter with transition-for-leave.
+`.quiz-block--pending` (the mirror-image starting offset from
+`--leaving`) replaces the `@keyframes question-shift-in` +
+`.quiz-block--enter` animation entirely — entrance is now a plain CSS
+*transition*, symmetric with exit. `QuizFlow.tsx` applies `--pending` on
+mount and a new `pending` state (reset via React's documented
+"adjust state during render" pattern — not inside a `useEffect`, since
+that trips `react-hooks/set-state-in-effect` and causes a needless
+cascading render) flips it off a **double**
+`requestAnimationFrame` later, so the browser actually commits the
+offset as a real paint before flipping back to the resting (no
+modifier class) state — a single rAF risked the two states collapsing
+into one frame and skipping the transition again.
+
+Verified with `npm run build` (clean) and `eslint` on the changed file
+(clean, including the `react-hooks/set-state-in-effect` rule this fix
+specifically had to satisfy). Still running with the Debug visibility
+pass's exaggerated timing above — the owner hasn't yet confirmed the
+fixed cascade looks right, so the real values are still pending revert.

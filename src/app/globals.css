@@ -457,11 +457,23 @@
  * duration and start time are staggered a little (picture first, then
  * prompt, then answers — the same order a reader's eye actually moves in)
  * so the quiz reads as three independent blocks shifting rather than one
- * full-page swap. `.quiz-block--leaving`/`--enter` hold the shared
- * transform (translateX + opacity); the three named block classes below
- * only vary duration/delay. `QuizFlow.tsx`'s QUESTION_SHIFT_MS mirrors the
- * slowest block's total (answers: 80ms delay + 360ms duration = 440ms) —
- * the step only advances once every block has actually finished leaving.
+ * full-page swap.
+ *
+ * Bugfix (same day): entrance was originally a `@keyframes` animation with
+ * `animation-fill-mode: both` — which keeps "holding" an element's
+ * opacity/transform indefinitely once finished. When that same element
+ * later needs to leave, browsers don't reliably start a *transition* away
+ * from a value a CSS *animation* is still holding (the animation's held
+ * value gets replaced instantly instead of interpolated) — so entrance
+ * animated correctly (a fresh element, no conflict) but exit silently
+ * snapped instead of fading, no matter how long its transition-duration
+ * was. Fixed by using a plain CSS transition symmetrically for *both*
+ * directions instead of animation-for-enter + transition-for-leave:
+ * `.quiz-block--pending` holds the pre-entrance offset (opposite side from
+ * `--leaving`); `QuizFlow.tsx` applies it on mount, then removes it a
+ * double-`requestAnimationFrame` later so the transition to the resting
+ * (no-modifier-class) state actually fires, exactly mirroring how
+ * `--leaving` transitions away from resting.
  */
 .quiz-block {
   transition-property: opacity, transform;
@@ -473,21 +485,9 @@
   transform: translateX(-18px);
 }
 
-@keyframes question-shift-in {
-  from {
-    opacity: 0;
-    transform: translateX(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.quiz-block--enter {
-  animation-name: question-shift-in;
-  animation-timing-function: var(--ease-dreamy);
-  animation-fill-mode: both;
+.quiz-block--pending {
+  opacity: 0;
+  transform: translateX(18px);
 }
 
 /* DEBUG (temporary): durations/delays below are exaggerated ~5x their
@@ -500,21 +500,16 @@
    sequence. */
 .quiz-block--picture {
   transition-duration: var(--duration-question-shift);
-  animation-duration: var(--duration-question-shift);
 }
 
 .quiz-block--prompt {
   transition-duration: 1500ms;
   transition-delay: 500ms;
-  animation-duration: 1500ms;
-  animation-delay: 500ms;
 }
 
 .quiz-block--answers {
   transition-duration: 1800ms;
   transition-delay: 1000ms;
-  animation-duration: 1800ms;
-  animation-delay: 1000ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -523,10 +518,10 @@
   .quiz-block--prompt,
   .quiz-block--answers {
     transition: none;
-    animation: none;
   }
 
-  .quiz-block--leaving {
+  .quiz-block--leaving,
+  .quiz-block--pending {
     opacity: 1;
     transform: none;
   }
