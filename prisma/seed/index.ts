@@ -132,12 +132,36 @@ function validate(): void {
   // checked per-question (local ids are *expected* to repeat across
   // questions — that's what answerOptionId() above is for) plus a final
   // global check on the derived id as a belt-and-suspenders sanity check.
-  assertUniqueIds(errors, "Tag", tags.map((t) => t.id));
-  assertUniqueIds(errors, "QuestionTopic", topics.map((t) => t.id));
-  assertUniqueIds(errors, "Question", questions.map((q) => q.id));
-  assertUniqueIds(errors, "Treatment", treatments.map((t) => t.id));
-  assertUniqueIds(errors, "DiagnosisDef", diagnosisDefs.map((d) => d.id));
-  assertUniqueIds(errors, "Ritual", rituals.map((r) => r.id));
+  assertUniqueIds(
+    errors,
+    "Tag",
+    tags.map((t) => t.id),
+  );
+  assertUniqueIds(
+    errors,
+    "QuestionTopic",
+    topics.map((t) => t.id),
+  );
+  assertUniqueIds(
+    errors,
+    "Question",
+    questions.map((q) => q.id),
+  );
+  assertUniqueIds(
+    errors,
+    "Treatment",
+    treatments.map((t) => t.id),
+  );
+  assertUniqueIds(
+    errors,
+    "DiagnosisDef",
+    diagnosisDefs.map((d) => d.id),
+  );
+  assertUniqueIds(
+    errors,
+    "Ritual",
+    rituals.map((r) => r.id),
+  );
   for (const q of questions) {
     assertUniqueIds(
       errors,
@@ -405,6 +429,13 @@ async function upsertContent(): Promise<void> {
     }
   }
 
+  // Phase 28: treatments.json also carries the ~10 retired (isActive:
+  // false) Phase 13 placeholder Treatment rows, re-listed here solely to
+  // author real image_paths into their previously-empty TreatmentImage
+  // pools (Phase 23's known follow-up — see workplan.md). This upsert never
+  // sets isActive, so re-listing an already-inactive row cannot reactivate
+  // it; every other field below mirrors the live DB row exactly, so this is
+  // a no-op except for the new image_paths.
   for (const t of treatments) {
     await prisma.treatment.upsert({
       where: { id: t.id },
