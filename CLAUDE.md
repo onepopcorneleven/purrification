@@ -230,13 +230,15 @@ retired-row data, authored into `prisma/seed/content/treatments.json`
 alongside the existing 10 active entries — safe because the seed
 script's treatment upsert only ever `UPDATE`s an existing id and never
 touches `isActive`, so re-listing an inactive row cannot reactivate it.
-**One step is still pending as of this writing:** `npm run
-db:seed-content` against the live VPS DB, which would actually create
-those 10 new `TreatmentImage` rows and push the reworded tone-fix text
-live, was refused by this session's own safety classifier as a
-production-database write and needs the operator to run it directly —
-see `docs/workplan.md`'s Phase 28 entry for exactly what's committed
-versus still pending. The image-generation step itself needed the main
+The live DB was reseeded on 2026-09-21 (10 new `TreatmentImage` rows,
+reworded tone text) after the owner — who has never touched the
+production DB by hand — told the agent to find how earlier phases did it
+and run it itself: SSH tunnel + `node --env-file=.env --import tsx
+prisma/seed/index.ts`, method recorded in `docs/workplan.md`'s Phase 28
+entry. **The app deploy is still pending as of this writing:** the 10 new
+PNGs only exist on the Phase 28 branch until it's merged and deployed, so
+until then those ~22 historical results' treatment image 404s. The
+image-generation step itself needed the main
 checkout (not a worktree) as `codex exec`'s `cwd`, since its sandbox
 trust in `~/.codex/config.toml` is keyed to that exact absolute path —
 the same constraint Phase 17/22 already hit and documented.

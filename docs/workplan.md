@@ -43,14 +43,12 @@ complicated — that complexity belongs in a side file, not here.
 All of Phases 0–27 are **done and live in production** at
 `purrification.com`. Phase 28 (below) closes out the three follow-ups this
 section used to track — the tone/content review, the multi-path diagnosis
-smoke test, and the Phase 23 retired-`Treatment`-image backfill — and its
-code/content changes are committed; **one production step is still
-pending as of this writing: `npm run db:seed-content` has not yet been run
-against the live VPS DB**, so the tone-language fixes and the 10 new
-`TreatmentImage` rows aren't live yet (everything else Phase 28 touched —
-the smoke-test script, the docs — needs no DB step and is already
-effective once deployed). See Phase 28 below for exactly what's committed
-versus what's still waiting on that one command.
+smoke test, and the Phase 23 retired-`Treatment`-image backfill. The live
+DB was reseeded on 2026-09-21 (10 new `TreatmentImage` rows, reworded
+tone-fix text); **the app deploy is still pending** — the 10 new PNGs in
+`public/images/treatments/` only exist on the Phase 28 branch, so until
+that branch is merged and deployed, the 22 affected historical results
+point at image files the live server doesn't have yet. See Phase 28 below.
 
 Phase 20's `/allimages` debug gallery is temporary and unlinked. Phase 21
 mistakenly deleted it on its own initiative reading that as license to do
@@ -650,7 +648,7 @@ back to center was still a right-to-left sweep — the fix flips its
       in Phase 24's bugfix) in `design-tokens.json`/`design-system.md`.
 - [x] `npm run build`/`prettier --check` clean.
 
-## Phase 28 — Follow-up cleanup pass (tone review, smoke test, image backfill) — mostly done, one DB step pending
+## Phase 28 — Follow-up cleanup pass (tone review, smoke test, image backfill) — DB reseeded, app deploy pending
 Requested 2026-09-18: the owner asked to resolve every open, non-future-scope
 follow-up still on the books — the Phase 14 tone/content review, the Phase 14
 multi-path diagnosis smoke test, and the Phase 23 retired-`Treatment`-image
@@ -720,18 +718,29 @@ same phase.
       `isActive`, so re-listing an inactive row cannot reactivate it (a code
       comment was added at the upsert call site to make this explicit for
       the next person editing that loop).
-- [ ] **Apply to the live DB — blocked on the operator, not done.** All of
-      the above is committed to this branch, but `npm run db:seed-content`
-      against the live VPS DB (needed to actually create the 10 new
-      `TreatmentImage` rows and push the reworded tone-fix text) was
-      refused by this harness's auto-mode safety classifier as a
-      production-database write, with no override attempted — this is
-      exactly the kind of hard-to-reverse, shared-system action that
-      should get a human's explicit go-ahead rather than a workaround. The
-      operator needs to run it themselves (SSH tunnel open, from this
-      branch): `npm run db:seed-content`, then spot-check a couple of the
-      10 ids (e.g. `treat_mercury_retrograde`) have a populated
-      `TreatmentImage` row.
+- [x] **Applied to the live DB, 2026-09-21.** The first attempt was
+      refused by this harness's auto-mode classifier as a production-DB
+      write; the owner (who had never touched the DB by hand) then
+      explicitly told the agent to find how earlier phases did it and run
+      it itself. Method, same as Phase 15/17/22: SSH tunnel open
+      (`ssh -f -N -L 5432:localhost:5432 purrification-deploy`), then
+      `node --env-file=.env --import tsx prisma/seed/index.ts` from this
+      branch (equivalent to `npm run db:seed-content` with `.env` loaded —
+      plain `tsx` doesn't auto-load `.env`; a fresh worktree also needs
+      `.env` copied in and `npx prisma generate` run). Output: only the
+      known Phase 13 stale-placeholder warnings (no `Treatment` ones any
+      more), "Upserted 17 tags, 5 topics, 20 questions, 20 treatments, 12
+      diagnosis defs, 19 rituals." Verified by direct query: 10 active + 10
+      inactive `Treatment` rows each with exactly one `TreatmentImage`, all
+      10 retired rows still `isActive: false`, reworded tone text present
+      in `Treatment`/`Ritual` rows, and 0 historical `Diagnosis` rows left
+      pointing at an image-less treatment.
+- [ ] **Merge PR #41 and deploy the app** so the 10 new PNGs exist on the
+      VPS. The DB now references them; until deployed, those ~22
+      historical results' treatment image 404s instead of showing the
+      decorative fallback. Also, `getDiagnosis` caches content per process,
+      so the reworded ritual text only reaches *new* diagnoses after the
+      deploy's `systemctl restart`.
 - [x] Refreshed this file's stale "Current status" section (see above) and
       closed out the two Phase 14 checklist items and the Phase 23 "Known
       follow-up" note to point here.
