@@ -201,6 +201,48 @@ was still a right-to-left sweep. Fixed by flipping its `translateX`
 sign (`18px` → `-18px`), so entrance now genuinely sweeps left-to-right,
 opposite exit. One CSS value, no JS change.
 
+Most recently (Phase 28), the owner asked to resolve every open,
+non-future-scope follow-up still on the books in one autonomous pass: the
+Phase 14 tone/content review, the Phase 14 multi-path diagnosis smoke
+test, and the Phase 23 retired-`Treatment`-image backfill. The tone
+review read all 12 diagnoses, 10 treatments, 19 rituals, and 20
+questions/85 answers in full; R-TONE-2 (the persistent disclaimer,
+`PageShell`'s footer) was already satisfied everywhere, and R-TONE-1
+surfaced 10 spots — all in `treatments.json` contraindications and
+`rituals.json` steps/aftercare text — that had drifted from whimsical
+"spiritual ritual" framing into literal veterinary/behaviorist language
+(named medical conditions, "rule out a medical cause," the real term
+"extinction burst"). Each was reworded into the brand voice while
+deliberately keeping every underlying "see a vet" nudge intact — removing
+those would have been an actual safety regression, not a tone fix. A new
+`scripts/smoke-test-diagnoses.ts` (`npm run smoke-test-diagnoses`) closes
+the second follow-up: it imports the same `engine.ts` functions
+`getDiagnosis.ts` uses and hill-climbs toward a full answer path for each
+active `DiagnosisDef`, confirming all 12/12 (11 pattern-based + the
+catch-all) are reachable as the actual first-match result with no
+template-rendering errors. The third follow-up (Phase 23's known gap:
+`TreatmentImage` was purely additive with no backfill, leaving the ~10
+retired placeholder `Treatment` rows behind ~22 historical results with
+an empty image pool) is closed the same way Phase 17 closed the
+equivalent diagnosis-image gap: one real illustration per retired
+treatment, generated via `codex exec` against the live DB's exact
+retired-row data, authored into `prisma/seed/content/treatments.json`
+alongside the existing 10 active entries — safe because the seed
+script's treatment upsert only ever `UPDATE`s an existing id and never
+touches `isActive`, so re-listing an inactive row cannot reactivate it.
+The live DB was reseeded on 2026-09-21 (10 new `TreatmentImage` rows,
+reworded tone text) after the owner — who has never touched the
+production DB by hand — told the agent to find how earlier phases did it
+and run it itself: SSH tunnel + `node --env-file=.env --import tsx
+prisma/seed/index.ts`, method recorded in `docs/workplan.md`'s Phase 28
+entry. **The app deploy is still pending as of this writing:** the 10 new
+PNGs only exist on the Phase 28 branch until it's merged and deployed, so
+until then those ~22 historical results' treatment image 404s. The
+image-generation step itself needed the main
+checkout (not a worktree) as `codex exec`'s `cwd`, since its sandbox
+trust in `~/.codex/config.toml` is keyed to that exact absolute path —
+the same constraint Phase 17/22 already hit and documented.
+
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
 binary needs system shared libraries (`libnspr4`, `libnss3`, etc.) that
