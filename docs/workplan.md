@@ -40,19 +40,20 @@ complicated — that complexity belongs in a side file, not here.
 
 ## Current status
 
-All of Phases 0–27 are **done and live in production** at
-`purrification.com`. Phase 28 (below) closes out the three follow-ups this
+All of Phases 0–29 are **done and live in production** at
+`purrification.com`. Phase 28 (below) closed out the three follow-ups this
 section used to track — the tone/content review, the multi-path diagnosis
-smoke test, and the Phase 23 retired-`Treatment`-image backfill. The live
-DB was reseeded on 2026-09-21 (10 new `TreatmentImage` rows, reworded
-tone-fix text); **the app deploy is still pending** — the 10 new PNGs in
-`public/images/treatments/` only exist on the Phase 28 branch, so until
-that branch is merged and deployed, the 22 affected historical results
-point at image files the live server doesn't have yet. See Phase 28 below.
-
-Phase 29 (quiz shortened from 20 to 10 questions, content/seed only) is
-done in the repo but **not yet applied to the live DB or deployed** — see
-its entry below for the deploy notes.
+smoke test, and the Phase 23 retired-`Treatment`-image backfill. Phase 29
+shortened the quiz from 20 to 10 questions (content/seed only). Both
+shipped in one deploy on 2026-09-21 (PRs #41 and #42): the seed retired the
+12 dropped questions, the service restarted right after, and the 10 new
+treatment PNGs from Phase 28 now serve 200, so the ~22 affected historical
+results have their images. Confirmed live: 10 active questions (2 per
+topic), the live quiz page ships exactly the 10 new question ids and none
+of the retired ones, and `npm run smoke-test-diagnoses` reaches all 12
+diagnoses. **The one open item is owner-only:** click through the shorter
+quiz once in a real browser (no headless browser exists in the sandbox) —
+see Phase 29 below.
 
 Phase 20's `/allimages` debug gallery is temporary and unlinked. Phase 21
 mistakenly deleted it on its own initiative reading that as license to do
@@ -652,7 +653,7 @@ back to center was still a right-to-left sweep — the fix flips its
       in Phase 24's bugfix) in `design-tokens.json`/`design-system.md`.
 - [x] `npm run build`/`prettier --check` clean.
 
-## Phase 28 — Follow-up cleanup pass (tone review, smoke test, image backfill) — DB reseeded, app deploy pending
+## Phase 28 — Follow-up cleanup pass (tone review, smoke test, image backfill) — done
 Requested 2026-09-18: the owner asked to resolve every open, non-future-scope
 follow-up still on the books — the Phase 14 tone/content review, the Phase 14
 multi-path diagnosis smoke test, and the Phase 23 retired-`Treatment`-image
@@ -696,7 +697,8 @@ same phase.
       diagnoses.ts` (`npm run smoke-test-diagnoses`), which imports the same
       `engine.ts` functions `getDiagnosis.ts` uses (not a reimplementation)
       and loads live content the same way, then uses random-restart
-      hill-climbing to search for a full 20-answer path that makes each
+      hill-climbing to search for a full answer path (one option per
+      active question — 20 at the time, 10 since Phase 29) that makes each
       active `DiagnosisDef` the actual first-match result (respecting
       priority order, not just "satisfies its own rule in isolation").
       Confirmed **all 12/12 active `DiagnosisDef`s** (11 pattern-based + the
@@ -739,12 +741,12 @@ same phase.
       10 retired rows still `isActive: false`, reworded tone text present
       in `Treatment`/`Ritual` rows, and 0 historical `Diagnosis` rows left
       pointing at an image-less treatment.
-- [ ] **Merge PR #41 and deploy the app** so the 10 new PNGs exist on the
-      VPS. The DB now references them; until deployed, those ~22
-      historical results' treatment image 404s instead of showing the
-      decorative fallback. Also, `getDiagnosis` caches content per process,
-      so the reworded ritual text only reaches *new* diagnoses after the
-      deploy's `systemctl restart`.
+- [x] **Merged PR #41 and deployed the app**, 2026-09-21, together with
+      Phase 29's deploy (one repeat-deploy run shipped both). The 10 new
+      PNGs now exist on the VPS and serve 200, so the ~22 historical
+      results have their treatment image; the deploy's `systemctl restart`
+      also refreshed `getDiagnosis`'s per-process content cache, so the
+      reworded ritual text reaches new diagnoses.
 - [x] Refreshed this file's stale "Current status" section (see above) and
       closed out the two Phase 14 checklist items and the Phase 23 "Known
       follow-up" note to point here.
@@ -756,13 +758,13 @@ same phase.
       the seed script's own `validate()` step, which is the relevant check
       for JSON content changes).
 
-## Phase 29 — Quiz shortening (20 → 10 questions) — done, deploy pending
+## Phase 29 — Quiz shortening (20 → 10 questions) — done, live
 Full details: `docs/workplan/phase-29-quiz-shortening.md`
 Requested 2026-09-21: cut the quiz to 10 questions (2 per topic) while
 keeping the diagnosis concept and the 12 diagnoses / 10 treatments / 19
 rituals. Content and seed pipeline only — nothing in `src/` hardcodes the
 quiz length (it's derived from the active `Question` rows), so no UI or
-schema change. **Not yet applied to the live DB or deployed.**
+schema change. Merged (PR #42) and deployed 2026-09-21.
 - [x] Design the 10-question set: keep 8 original questions (`q_001`,
       `q_005`, `q_007`, `q_009`, `q_010`, `q_013`, `q_014`, `q_017`), add 2
       merged questions (`q_021` territory watch, `q_022` solo-time), retire
@@ -780,9 +782,20 @@ schema change. **Not yet applied to the live DB or deployed.**
       diagnoses and 19/19 rituals reachable, no unmatched/out-of-band
       results.
 - [x] `lint`/`tsc`/`build`/`prettier --check` clean.
-- [ ] Deploy (seed runs in the normal deploy; keep the seed → restart gap
-      short) and click through the shorter quiz once — see the phase
-      doc's "Deploy" section.
+- [x] Deployed 2026-09-21 via the runbook's repeat-deploy: the seed
+      retired the 12 questions (`Retired 12 question(s)`), no pending
+      migrations, service restarted right after (active, 0 restarts).
+- [x] Verified live: 10 active questions, 2 per topic, in the production
+      DB; the live quiz page (`GET /cats/<id>/quiz`, 200) ships exactly the
+      10 new question ids and none of the 12 retired ones; `npm run
+      smoke-test-diagnoses` against the live DB reached 12/12 diagnoses,
+      with a second severity path for 10 of the 11 pattern diagnoses
+      (Nocturnal Unrest is moderate-only by design).
+- [ ] **Owner-only:** click through the shorter quiz once in a real
+      browser and confirm the transitions/progress bar read right at 10
+      questions. Not done by an agent — no usable headless browser exists
+      in the sandbox (see `CLAUDE.md`), and nothing in the UI is
+      length-specific, so this is a confidence check, not a known risk.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,

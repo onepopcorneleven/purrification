@@ -141,7 +141,7 @@ Historical `Diagnosis` rows are unaffected: they store a frozen
 
 ## Verification
 
-All done without touching the production database:
+**Before deploy** (nothing touched the production database):
 
 - `validate()` in `prisma/seed/index.ts` passes (run with `DATABASE_URL`
   pointed at a dead port, so the validator runs and the first DB write
@@ -157,31 +157,49 @@ All done without touching the production database:
 - `npm run lint`, `npx tsc --noEmit`, and `npm run build` clean;
   `prettier --check` clean on every changed file (a pre-existing warning
   on `src/components/ui/PageShell.tsx` is unrelated to this phase).
-- **Not done:** no live-DB seed, no `smoke-test-diagnoses` run (needs the
-  SSH tunnel and writes nothing but reads live rows), and no visual check
-  of the shorter quiz in a browser (no usable headless browser in the
-  sandbox — see `CLAUDE.md`). Functionally there is nothing
-  length-specific in the UI, but someone should click through it once
-  after deploy.
+
+**After deploy** (2026-09-21, against production):
+
+- The deploy log showed `Retired 12 question(s) (12 listed in
+  retired.json)` and `Upserted 17 tags, 5 topics, 10 questions, 20
+  treatments, 12 diagnosis defs, 19 rituals`. Read-only DB queries then
+  showed 10 active / 17 inactive `Question` rows (the 17 are these 12
+  plus the 5 Phase 13 placeholders) and exactly 2 active per topic.
+- Service: `active` since the deploy restart, 0 restarts; `/login` and
+  `/signup` 200, `/` 307 to `/cats` as before.
+- `npm run smoke-test-diagnoses` against the live DB (script confirmed
+  read-only — only two `findMany` calls): loaded 10 active questions / 42
+  answers / 12 `DiagnosisDef`s; 12/12 reachable as the real first match
+  with no missing template slots; a second severity path found for 10 of
+  the 11 pattern diagnoses (Nocturnal Unrest is moderate-only by design).
+- `GET /cats/<id>/quiz` on the live site returned 200 and shipped all 10
+  new question ids and none of the 12 retired ones.
+
+**Not done, owner-only:** a visual click-through of the shorter quiz in a
+real browser. There is no usable headless browser in the sandbox (see
+`CLAUDE.md`), and nothing in the UI is length-specific (`QuizFlow` and
+`QuizProgress` take their length from props), so this is a confidence
+check rather than a known risk. Also not done, deliberately: no test
+submission through the live quiz, since that would write a real
+`QuizAttempt`/`Diagnosis` into production data.
 
 ## Deploy
 
-Deploy specifics for whoever ships this (nothing here has been applied
-to production):
+Done 2026-09-21 with the runbook's repeat-deploy (`vps-runbook.md` step
+12), after the owner merged PR #42. It also shipped Phase 28, whose app
+deploy had been pending — its 10 new treatment PNGs now serve 200. Notes
+that still apply to any future content-only deploy like this one:
 
-1. Merge, then run the normal repeat-deploy script
-   (`vps-runbook.md` step 12). `db:seed-content` already runs after
-   `db:migrate`; it now also retires the 12 questions.
+1. `db:seed-content` runs after `db:migrate` in the normal script and now
+   also retires whatever `retired.json` lists.
 2. **Keep the seed → restart gap short.** The running server caches its
    content graph at first use, and the quiz page/submit route read
    active questions live. Between the seed finishing and
    `systemctl restart purrification`, a quiz submission would be scored
    with the old cached rules against the new question ids. The deploy
-   script already restarts immediately after; don't insert steps between.
-3. After deploy, run `npm run smoke-test-diagnoses` (needs the tunnel)
-   as a live cross-check, and click through the quiz once.
-4. Phase 28's app deploy was still pending when this phase was written;
-   this branch is based on top of it, so merging ships both.
+   script restarts immediately after; don't insert steps between.
+3. Follow with `npm run smoke-test-diagnoses` (needs the SSH tunnel) as a
+   live cross-check.
 
 ## Known follow-ups (not done, not requested)
 
