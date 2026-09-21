@@ -271,9 +271,12 @@ of 2026-09-21:** merged (PR #42), deployed via the runbook's repeat-deploy
 after), and confirmed live — 10 active questions, 2 per topic, in the
 production DB, and `npm run smoke-test-diagnoses` against it reached all
 12 diagnoses, with both severity variants for 10 of the 11 pattern
-diagnoses (Nocturnal Unrest is moderate-only, as designed). Not yet
-verified: the shorter quiz rendered in a browser (no headless browser in
-the sandbox).
+diagnoses (Nocturnal Unrest is moderate-only, as designed). The live
+quiz page (`GET /cats/<id>/quiz`) also ships exactly the 10 new question
+ids and none of the 12 retired ones. **Only open item, owner-only:**
+click through the shorter quiz once in a real browser (no headless
+browser in the sandbox); nothing in the UI is length-specific, so this is
+a confidence check, not a known risk.
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
