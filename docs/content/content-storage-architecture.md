@@ -386,6 +386,28 @@ running app.
   15's `DiagnosisDefImage` pool, and Phase 21's `TreatmentImage` pool,
   which both follow this exact pattern) should follow the same
   delete-then-recreate-per-parent pattern, not a bare upsert loop.
+- **Retirement is explicit, not inferred (Phase 29).** Upsert-only seeding
+  can't express "this row is gone", and a `Question` merely deleted from
+  `questions.json` stays `isActive: true` in the DB — still shown in the
+  quiz, and counted by the submit route's answer-completeness check. So
+  `prisma/seed/content/retired.json` (`{"questions": [ids]}`) is the
+  hand-authored list of ids the seed deactivates (`isActive: false`,
+  never deleted) right after the upserts. Idempotent, a no-op on a
+  database that never had the row, and `validate()` rejects an id present
+  in both `retired.json` and the active content. Only `Question` is
+  covered so far; extend the shape when another class needs it. This
+  keeps the "retire, never delete, by human decision" rule of §6 while
+  making the retirement part of the committed, repeatable deploy rather
+  than a manual production edit.
+- **Severity bands must cover the rule (Phase 29).** Beyond
+  non-overlapping-and-gapless, `validate()` requires a `DiagnosisDef`'s
+  lowest band to start at or below the sum of its own `all_of`
+  thresholds (the smallest tag sum the rule can match on) and its highest
+  band to be open-ended (`max: null`). Without this a matching result can
+  land between bands, `resolveSeverityLabel` throws, and a real quiz
+  submission 500s. `npm run verify-quiz-content` additionally enumerates
+  every answer combination through the real engine and confirms each
+  resolves to a diagnosis, a band, and a ritual variant.
 - **New script:** `npm run db:seed-content`, named to match the existing
   `db:migrate`/`db:generate` convention. Kept separate from
   `prisma migrate deploy` (schema DDL, not data) and from `postinstall`'s

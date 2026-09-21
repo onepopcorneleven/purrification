@@ -7,17 +7,33 @@
     "priority": 1,
     "trigger_rule": {
       "all_of": [
-        { "tag": "attachment_anxiety", "gte": 6 },
-        { "tag": "human_bond_seeking", "gte": 3 }
+        {
+          "tag": "attachment_anxiety",
+          "gte": 2
+        },
+        {
+          "tag": "human_bond_seeking",
+          "gte": 4
+        }
       ],
       "none_of": [
-        { "tag": "social_overwhelm", "gte": 6 }
+        {
+          "tag": "social_overwhelm",
+          "gte": 5
+        }
       ]
     },
     "severity_bands": [
-      { "min": 9, "max": 13, "label": "mild" },
-      { "min": 14, "max": 19, "label": "moderate" },
-      { "min": 20, "max": null, "label": "acute" }
+      {
+        "min": 6,
+        "max": 9,
+        "label": "mild"
+      },
+      {
+        "min": 10,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "{cat_name} has learned your departure sequence better than you have — the keys, the coat, the particular sound the door makes — and the anticipation itself has become the hard part, often worse than the absence that follows it. This is a prediction problem as much as a bonding one.",
     "description_slots": ["cat_name"],
@@ -37,16 +53,29 @@
     "priority": 2,
     "trigger_rule": {
       "all_of": [
-        { "tag": "social_overwhelm", "gte": 6 }
+        {
+          "tag": "social_overwhelm",
+          "gte": 5
+        }
       ],
       "none_of": [
-        { "tag": "attachment_anxiety", "gte": 6 }
+        {
+          "tag": "attachment_anxiety",
+          "gte": 4
+        }
       ]
     },
     "severity_bands": [
-      { "min": 6, "max": 10, "label": "mild" },
-      { "min": 11, "max": 16, "label": "moderate" },
-      { "min": 17, "max": null, "label": "acute" }
+      {
+        "min": 5,
+        "max": 5,
+        "label": "mild"
+      },
+      {
+        "min": 6,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "{cat_name}'s nervous system has a ceiling for social input, and it's being reached faster than it can reset. This isn't shyness or a dislike of people — it's a volume problem. Too many new voices, too much handling, too little control over when it stops, and {cat_name}'s only remaining lever is to leave the room entirely.",
     "description_slots": ["cat_name"],
@@ -66,17 +95,33 @@
     "priority": 3,
     "trigger_rule": {
       "all_of": [
-        { "tag": "territorial_anxiety", "gte": 5 },
-        { "tag": "boundary_guarding", "gte": 2 }
+        {
+          "tag": "territorial_anxiety",
+          "gte": 5
+        },
+        {
+          "tag": "boundary_guarding",
+          "gte": 2
+        }
       ],
       "none_of": [
-        { "tag": "social_overwhelm", "gte": 6 }
+        {
+          "tag": "social_overwhelm",
+          "gte": 5
+        }
       ]
     },
     "severity_bands": [
-      { "min": 7, "max": 11, "label": "mild" },
-      { "min": 12, "max": 17, "label": "moderate" },
-      { "min": 18, "max": null, "label": "acute" }
+      {
+        "min": 7,
+        "max": 9,
+        "label": "mild"
+      },
+      {
+        "min": 10,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "{cat_name}'s edges have gone soft. The line between 'mine' and 'shared' has blurred, and {cat_name} is spending real energy re-drawing it — at the door, on the sill, in the doorway stand-offs you've probably noticed. This isn't aggression. It's upkeep.",
     "description_slots": ["cat_name"],
@@ -96,17 +141,33 @@
     "priority": 4,
     "trigger_rule": {
       "all_of": [
-        { "tag": "vigilance", "gte": 6 },
-        { "tag": "territorial_anxiety", "gte": 3 }
+        {
+          "tag": "vigilance",
+          "gte": 4
+        },
+        {
+          "tag": "territorial_anxiety",
+          "gte": 3
+        }
       ],
       "none_of": [
-        { "tag": "boundary_guarding", "gte": 2 }
+        {
+          "tag": "boundary_guarding",
+          "gte": 2
+        }
       ]
     },
     "severity_bands": [
-      { "min": 9, "max": 13, "label": "mild" },
-      { "min": 14, "max": 19, "label": "moderate" },
-      { "min": 20, "max": null, "label": "acute" }
+      {
+        "min": 7,
+        "max": 9,
+        "label": "mild"
+      },
+      {
+        "min": 10,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "{cat_name} isn't defending anything yet. This is the watching that comes before a decision about whether defending is even necessary. {cat_name} has taken up a post at the window or the high shelf and isn't leaving it, running a constant assessment of a world that hasn't settled into 'safe' or 'not safe' yet.",
     "description_slots": ["cat_name"],
@@ -119,48 +180,34 @@
     "linked_treatments": ["treat_boundary_restoration"]
   },
   {
-    "id": "diag_resource_vigilance",
-    "image_paths": ["resource-vigilance.png"],
-    "name_mystical": "Resource Vigilance",
-    "name_plain": "Guarding behavior around shared food, water, or litter access",
-    "priority": 5,
-    "trigger_rule": {
-      "all_of": [
-        { "tag": "resource_guarding", "gte": 5 },
-        { "tag": "multi_cat_tension", "gte": 2 }
-      ]
-    },
-    "severity_bands": [
-      { "min": 7, "max": 11, "label": "mild" },
-      { "min": 12, "max": 17, "label": "moderate" },
-      { "min": 18, "max": null, "label": "acute" }
-    ],
-    "description_template": "Somewhere in the shared spaces of this home, {cat_name} has decided that resources are scarcer than they actually are, and is spending real vigilance protecting access that isn't actually contested. This is rarely about the food itself — it's about whether the household's resource map feels safe to use without competition.",
-    "description_slots": ["cat_name"],
-    "symptom_callback_pool": [
-      "the quick, watchful eating instead of relaxed grazing",
-      "blocking or tension near the food or litter area with other cats present",
-      "the hesitation at a shared litter box before committing to use it"
-    ],
-    "is_catch_all": false,
-    "linked_treatments": ["treat_resource_generosity"]
-  },
-  {
     "id": "diag_quiet_static",
     "image_paths": ["quiet-static.png"],
     "name_mystical": "Quiet Static",
     "name_plain": "Internalized stress expressed as withdrawal and overgrooming",
-    "priority": 6,
+    "priority": 5,
     "trigger_rule": {
       "all_of": [
-        { "tag": "vocal_suppression", "gte": 5 },
-        { "tag": "grooming_excess", "gte": 3 }
+        {
+          "tag": "vocal_suppression",
+          "gte": 2
+        },
+        {
+          "tag": "grooming_excess",
+          "gte": 3
+        }
       ]
     },
     "severity_bands": [
-      { "min": 8, "max": 12, "label": "mild" },
-      { "min": 13, "max": 18, "label": "moderate" },
-      { "min": 19, "max": null, "label": "acute" }
+      {
+        "min": 5,
+        "max": 6,
+        "label": "mild"
+      },
+      {
+        "min": 7,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "{cat_name}'s stress isn't going outward — there's no loud complaint, no visible confrontation. It's turning inward instead, into an unusual quiet and into grooming that's gone past routine maintenance. This pattern is easy to miss precisely because it doesn't look like a problem from across the room.",
     "description_slots": ["cat_name"],
@@ -177,17 +224,30 @@
     "image_paths": ["rhythm-slip.png"],
     "name_mystical": "Rhythm Slip",
     "name_plain": "Sleep and behavior disruption from an unstable daily schedule",
-    "priority": 7,
+    "priority": 6,
     "trigger_rule": {
       "all_of": [
-        { "tag": "routine_disruption", "gte": 5 },
-        { "tag": "sleep_fragmentation", "gte": 3 }
+        {
+          "tag": "routine_disruption",
+          "gte": 4
+        },
+        {
+          "tag": "sleep_fragmentation",
+          "gte": 4
+        }
       ]
     },
     "severity_bands": [
-      { "min": 8, "max": 12, "label": "mild" },
-      { "min": 13, "max": 18, "label": "moderate" },
-      { "min": 19, "max": null, "label": "acute" }
+      {
+        "min": 8,
+        "max": 8,
+        "label": "mild"
+      },
+      {
+        "min": 9,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "{cat_name}'s body clock runs on repetition, and it's currently missing the fixed points it needs to settle around. When feeding, activity, and quiet hours keep shifting, sleep fragments into short, watchful bouts instead of the long stretches a secure schedule would allow.",
     "description_slots": ["cat_name"],
@@ -204,20 +264,31 @@
     "image_paths": ["nocturnal-unrest.png"],
     "name_mystical": "Nocturnal Unrest",
     "name_plain": "Disproportionate nighttime activity independent of routine instability",
-    "priority": 8,
+    "priority": 7,
     "trigger_rule": {
       "all_of": [
-        { "tag": "nocturnal_restlessness", "gte": 6 }
+        {
+          "tag": "nocturnal_restlessness",
+          "gte": 4
+        }
       ],
       "none_of": [
-        { "tag": "routine_disruption", "gte": 5 },
-        { "tag": "vocal_suppression", "gte": 5 }
+        {
+          "tag": "routine_disruption",
+          "gte": 3
+        },
+        {
+          "tag": "vocal_suppression",
+          "gte": 3
+        }
       ]
     },
     "severity_bands": [
-      { "min": 6, "max": 10, "label": "mild" },
-      { "min": 11, "max": 16, "label": "moderate" },
-      { "min": 17, "max": null, "label": "acute" }
+      {
+        "min": 4,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "The daytime hours are fine — it's the dark ones where {cat_name}'s energy has nowhere scheduled to go. This usually isn't a broken routine, it's an intact one that simply never accounted for burning off enough energy before the house goes quiet.",
     "description_slots": ["cat_name"],
@@ -234,19 +305,26 @@
     "image_paths": ["vocal-overflow.png"],
     "name_mystical": "Vocal Overflow",
     "name_plain": "Escalated vocalization used as a primary request channel",
-    "priority": 9,
+    "priority": 8,
     "trigger_rule": {
       "all_of": [
-        { "tag": "vocal_escalation", "gte": 6 }
-      ],
-      "none_of": [
-        { "tag": "attachment_anxiety", "gte": 6 }
+        {
+          "tag": "vocal_escalation",
+          "gte": 4
+        }
       ]
     },
     "severity_bands": [
-      { "min": 6, "max": 10, "label": "mild" },
-      { "min": 11, "max": 16, "label": "moderate" },
-      { "min": 17, "max": null, "label": "acute" }
+      {
+        "min": 4,
+        "max": 4,
+        "label": "mild"
+      },
+      {
+        "min": 5,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "{cat_name} has learned that the voice works — that enough volume or insistence reliably gets a response — and the channel has widened to cover requests that used to go unspoken. This isn't distress on its own, it's a communication habit that's gotten loud because loud has been effective.",
     "description_slots": ["cat_name"],
@@ -259,6 +337,46 @@
     "linked_treatments": ["treat_voice_channeling"]
   },
   {
+    "id": "diag_resource_vigilance",
+    "image_paths": ["resource-vigilance.png"],
+    "name_mystical": "Resource Vigilance",
+    "name_plain": "Guarding behavior around shared food, water, or litter access",
+    "priority": 9,
+    "trigger_rule": {
+      "all_of": [
+        {
+          "tag": "resource_guarding",
+          "gte": 4
+        },
+        {
+          "tag": "multi_cat_tension",
+          "gte": 1
+        }
+      ]
+    },
+    "severity_bands": [
+      {
+        "min": 5,
+        "max": 6,
+        "label": "mild"
+      },
+      {
+        "min": 7,
+        "max": null,
+        "label": "moderate"
+      }
+    ],
+    "description_template": "Somewhere in the shared spaces of this home, {cat_name} has decided that resources are scarcer than they actually are, and is spending real vigilance protecting access that isn't actually contested. This is rarely about the food itself — it's about whether the household's resource map feels safe to use without competition.",
+    "description_slots": ["cat_name"],
+    "symptom_callback_pool": [
+      "the quick, watchful eating instead of relaxed grazing",
+      "blocking or tension near the food or litter area with other cats present",
+      "the hesitation at a shared litter box before committing to use it"
+    ],
+    "is_catch_all": false,
+    "linked_treatments": ["treat_resource_generosity"]
+  },
+  {
     "id": "diag_object_tethering",
     "image_paths": ["object-tethering.png"],
     "name_mystical": "Object Tethering",
@@ -266,13 +384,23 @@
     "priority": 10,
     "trigger_rule": {
       "all_of": [
-        { "tag": "object_fixation", "gte": 6 }
+        {
+          "tag": "object_fixation",
+          "gte": 3
+        }
       ]
     },
     "severity_bands": [
-      { "min": 6, "max": 10, "label": "mild" },
-      { "min": 11, "max": 16, "label": "moderate" },
-      { "min": 17, "max": null, "label": "acute" }
+      {
+        "min": 3,
+        "max": 5,
+        "label": "mild"
+      },
+      {
+        "min": 6,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "{cat_name} has found one fixed point in a world that doesn't always hold still, and it isn't a person or a place — it's a specific object. That's not a red flag on its own. It's a coping mechanism that's working, and the real risk isn't the attachment, it's what happens if that one object is ever lost without warning.",
     "description_slots": ["cat_name"],
@@ -292,14 +420,27 @@
     "priority": 11,
     "trigger_rule": {
       "all_of": [
-        { "tag": "play_deficit", "gte": 5 },
-        { "tag": "novelty_seeking", "gte": 3 }
+        {
+          "tag": "play_deficit",
+          "gte": 2
+        },
+        {
+          "tag": "novelty_seeking",
+          "gte": 2
+        }
       ]
     },
     "severity_bands": [
-      { "min": 8, "max": 12, "label": "mild" },
-      { "min": 13, "max": 18, "label": "moderate" },
-      { "min": 19, "max": null, "label": "acute" }
+      {
+        "min": 4,
+        "max": 6,
+        "label": "mild"
+      },
+      {
+        "min": 7,
+        "max": null,
+        "label": "moderate"
+      }
     ],
     "description_template": "{cat_name}'s energy is real and has to go somewhere, and right now it's finding its own outlets — knocked-over objects, sudden sprints, shredded things — because a structured one hasn't been offered in enough supply. This isn't misbehavior, it's an unmet appetite for engagement finding whatever channel is available.",
     "description_slots": ["cat_name"],
@@ -321,7 +462,11 @@
       "all_of": []
     },
     "severity_bands": [
-      { "min": 0, "max": null, "label": "steady" }
+      {
+        "min": 0,
+        "max": null,
+        "label": "steady"
+      }
     ],
     "description_template": "Nothing in {cat_name}'s recent answers points toward a specific imbalance worth naming today. That's not a non-answer — a steady reading is still a reading, and it's worth treating the current rhythm as something to protect rather than something to wait out.",
     "description_slots": ["cat_name"],

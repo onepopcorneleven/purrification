@@ -50,6 +50,10 @@ tone-fix text); **the app deploy is still pending** — the 10 new PNGs in
 that branch is merged and deployed, the 22 affected historical results
 point at image files the live server doesn't have yet. See Phase 28 below.
 
+Phase 29 (quiz shortened from 20 to 10 questions, content/seed only) is
+done in the repo but **not yet applied to the live DB or deployed** — see
+its entry below for the deploy notes.
+
 Phase 20's `/allimages` debug gallery is temporary and unlinked. Phase 21
 mistakenly deleted it on its own initiative reading that as license to do
 so; it was restored per the owner's correction (see Phase 20's entry
@@ -751,6 +755,34 @@ same phase.
       `npx prisma generate` was run to exercise the DB-touching script and
       the seed script's own `validate()` step, which is the relevant check
       for JSON content changes).
+
+## Phase 29 — Quiz shortening (20 → 10 questions) — done, deploy pending
+Full details: `docs/workplan/phase-29-quiz-shortening.md`
+Requested 2026-09-21: cut the quiz to 10 questions (2 per topic) while
+keeping the diagnosis concept and the 12 diagnoses / 10 treatments / 19
+rituals. Content and seed pipeline only — nothing in `src/` hardcodes the
+quiz length (it's derived from the active `Question` rows), so no UI or
+schema change. **Not yet applied to the live DB or deployed.**
+- [x] Design the 10-question set: keep 8 original questions (`q_001`,
+      `q_005`, `q_007`, `q_009`, `q_010`, `q_013`, `q_014`, `q_017`), add 2
+      merged questions (`q_021` territory watch, `q_022` solo-time), retire
+      the other 12.
+- [x] Re-tune every `DiagnosisDef` `trigger_rule`/`severity_bands`/
+      `priority` to the halved evidence; text, images and treatment links
+      untouched.
+- [x] Add `prisma/seed/content/retired.json` + `retireContent()` so the
+      seed deactivates (never deletes) the 12 dropped questions.
+- [x] Seed `validate()`: severity bands must cover the rule's smallest
+      reachable tag sum and end open-ended.
+- [x] New `scripts/verify-quiz-content.ts` (`npm run
+      verify-quiz-content`): exhaustive, DB-free enumeration of all
+      1,638,400 answer combinations through the real engine — all 12
+      diagnoses and 19/19 rituals reachable, no unmatched/out-of-band
+      results.
+- [x] `lint`/`tsc`/`build`/`prettier --check` clean.
+- [ ] Deploy (seed runs in the normal deploy; keep the seed → restart gap
+      short) and click through the shorter quiz once — see the phase
+      doc's "Deploy" section.
 
 ## Explicitly not planned this round
 Carried from `requirements.md`'s Out of scope: payments/subscriptions,

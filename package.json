@@ -13,7 +13,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:seed-content": "tsx prisma/seed/index.ts",
-    "smoke-test-diagnoses": "tsx scripts/smoke-test-diagnoses.ts"
+    "smoke-test-diagnoses": "tsx scripts/smoke-test-diagnoses.ts",
+    "verify-quiz-content": "tsx scripts/verify-quiz-content.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
