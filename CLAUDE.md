@@ -8,7 +8,7 @@ Purrification is a learning project (per README.md: "just learning how claude co
 
 ## Current state
 
-`docs/workplan.md` Phases 0–27 are all done and live in production at
+`docs/workplan.md` Phases 0–29 are all done and live in production at
 `purrification.com`: data layer, auth, cat management, quiz flow, the
 diagnosis engine, result history, the landing page, VPS provisioning, the
 deploy pipeline, a full brand-driven design system (Tailwind v4, dark-only
@@ -235,9 +235,9 @@ reworded tone text) after the owner — who has never touched the
 production DB by hand — told the agent to find how earlier phases did it
 and run it itself: SSH tunnel + `node --env-file=.env --import tsx
 prisma/seed/index.ts`, method recorded in `docs/workplan.md`'s Phase 28
-entry. **The app deploy is still pending as of this writing:** the 10 new
-PNGs only exist on the Phase 28 branch until it's merged and deployed, so
-until then those ~22 historical results' treatment image 404s. The
+entry. The app deploy shipped together with Phase 29's on 2026-09-21
+(the 10 new PNGs in `public/images/treatments/` now return 200 live, so
+those ~22 historical results have their treatment images). The
 image-generation step itself needed the main
 checkout (not a worktree) as `codex exec`'s `cwd`, since its sandbox
 trust in `~/.codex/config.toml` is keyed to that exact absolute path —
@@ -265,9 +265,15 @@ combinations through the real `engine.ts` with no DB: all 12 diagnoses
 and 19/19 rituals reachable, none unmatched or out-of-band. Known
 trade-off: Nocturnal Unrest has no mild variant (single-question
 evidence), and "The Ordinary Day" is rarer under uniform-random answers
-(6% vs 18%) — see `docs/workplan/phase-29-quiz-shortening.md`. **Written
-in the repo but not yet applied to the live DB or deployed** — nothing
-from this phase has touched production.
+(6% vs 18%) — see `docs/workplan/phase-29-quiz-shortening.md`. **Live as
+of 2026-09-21:** merged (PR #42), deployed via the runbook's repeat-deploy
+(the seed retired the 12 questions and the service restarted right
+after), and confirmed live — 10 active questions, 2 per topic, in the
+production DB, and `npm run smoke-test-diagnoses` against it reached all
+12 diagnoses, with both severity variants for 10 of the 11 pattern
+diagnoses (Nocturnal Unrest is moderate-only, as designed). Not yet
+verified: the shorter quiz rendered in a browser (no headless browser in
+the sandbox).
 
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
