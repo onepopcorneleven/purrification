@@ -24,6 +24,17 @@ import questionsJson from "./content/questions.json";
 import treatmentsJson from "./content/treatments.json";
 import diagnosesJson from "./content/diagnoses.json";
 import ritualsJson from "./content/rituals.json";
+import retiredJson from "./content/retired.json";
+
+// Phase 29: explicit, hand-authored list of content ids that were removed
+// from the seed files above and must be deactivated (isActive: false), never
+// deleted. Upsert-only seeding can't express "this row is gone" on its own,
+// and a dropped Question left active in the DB would silently keep showing
+// up in the quiz (the runtime loads every isActive: true question). Only
+// Question is listed so far; extend the shape when another class needs it.
+interface RawRetired {
+  questions: string[];
+}
 
 interface RawTag {
   id: string;
@@ -98,6 +109,7 @@ const questions = questionsJson as unknown as RawQuestion[];
 const treatments = treatmentsJson as unknown as RawTreatment[];
 const diagnosisDefs = diagnosesJson as unknown as RawDiagnosisDef[];
 const rituals = ritualsJson as unknown as RawRitual[];
+const retired = retiredJson as unknown as RawRetired;
 
 // AnswerOption.id is a *global* Prisma primary key, but authors naturally
 // want to write short, question-local answer ids (a1, a2, ...). Deriving
@@ -257,7 +269,11 @@ function validate(): void {
     );
   }
 
-  // severity_bands non-overlapping and gapless.
+  // severity_bands non-overlapping and gapless, and covering every tag sum
+  // the rule can actually produce. resolveSeverityLabel() throws when no band
+  // contains the sum, which would turn a real quiz submission into a 500 — so
+  // the lowest band must start at or below the smallest sum the rule allows
+  // (the sum of its own all_of thresholds), and the highest must be open-ended.
   for (const d of diagnosisDefs) {
     const sorted = [...d.severity_bands].sort((a, b) => a.min - b.min);
     for (let i = 0; i < sorted.length - 1; i++) {
@@ -269,7 +285,35 @@ function validate(): void {
         );
       }
     }
+    if (sorted.length > 0) {
+      const minSum = (d.trigger_rule.all_of ?? []).reduce(
+        (sum, c) => sum + c.gte,
+        0,
+      );
+      if (sorted[0].min > minSum) {
+        errors.push(
+          `DiagnosisDef ${d.id} lowest severity band "${sorted[0].label}" starts at ${sorted[0].min}, above the smallest tag sum its trigger_rule allows (${minSum}) — a matching result in between would have no band`,
+        );
+      }
+      if (sorted[sorted.length - 1].max !== null) {
+        errors.push(
+          `DiagnosisDef ${d.id} highest severity band "${sorted[sorted.length - 1].label}" must have max: null`,
+        );
+      }
+    }
   }
+
+  // Retired ids (Phase 29) must be genuinely gone from the active seed
+  // content — an id listed as both active and retired is a contradiction.
+  const activeQuestionIds = new Set(questions.map((q) => q.id));
+  for (const id of retired.questions) {
+    if (activeQuestionIds.has(id)) {
+      errors.push(
+        `Question ${id} is listed in retired.json but is still present in questions.json`,
+      );
+    }
+  }
+  assertUniqueIds(errors, "retired Question", retired.questions);
 
   for (const t of treatments) {
     if (t.contraindications.length === 0) {
@@ -570,6 +614,24 @@ async function upsertContent(): Promise<void> {
   }
 }
 
+/** Deactivates (never deletes) every Question listed in retired.json.
+ * Idempotent: re-running is a no-op once they're already inactive, and an
+ * id missing from the DB (a fresh database) simply matches no rows. Run in
+ * the same script as the upserts, immediately after them, so a deploy does
+ * not leave the dropped questions live in the quiz. Historical Diagnosis rows
+ * are unaffected — they store a frozen tag-totals snapshot, not a live link
+ * to Question/AnswerOption rows. */
+async function retireContent(): Promise<void> {
+  if (retired.questions.length === 0) return;
+  const { count } = await prisma.question.updateMany({
+    where: { id: { in: retired.questions }, isActive: true },
+    data: { isActive: false },
+  });
+  console.log(
+    `[db:seed-content] Retired ${count} question(s) (${retired.questions.length} listed in retired.json).`,
+  );
+}
+
 /** Never deletes — a stable id present in the DB but absent from the
  * current seed files is reported so a human can hand-edit it to
  * isActive: false, preserving FK integrity for any historical Diagnosis
@@ -604,7 +666,11 @@ async function reportStale(): Promise<void> {
   };
   check("Tag", dbTags, new Set(tags.map((t) => t.id)));
   check("QuestionTopic", dbTopics, new Set(topics.map((t) => t.id)));
-  check("Question", dbQuestions, new Set(questions.map((q) => q.id)));
+  check(
+    "Question",
+    dbQuestions,
+    new Set([...questions.map((q) => q.id), ...retired.questions]),
+  );
   check("Treatment", dbTreatments, new Set(treatments.map((t) => t.id)));
   check(
     "DiagnosisDef",
@@ -617,6 +683,7 @@ async function reportStale(): Promise<void> {
 async function main(): Promise<void> {
   validate();
   await upsertContent();
+  await retireContent();
   await reportStale();
   console.log(
     `[db:seed-content] Upserted ${tags.length} tags, ${topics.length} topics, ${questions.length} questions, ${treatments.length} treatments, ${diagnosisDefs.length} diagnosis defs, ${rituals.length} rituals.`,

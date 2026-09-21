@@ -243,6 +243,32 @@ checkout (not a worktree) as `codex exec`'s `cwd`, since its sandbox
 trust in `~/.codex/config.toml` is keyed to that exact absolute path —
 the same constraint Phase 17/22 already hit and documented.
 
+Most recently (Phase 29), the owner asked to shorten the quiz from 20
+questions to 10 (2 per topic) while keeping the diagnosis concept and the
+12 diagnoses / 10 treatments / 19 rituals. Content and seed pipeline only
+— nothing in `src/` hardcodes the quiz length (both the quiz page and the
+submit route derive it from the active `Question` rows), so no UI or
+schema change. Eight original questions are kept as-is (`q_001`, `q_005`,
+`q_007`, `q_009`, `q_010`, `q_013`, `q_014`, `q_017`, a few with retuned
+tag weights), two new merged questions replace the rest (`q_021`: how the
+cat keeps watch, merging the old patrol/window/furniture questions;
+`q_022`: where restless energy goes when not playing, merging
+grooming/play/novelty/following), and the 12 dropped ones are listed in
+the new `prisma/seed/content/retired.json`. Every `DiagnosisDef`'s
+`trigger_rule`/`severity_bands`/`priority` were re-tuned to the halved
+evidence — two-signal diagnoses now match before single-question ones,
+and each diagnosis's lowest severity band starts at the sum of its own
+rule thresholds (an early draft had a hole where `resolveSeverityLabel`
+would have thrown and a real submission 500'd; `validate()` now rejects
+that). New `npm run verify-quiz-content` enumerates all 1.6M answer
+combinations through the real `engine.ts` with no DB: all 12 diagnoses
+and 19/19 rituals reachable, none unmatched or out-of-band. Known
+trade-off: Nocturnal Unrest has no mild variant (single-question
+evidence), and "The Ordinary Day" is rarer under uniform-random answers
+(6% vs 18%) — see `docs/workplan/phase-29-quiz-shortening.md`. **Written
+in the repo but not yet applied to the live DB or deployed** — nothing
+from this phase has touched production.
+
 **No usable headless browser exists in a fresh sandbox environment for
 this project** — `playwright install chromium` downloads fine, but the
 binary needs system shared libraries (`libnspr4`, `libnss3`, etc.) that
@@ -266,7 +292,8 @@ don't claim a visual check that didn't happen.
 - `npm run format` / `npm run format:check` — Prettier, scoped to app code only (`.prettierignore` excludes `docs/`, other `*.md`, and `src/generated/`).
 - `npm run db:migrate` — `prisma migrate deploy`, applies `prisma/migrations/` against `DATABASE_URL` (see above — points at the VPS DB via tunnel).
 - `npm run db:generate` — `prisma generate` (also runs automatically via `postinstall`).
-- `npm run db:seed-content` — idempotent upsert of `prisma/seed/content/*.json` into the content-model tables (`Tag`/`Question`/`DiagnosisDef`/`Treatment`/`Ritual`, Phase 13). Runs every deploy, right after `db:migrate` — see `vps-runbook.md` step 12.
+- `npm run db:seed-content` — idempotent upsert of `prisma/seed/content/*.json` into the content-model tables (`Tag`/`Question`/`DiagnosisDef`/`Treatment`/`Ritual`, Phase 13), then deactivates every question id listed in `prisma/seed/content/retired.json` (Phase 29). Runs every deploy, right after `db:migrate` — see `vps-runbook.md` step 12.
+- `npm run verify-quiz-content` — DB-free, exhaustive check (Phase 29) that the seed JSON yields a working quiz: every answer combination resolves to a diagnosis, a severity band and a ritual, and every diagnosis/ritual is reachable. Run it after any change to `questions.json`/`diagnoses.json`/`rituals.json`. `npm run smoke-test-diagnoses` is the live-DB counterpart (needs the tunnel).
 - No test runner is set up yet — add one when Phase 1+ introduces code worth testing.
 
 **Structure:**
@@ -307,7 +334,7 @@ Docs were written in dependency order, each derived from the one before it:
 - **Auth rate-limiting is provisioned at the Nginx layer during VPS setup (`R-INFRA-4`, `vps-runbook.md` step 9, Phase 8)**, before the app is ever deployed (Phase 9) — not bolted on later in the Phase 11 hardening pass.
 - **The systemd service runs a Next.js standalone build** (`output: "standalone"`), which is what actually produces the `server.js` the unit's `ExecStart` expects — don't assume a hand-rolled custom server.
 - **Hosting is a self-managed bare-metal VPS**, not a managed platform like Vercel — the project owns provisioning and hardening (`docs/vps-runbook.md`) as part of the learning goal.
-- **Content is edited by committing to seed/config data**, not through an admin CMS — that's explicitly out of scope for this round. That means `prisma/seed/content/*.json` (versioned JSON, one file per content class) applied via the idempotent `npm run db:seed-content` script — the storage engine is PostgreSQL, but the authoring workflow is still commit-to-repo, never an admin CMS. The old static `src/content/{quiz,diagnoses}.ts` files are deleted. Phase 13 shipped placeholder content (5 questions/10 diagnoses); Phase 14 replaced it with the real, rich content bank (17 tags, 5 topics, 20 questions, 12 diagnoses, 19 rituals) — both shipped and live.
+- **Content is edited by committing to seed/config data**, not through an admin CMS — that's explicitly out of scope for this round. That means `prisma/seed/content/*.json` (versioned JSON, one file per content class) applied via the idempotent `npm run db:seed-content` script — the storage engine is PostgreSQL, but the authoring workflow is still commit-to-repo, never an admin CMS. The old static `src/content/{quiz,diagnoses}.ts` files are deleted. Phase 13 shipped placeholder content (5 questions/10 diagnoses); Phase 14 replaced it with the real, rich content bank (17 tags, 5 topics, 20 questions, 12 diagnoses, 19 rituals) — both shipped and live. Phase 29 then cut the questions to 10 (see "Current state"); a question dropped from `questions.json` must be added to `prisma/seed/content/retired.json` so the seed deactivates it — removing it from the JSON alone leaves it live in the quiz.
 - **Superseded content rows are retired via `isActive: false`, never hard-deleted** — `prisma/seed/index.ts`'s `upsertContent()` only upserts by id and never deletes; its `reportStale()` warns about DB ids no longer present in the seed files and expects a human to hand-edit those to `isActive: false` (deliberately manual, not automatic). This isn't optional busywork: `Diagnosis` has `onDelete: Restrict` FKs into `DiagnosisDef`/`Treatment`/`Ritual` specifically so historical diagnosis records can never be orphaned by content cleanup, and real `Diagnosis` rows referencing old content will block (or with Phase 14's placeholder-retirement, did block) an outright `DELETE`. When retiring superseded content, always deactivate — never attempt to delete `DiagnosisDef`/`Treatment`/`Ritual`/`Question` rows. `AnswerOption` is the one content table with no `isActive` (and no historical FK pointing at it — `Diagnosis` stores a frozen `tagTotalsSnapshot`, not a live reference), so it's the one exception where a hard `DELETE` of a superseded row is actually correct, not a shortcut.
 - **Every content class's stable id must be unique within that class** — `prisma/seed/index.ts` upserts by id, so a reused id silently overwrites rather than erroring; `validate()` now asserts this for every class as defense-in-depth (Phase 16). `AnswerOption` specifically derives its DB id as `` `${questionId}::${localId}` `` rather than trusting authors to hand-write globally-unique ids, because a real content pass reused the same local ids (`a1`, `a2`, ...) across all 20 questions and the seed script's upsert-by-id silently reassigned each id's row to whichever question was seeded last — 18 of 20 questions ended up with zero answers live in production before this was caught. See `board/content-id-integrity-fix.md` for the full incident. The same seed script also syncs (not just upserts) `AnswerOptionTagEffect` rows — deleting any tag effect no longer present in an answer's current `tag_effects` — since that join table has no `isActive` of its own and a bare upsert loop would let removed tag effects linger forever.
 - **Prisma was chosen over Drizzle** (Phase 0) — the default per `docs/architecture.md`, no learning-goal reason came up to prefer Drizzle instead.

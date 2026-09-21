@@ -8,7 +8,7 @@
 // production rule-evaluation path was exercised, not a parallel copy of it.
 //
 // For every active DiagnosisDef (including the catch-all), it searches for
-// a full 20-question answer set that makes it the actual first-match result
+// a full answer set (one option per active question) that makes it the actual first-match result
 // (not just "satisfies its own rule" — a higher-priority DiagnosisDef could
 // still intercept it), via random-restart hill-climbing over one option per
 // question. Where a DiagnosisDef has more than one severity band, it also

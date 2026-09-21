@@ -49,157 +49,52 @@
     ]
   },
   {
-    "id": "q_002",
+    "id": "q_021",
     "topic_id": "topic_territory",
-    "prompt_mystical": "When the furniture shifts or a new object enters the room, does your familiar circle it warily, or claim it at once?",
-    "prompt_plain": "When you rearrange furniture or bring a new item into the house, how does your cat react?",
+    "prompt_mystical": "As dusk gathers, how does your familiar keep watch over the realm — by walking the same circuit each night, or by holding a single post?",
+    "prompt_plain": "How does your cat keep watch over the home in the evening or from windows: a repeated patrol route, a fixed watch post, or neither?",
     "input_type": "single_select",
     "sort_order": 2,
     "answers": [
       {
         "id": "a1",
-        "label_mystical": "Circles and sniffs cautiously for a long while before settling",
-        "label_plain": "Approaches slowly and cautiously, takes a while to settle",
-        "sort_order": 0,
-        "tag_effects": {
-          "territorial_anxiety": 2,
-          "vigilance": 2
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "Marks or rubs against it right away",
-        "label_plain": "Rubs against or marks it right away",
-        "sort_order": 1,
-        "tag_effects": {
-          "territorial_anxiety": 1,
-          "boundary_guarding": 1
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "Avoids that corner of the room for days",
-        "label_plain": "Avoids that area of the room for days afterward",
-        "sort_order": 2,
-        "tag_effects": {
-          "territorial_anxiety": 3,
-          "vigilance": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "Investigates briefly, then moves on",
-        "label_plain": "Sniffs it once, then loses interest",
-        "sort_order": 3,
-        "tag_effects": {
-          "territorial_anxiety": -1,
-          "novelty_seeking": 1
-        }
-      }
-    ]
-  },
-  {
-    "id": "q_003",
-    "topic_id": "topic_territory",
-    "prompt_mystical": "As dusk gathers, does your familiar walk the same fixed circuit through the home, night after night?",
-    "prompt_plain": "Does your cat do a repeated 'patrol' route around the house in the evening?",
-    "input_type": "single_select",
-    "sort_order": 3,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "Yes, the same route, almost every night",
-        "label_plain": "Yes, the same route, almost every night",
+        "label_mystical": "Walks the same fixed circuit through the home, night after night",
+        "label_plain": "Does the same patrol route around the house almost every evening",
         "sort_order": 0,
         "tag_effects": {
           "boundary_guarding": 3,
-          "vigilance": 2
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "Sometimes, especially after something's been disturbed",
-        "label_plain": "Sometimes, especially after a disruption at home",
-        "sort_order": 1,
-        "tag_effects": {
-          "boundary_guarding": 2,
-          "routine_disruption": 1
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "Rarely — mostly settles into one spot",
-        "label_plain": "Rarely, mostly stays settled in one spot",
-        "sort_order": 2,
-        "tag_effects": {
-          "boundary_guarding": -1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "Never noticed a pattern",
-        "label_plain": "Never noticed anything like a pattern",
-        "sort_order": 3,
-        "tag_effects": {
-          "boundary_guarding": -2,
-          "territorial_anxiety": -1
-        }
-      }
-    ]
-  },
-  {
-    "id": "q_004",
-    "topic_id": "topic_territory",
-    "prompt_mystical": "From the windowsill, does your familiar track every passing shadow, or does the outside world pass unremarked?",
-    "prompt_plain": "How closely does your cat watch outside movement from windows?",
-    "input_type": "scale",
-    "sort_order": 4,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "1 — Barely watches",
-        "label_plain": "1 — Barely watches",
-        "sort_order": 0,
-        "tag_effects": {
-          "vigilance": -2
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "2 — An occasional glance",
-        "label_plain": "2 — Occasional glance",
-        "sort_order": 1,
-        "tag_effects": {
-          "vigilance": -1
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "3 — Watches sometimes",
-        "label_plain": "3 — Watches sometimes",
-        "sort_order": 2,
-        "tag_effects": {
-          "vigilance": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "4 — Watches often, alert posture",
-        "label_plain": "4 — Watches often, alert posture",
-        "sort_order": 3,
-        "tag_effects": {
           "vigilance": 2,
           "territorial_anxiety": 1
         }
       },
       {
-        "id": "a5",
-        "label_mystical": "5 — Fixated and tense, hard to distract",
-        "label_plain": "5 — Fixated and tense, hard to distract",
-        "sort_order": 4,
+        "id": "a2",
+        "label_mystical": "Takes a post at a window or high place and keeps a tense, unbroken watch",
+        "label_plain": "Fixates on windows or a high perch for long stretches, tense and hard to distract",
+        "sort_order": 1,
         "tag_effects": {
-          "vigilance": 3,
+          "vigilance": 4,
           "territorial_anxiety": 2
+        }
+      },
+      {
+        "id": "a3",
+        "label_mystical": "Glances out now and then, but settles easily",
+        "label_plain": "Looks outside or around now and then, but relaxes easily",
+        "sort_order": 2,
+        "tag_effects": {
+          "vigilance": 1
+        }
+      },
+      {
+        "id": "a4",
+        "label_mystical": "Shows little interest in keeping watch at all",
+        "label_plain": "Shows little interest in patrolling or watching what's outside",
+        "sort_order": 3,
+        "tag_effects": {
+          "vigilance": -2,
+          "boundary_guarding": -2,
+          "territorial_anxiety": -1
         }
       }
     ]
@@ -210,7 +105,7 @@
     "prompt_mystical": "Does your familiar's sleep follow the sun in fixed hours, or scatter unpredictably across the day?",
     "prompt_plain": "Is your cat's sleep schedule fairly consistent day to day, or does it vary a lot?",
     "input_type": "single_select",
-    "sort_order": 1,
+    "sort_order": 3,
     "answers": [
       {
         "id": "a1",
@@ -254,59 +149,12 @@
     ]
   },
   {
-    "id": "q_006",
-    "topic_id": "topic_sleep",
-    "prompt_mystical": "When mealtime shifts even by an hour, does your familiar register the change, or let it pass unnoticed?",
-    "prompt_plain": "If you feed your cat later or earlier than usual, how does it react?",
-    "input_type": "single_select",
-    "sort_order": 2,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "Paces and cries, clearly agitated",
-        "label_plain": "Paces, vocalizes, clearly agitated",
-        "sort_order": 0,
-        "tag_effects": {
-          "routine_disruption": 3,
-          "vocal_escalation": 1
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "Notices, and hovers near the feeding place",
-        "label_plain": "Notices, hovers near the food area",
-        "sort_order": 1,
-        "tag_effects": {
-          "routine_disruption": 2
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "Mild interest, then settles quickly",
-        "label_plain": "Mild interest, settles quickly",
-        "sort_order": 2,
-        "tag_effects": {
-          "routine_disruption": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "No visible reaction at all",
-        "label_plain": "No visible reaction",
-        "sort_order": 3,
-        "tag_effects": {
-          "routine_disruption": -2
-        }
-      }
-    ]
-  },
-  {
     "id": "q_007",
     "topic_id": "topic_sleep",
     "prompt_mystical": "In the deep hours of night, does your familiar run, cry, and knock things from shelves, or does the house stay still?",
     "prompt_plain": "Does your cat have bursts of loud activity at night (running, knocking things over, crying)?",
     "input_type": "single_select",
-    "sort_order": 3,
+    "sort_order": 4,
     "answers": [
       {
         "id": "a1",
@@ -350,59 +198,12 @@
     ]
   },
   {
-    "id": "q_008",
-    "topic_id": "topic_sleep",
-    "prompt_mystical": "When your own hours shift — later nights, earlier mornings — does your familiar's rest bend with yours, or come apart at the seams?",
-    "prompt_plain": "When your own schedule changes (new job hours, travel, etc.), how does your cat's routine hold up?",
-    "input_type": "single_select",
-    "sort_order": 4,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "Falls apart completely — sleep, eating, everything's off",
-        "label_plain": "Falls apart completely — sleep, eating, everything's off",
-        "sort_order": 0,
-        "tag_effects": {
-          "routine_disruption": 4,
-          "nocturnal_restlessness": 2
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "Takes a few days to find its footing again",
-        "label_plain": "Takes a few days to adjust",
-        "sort_order": 1,
-        "tag_effects": {
-          "routine_disruption": 2
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "Adjusts within a day",
-        "label_plain": "Adjusts within a day",
-        "sort_order": 2,
-        "tag_effects": {
-          "routine_disruption": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "Barely affected at all",
-        "label_plain": "Barely affected",
-        "sort_order": 3,
-        "tag_effects": {
-          "routine_disruption": -2
-        }
-      }
-    ]
-  },
-  {
     "id": "q_009",
     "topic_id": "topic_social",
     "prompt_mystical": "When the home fills with unfamiliar voices, does your familiar vanish entirely, or does something in them fray?",
     "prompt_plain": "When you have multiple guests over, how does your cat handle it?",
     "input_type": "single_select",
-    "sort_order": 1,
+    "sort_order": 5,
     "answers": [
       {
         "id": "a1",
@@ -450,7 +251,7 @@
     "prompt_mystical": "When you reach for your coat and keys, does your familiar's body change before you've said a word?",
     "prompt_plain": "Does your cat seem to notice and react before you leave the house (following, vocalizing, blocking the door)?",
     "input_type": "single_select",
-    "sort_order": 2,
+    "sort_order": 6,
     "answers": [
       {
         "id": "a1",
@@ -459,7 +260,7 @@
         "sort_order": 0,
         "tag_effects": {
           "attachment_anxiety": 4,
-          "human_bond_seeking": 2,
+          "human_bond_seeking": 3,
           "vocal_escalation": 1
         }
       },
@@ -470,7 +271,7 @@
         "sort_order": 1,
         "tag_effects": {
           "attachment_anxiety": 2,
-          "human_bond_seeking": 2
+          "human_bond_seeking": 3
         }
       },
       {
@@ -479,7 +280,8 @@
         "label_plain": "Glances over, doesn't move",
         "sort_order": 2,
         "tag_effects": {
-          "attachment_anxiety": 1
+          "attachment_anxiety": 1,
+          "human_bond_seeking": 1
         }
       },
       {
@@ -488,121 +290,8 @@
         "label_plain": "No reaction I've noticed",
         "sort_order": 3,
         "tag_effects": {
-          "attachment_anxiety": -2
-        }
-      }
-    ]
-  },
-  {
-    "id": "q_011",
-    "topic_id": "topic_social",
-    "prompt_mystical": "Between your familiar and the other cats of the house, is there ease, or a careful distance kept at all times?",
-    "prompt_plain": "How does your cat get along with other cats in the household?",
-    "input_type": "single_select",
-    "sort_order": 3,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "Frequent hissing, blocking, or avoidance",
-        "label_plain": "Frequent hissing, blocking, or avoidance",
-        "sort_order": 0,
-        "tag_effects": {
-          "multi_cat_tension": 4,
-          "social_overwhelm": 1
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "Tolerates, but keeps a clear distance",
-        "label_plain": "Tolerates but keeps a clear distance",
-        "sort_order": 1,
-        "tag_effects": {
-          "multi_cat_tension": 2
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "Generally relaxed, the occasional spat",
-        "label_plain": "Generally relaxed, occasional spats",
-        "sort_order": 2,
-        "tag_effects": {
-          "multi_cat_tension": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "Close and affiliative — grooms, sleeps together",
-        "label_plain": "Close, affiliative, grooms or sleeps together",
-        "sort_order": 3,
-        "tag_effects": {
-          "multi_cat_tension": -2
-        }
-      },
-      {
-        "id": "a5",
-        "label_mystical": "There is only one familiar in this house",
-        "label_plain": "Only cat in the household",
-        "sort_order": 4,
-        "tag_effects": {
-          "multi_cat_tension": -3,
-          "boundary_guarding": 1
-        }
-      }
-    ]
-  },
-  {
-    "id": "q_012",
-    "topic_id": "topic_social",
-    "prompt_mystical": "Room to room, does your familiar follow like a second shadow, or move on their own private errands?",
-    "prompt_plain": "Does your cat follow you from room to room throughout the day?",
-    "input_type": "scale",
-    "sort_order": 4,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "1 — Never, very independent",
-        "label_plain": "1 — Never, very independent",
-        "sort_order": 0,
-        "tag_effects": {
-          "human_bond_seeking": -2
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "2 — Rarely",
-        "label_plain": "2 — Rarely",
-        "sort_order": 1,
-        "tag_effects": {
+          "attachment_anxiety": -2,
           "human_bond_seeking": -1
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "3 — Sometimes",
-        "label_plain": "3 — Sometimes",
-        "sort_order": 2,
-        "tag_effects": {
-          "human_bond_seeking": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "4 — Often, through most rooms",
-        "label_plain": "4 — Often, most rooms",
-        "sort_order": 3,
-        "tag_effects": {
-          "human_bond_seeking": 2,
-          "attachment_anxiety": 1
-        }
-      },
-      {
-        "id": "a5",
-        "label_mystical": "5 — Constantly, distressed if a door closes between us",
-        "label_plain": "5 — Constantly, distressed if the door's closed between us",
-        "sort_order": 4,
-        "tag_effects": {
-          "human_bond_seeking": 3,
-          "attachment_anxiety": 3
         }
       }
     ]
@@ -613,7 +302,7 @@
     "prompt_mystical": "Is there one object your familiar returns to above all others — carried, kneaded, or simply always near?",
     "prompt_plain": "Does your cat have one specific object (blanket, toy, item of clothing) it consistently seeks out or carries around?",
     "input_type": "single_select",
-    "sort_order": 1,
+    "sort_order": 7,
     "answers": [
       {
         "id": "a1",
@@ -621,7 +310,8 @@
         "label_plain": "Yes, carries or seeks it out daily, visibly distressed if it disappears",
         "sort_order": 0,
         "tag_effects": {
-          "object_fixation": 6
+          "object_fixation": 6,
+          "resource_guarding": 1
         }
       },
       {
@@ -630,7 +320,8 @@
         "label_plain": "Yes, a clear favorite, mildly upset if moved",
         "sort_order": 1,
         "tag_effects": {
-          "object_fixation": 3
+          "object_fixation": 3,
+          "resource_guarding": 1
         }
       },
       {
@@ -659,7 +350,7 @@
     "prompt_mystical": "At the food bowl, does your familiar eat freely, or does an eye stay fixed on who else is near?",
     "prompt_plain": "Does your cat show tension, gulping, or watchfulness around food (especially with other pets present)?",
     "input_type": "single_select",
-    "sort_order": 2,
+    "sort_order": 8,
     "answers": [
       {
         "id": "a1",
@@ -667,7 +358,7 @@
         "label_plain": "Guards the bowl, growls or blocks other pets",
         "sort_order": 0,
         "tag_effects": {
-          "resource_guarding": 4,
+          "resource_guarding": 5,
           "multi_cat_tension": 2
         }
       },
@@ -677,7 +368,8 @@
         "label_plain": "Eats quickly, glancing up often",
         "sort_order": 1,
         "tag_effects": {
-          "resource_guarding": 2
+          "resource_guarding": 3,
+          "multi_cat_tension": 1
         }
       },
       {
@@ -701,114 +393,12 @@
     ]
   },
   {
-    "id": "q_015",
-    "topic_id": "topic_objects",
-    "prompt_mystical": "In the quiet hours, how much of your familiar's time goes to washing their own coat?",
-    "prompt_plain": "Roughly how much of your cat's day involves grooming itself, compared to a typical cat?",
-    "input_type": "scale",
-    "sort_order": 3,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "1 — Well below average",
-        "label_plain": "1 — Well below average",
-        "sort_order": 0,
-        "tag_effects": {
-          "grooming_excess": -2
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "2 — Slightly below average",
-        "label_plain": "2 — Slightly below average",
-        "sort_order": 1,
-        "tag_effects": {
-          "grooming_excess": -1
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "3 — About average",
-        "label_plain": "3 — About average",
-        "sort_order": 2,
-        "tag_effects": {
-          "grooming_excess": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "4 — Noticeably more, sometimes bald or thinning patches",
-        "label_plain": "4 — Noticeably more, sometimes bald or thinning patches",
-        "sort_order": 3,
-        "tag_effects": {
-          "grooming_excess": 3
-        }
-      },
-      {
-        "id": "a5",
-        "label_mystical": "5 — Near-constant, visible skin or fur damage",
-        "label_plain": "5 — Near-constant, visible skin or fur damage",
-        "sort_order": 4,
-        "tag_effects": {
-          "grooming_excess": 5
-        }
-      }
-    ]
-  },
-  {
-    "id": "q_016",
-    "topic_id": "topic_objects",
-    "prompt_mystical": "When the litter is shared or its ground is new, does your familiar approach without pause, or hesitate at its edge?",
-    "prompt_plain": "How does your cat react to a new litter box, a moved litter box, or sharing one with another cat?",
-    "input_type": "single_select",
-    "sort_order": 4,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "Avoids it entirely, has accidents elsewhere",
-        "label_plain": "Avoids it, has accidents elsewhere",
-        "sort_order": 0,
-        "tag_effects": {
-          "territorial_anxiety": 2,
-          "resource_guarding": 2
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "Uses it, but seems tense — quick in and out",
-        "label_plain": "Uses it but seems tense, quick in and out",
-        "sort_order": 1,
-        "tag_effects": {
-          "resource_guarding": 2
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "A brief hesitation, then normal use",
-        "label_plain": "Brief hesitation, then normal use",
-        "sort_order": 2,
-        "tag_effects": {
-          "resource_guarding": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "No difference in behavior",
-        "label_plain": "No difference in behavior",
-        "sort_order": 3,
-        "tag_effects": {
-          "resource_guarding": -1
-        }
-      }
-    ]
-  },
-  {
     "id": "q_017",
     "topic_id": "topic_vocal",
     "prompt_mystical": "Across a day, how often does your familiar's voice rise — the demand, the greeting, the complaint?",
     "prompt_plain": "Compared to a typical cat, how vocal is your cat overall?",
     "input_type": "scale",
-    "sort_order": 1,
+    "sort_order": 9,
     "answers": [
       {
         "id": "a1",
@@ -858,143 +448,61 @@
     ]
   },
   {
-    "id": "q_018",
+    "id": "q_022",
     "topic_id": "topic_vocal",
-    "prompt_mystical": "When no game is offered, does your familiar invent one from chaos — knocking, sprinting, destruction — or does stillness suffice?",
-    "prompt_plain": "When your cat isn't given active playtime, does it find its own (sometimes destructive) ways to stay busy?",
+    "prompt_mystical": "When the house is quiet and no rite of play is offered, where does your familiar's restless energy go?",
+    "prompt_plain": "When you're not actively playing with your cat, how does it mostly spend its own time?",
     "input_type": "single_select",
-    "sort_order": 2,
+    "sort_order": 10,
     "answers": [
       {
         "id": "a1",
-        "label_mystical": "Yes — knocks things down, shreds items, sprints for no reason",
-        "label_plain": "Yes, knocks things down, shreds items, sprints for no reason",
+        "label_mystical": "Into endless grooming — sometimes past the point of fur and skin",
+        "label_plain": "Grooms itself far more than usual, sometimes leaving thin or bald patches",
         "sort_order": 0,
+        "tag_effects": {
+          "grooming_excess": 4
+        }
+      },
+      {
+        "id": "a2",
+        "label_mystical": "Into mischief — toppled objects, shredded things, sudden sprints",
+        "label_plain": "Knocks things over, shreds items, or sprints around for no clear reason",
+        "sort_order": 1,
         "tag_effects": {
           "play_deficit": 5,
           "novelty_seeking": 2
         }
       },
       {
-        "id": "a2",
-        "label_mystical": "Some restless pacing or attention-seeking",
-        "label_plain": "Some restless pacing or attention-seeking",
-        "sort_order": 1,
-        "tag_effects": {
-          "play_deficit": 3
-        }
-      },
-      {
         "id": "a3",
-        "label_mystical": "Occasionally, mildly",
-        "label_plain": "Occasionally, mild",
+        "label_mystical": "Into every new thing — each box and toy is investigated at once and at length",
+        "label_plain": "Investigates anything new (boxes, toys) immediately and intensely",
         "sort_order": 2,
         "tag_effects": {
-          "play_deficit": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "No, content to rest",
-        "label_plain": "No, content to rest",
-        "sort_order": 3,
-        "tag_effects": {
-          "play_deficit": -2
-        }
-      }
-    ]
-  },
-  {
-    "id": "q_019",
-    "topic_id": "topic_vocal",
-    "prompt_mystical": "Set before something wholly new — a box, a toy, an unfamiliar scent — does your familiar rush to it, or let it wait?",
-    "prompt_plain": "How does your cat react to new toys, boxes, or novel objects placed in its space?",
-    "input_type": "single_select",
-    "sort_order": 3,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "Investigates immediately, plays for a long stretch",
-        "label_plain": "Investigates immediately, plays for a long stretch",
-        "sort_order": 0,
-        "tag_effects": {
-          "novelty_seeking": 4
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "Curious, moderate interest",
-        "label_plain": "Curious, moderate interest",
-        "sort_order": 1,
-        "tag_effects": {
-          "novelty_seeking": 2
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "Sniffs once, loses interest fast",
-        "label_plain": "Sniffs once, loses interest fast",
-        "sort_order": 2,
-        "tag_effects": {
-          "novelty_seeking": 1,
-          "play_deficit": 1
-        }
-      },
-      {
-        "id": "a4",
-        "label_mystical": "Ignores it entirely",
-        "label_plain": "Ignores it entirely",
-        "sort_order": 3,
-        "tag_effects": {
-          "novelty_seeking": -2,
+          "novelty_seeking": 3,
           "play_deficit": 2
         }
-      }
-    ]
-  },
-  {
-    "id": "q_020",
-    "topic_id": "topic_vocal",
-    "prompt_mystical": "In the hush after midnight, does your familiar's voice appear where daylight kept it silent?",
-    "prompt_plain": "Is your cat notably quieter during the day but vocal specifically at night (or vice versa)?",
-    "input_type": "single_select",
-    "sort_order": 4,
-    "answers": [
-      {
-        "id": "a1",
-        "label_mystical": "Quiet all day, but vocal and restless specifically at night",
-        "label_plain": "Quiet all day, vocal/restless specifically at night",
-        "sort_order": 0,
-        "tag_effects": {
-          "vocal_suppression": 2,
-          "nocturnal_restlessness": 3
-        }
-      },
-      {
-        "id": "a2",
-        "label_mystical": "Vocal all day, quiet at night",
-        "label_plain": "Vocal all day, quiet at night",
-        "sort_order": 1,
-        "tag_effects": {
-          "vocal_escalation": 2
-        }
-      },
-      {
-        "id": "a3",
-        "label_mystical": "Consistent, either way",
-        "label_plain": "Consistent either way",
-        "sort_order": 2,
-        "tag_effects": {
-          "vocal_escalation": 1
-        }
       },
       {
         "id": "a4",
-        "label_mystical": "Consistently very quiet, day and night alike",
-        "label_plain": "Consistently very quiet, day and night",
+        "label_mystical": "Into deep, contented rest",
+        "label_plain": "Rests or naps contentedly until something interesting happens",
         "sort_order": 3,
         "tag_effects": {
-          "vocal_suppression": 3
+          "play_deficit": -2,
+          "grooming_excess": -1,
+          "novelty_seeking": -1
+        }
+      },
+      {
+        "id": "a5",
+        "label_mystical": "Into your shadow — following, watching, and pressing close wherever you go",
+        "label_plain": "Shadows you from room to room, staying close and asking for attention",
+        "sort_order": 4,
+        "tag_effects": {
+          "human_bond_seeking": 3,
+          "play_deficit": 1
         }
       }
     ]
